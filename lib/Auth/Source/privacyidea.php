@@ -2,6 +2,8 @@
 
 /**
  * privacyidea authentication module.
+ * 2015-11-05 Cornelius Kölbel <cornelius.koelbel@netknights.it>
+ *            Revert the authentication logic to avoid false logins
  * 2015-09-23 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Adapt for better usability with
  *	      Univention Corporate Server
@@ -121,13 +123,13 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		}
 	    
 		if ( ! $response = curl_exec($curl_instance)){
-			SimpleSAML_Error_BadRequest("Bad Request to PI server: " . curl_error($curl_instance));
+			throw new SimpleSAML_Error_BadRequest("Bad Request to PI server: " . curl_error($curl_instance));
 		};
 		$header_size = curl_getinfo($curl_instance,CURLINFO_HEADER_SIZE);
 		$body = json_decode(substr( $response, $header_size ));
  
 		$status=True;
-		$value=True;
+		$value=False;
     
 		try {
 			$result = $body->result;
@@ -135,15 +137,15 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 			$status = $result->status;
 			$value = $result->value->auth;
 		} catch (Exception $e) {
-			throw new SimpleSAML_Error_BadRequest("We were not able to read the response from the privacyidea server:" . $e);
+			throw new SimpleSAML_Error_BadRequest("We were not able to read the response from the privacyidea server.");
 		}
 		
-		if ( False===$status ) {
+		if ( $status!==True ) {
 			/* We got a valid JSON respnse, but the STATUS is false */
 			throw new SimpleSAML_Error_BadRequest("Valid JSON response, but some internal error occured in privacyidea server.");
 		} else {
 			/* The STATUS is true, so we need to check the value */
-			if ( False===$value ) {
+			if ( $value!==True ) {
 				throw new SimpleSAML_Error_Error("WRONGUSERPASS");
 			}
 		}
