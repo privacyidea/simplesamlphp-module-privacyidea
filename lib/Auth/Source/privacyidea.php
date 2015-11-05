@@ -110,12 +110,12 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
 
 		if ($this->sslverifyhost) {
-			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 1);
+			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
 		} else {
 			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 0);
 		}
 		if ($this->sslverifypeer) {
-			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 1);
+			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 2);
 		} else {
 			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 0);
 		}
