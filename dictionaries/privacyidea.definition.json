@@ -1,0 +1,23 @@
+{
+	"header": {
+		"en": "Authenticate against privacyIDEA"
+	},
+	"login_title": {
+		"en": "Please enter your Username and your Password"
+	},
+	"login_text": {
+		"en": "Please note, that you need to enter both, your secret Password <em>and</em> the OTP value in the Password field."
+	},
+	"password_otp": {
+		"en": "Password + OTP"
+	},
+	"otp": {
+		"en": "OTP"
+	},
+	"login_title_challenge": {
+		"en": "Please enter your One Time Password"
+	},
+	"login_text_challenge": {
+		"en": "You entered the correct PIN or password. But now you also need to enter a valid One Time Password as the second factor."
+	}
+}

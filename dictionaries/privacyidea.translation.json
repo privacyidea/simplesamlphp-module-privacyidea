@@ -1,0 +1,23 @@
+{
+	"header": {
+		"de": "Anmelden gegen privacyIDEA"
+	},
+	"login_title": {
+		"de": "Bitte geben Sie Ihren Nutzernamen und Passwort ein"
+	},
+	"login_text": {
+		"de": "Bitte beachten Sie, dass Sie im Passwort-Feld Ihr geheimes Passwort <em>und</em> den OTP Wert eingeben müssen."
+	},
+	"password_otp": {
+		"de": "Password + OTP"
+	},
+	"otp": {
+		"de": "Einmalpasswort"
+	},
+	"login_title_challenge": {
+		"de": "Bitte geben Sie Ihr Einmalpasswort ein"
+	},
+	"login_text_challenge": {
+		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch ein gültiges Einmalpasswort als zweiten Faktor eingeben."
+	}
+}

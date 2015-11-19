@@ -2,6 +2,9 @@
 
 /**
  * privacyidea authentication module.
+ * 2015-11-19 Cornelius Kölbel <cornelius.koelbel@netknights.it>
+ *            Add authenticate method to call our own template.
+ *            Add handleLogin method to be able to handle challenge response.
  * 2015-11-05 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Revert the authentication logic to avoid false logins
  * 2015-09-23 Cornelius Kölbel <cornelius.koelbel@netknights.it>
@@ -90,8 +93,12 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 	 * }
 	 */
 	protected function login($username, $password) {
+	}
+
+	protected function login_chal_resp($username, $password, $transaction_id) {
 		assert('is_string($username)');
 		assert('is_string($password)');
+		assert('is_string($transaction_id)');
 
 		$curl_instance = curl_init();
         
@@ -100,9 +107,14 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
 		$url = $this->privacyideaserver . '/validate/samlcheck';
 		$params = "user=".$escUsername."&pass=".$escPassword."&realm=".$this->realm;
+
+		if ($transaction_id) {
+			$params = $params . "&transaction_id=".$transaction_id;
+		}
 		
 		//throw new Exception("url: ". $url);
 		SimpleSAML_Logger::debug("privacyidea URL:" . $url);
+		SimpleSAML_Logger::debug("Params: " . $params);
 	
 		curl_setopt($curl_instance, CURLOPT_URL, $url);
 		curl_setopt($curl_instance, CURLOPT_HEADER, TRUE);
@@ -112,12 +124,12 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
 
 		if ($this->sslverifyhost) {
-			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 1);
+			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
 		} else {
 			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 0);
 		}
 		if ($this->sslverifypeer) {
-			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 1);
+			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 2);
 		} else {
 			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 0);
 		}
@@ -146,6 +158,18 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		} else {
 			/* The STATUS is true, so we need to check the value */
 			if ( $value!==True ) {
+				SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
+				$detail = $body->detail;
+				$message = $detail->message;
+				if (property_exists($detail, "transaction_id")) {
+					$transaction_id = $detail->transaction_id;
+				}
+				if ( $transaction_id ) {
+					/* If we have a transaction_id, we do challenge response */
+					SimpleSAML_Logger::debug("Throwing CHALLENGERESPONSE");
+					throw new SimpleSAML_Error_Error(["CHALLENGERESPONSE", $transaction_id, $message]);
+				}
+				SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
 				throw new SimpleSAML_Error_Error("WRONGUSERPASS");
 			}
 		}
@@ -189,5 +213,88 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		SimpleSAML_Logger::debug("privacyidea Array returned: " . print_r($attributes, True));
 		return $attributes;
 	}
+
+
+        /**
+         * Initialize login.
+         *
+         * This function saves the information about the login, and redirects to a
+         * login page.
+         *
+         * @param array &$state  Information about the current authentication.
+         */
+        public function authenticate(&$state) {
+                assert('is_array($state)');
+
+                /* We are going to need the authId in order to retrieve this authentication source later. */
+                $state[self::AUTHID] = $this->authId;
+		SimpleSAML_Logger::debug("privacyIDEA authId: ". $this->authId);
+
+                $id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
+
+                $url = SimpleSAML_Module::getModuleURL('privacyidea/loginform.php');
+                SimpleSAML_Utilities::redirectTrustedURL($url, array('AuthState' => $id));
+        }
+
+	/**
+         * Handle login request.
+         *
+         * This function is used by the login form (core/www/loginuserpass.php) when the user
+         * enters a username and password. On success, it will not return. On wrong
+         * username/password failure, and other errors, it will throw an exception.
+         *
+         * @param string $authStateId  The identifier of the authentication state.
+         * @param string $username  The username the user wrote.
+         * @param string $password  The password the user wrote.
+         */
+        public static function handleLogin($authStateId, $username, $password, $transaction_id) {
+                assert('is_string($authStateId)');
+                assert('is_string($username)');
+                assert('is_string($password)');
+		assert('is_string($transaction_id)');
+
+		SimpleSAML_Logger::debug("calling privacyIDEA handleLogin with authState: ". $authStateId . " for user ". $username);
+
+                // sanitize the input
+                $sid = SimpleSAML_Utilities::parseStateID($authStateId);
+                if (!is_null($sid['url'])) {
+                        SimpleSAML_Utilities::checkURLAllowed($sid['url']);
+                }
+
+                /* Here we retrieve the state array we saved in the authenticate-function. */
+                $state = SimpleSAML_Auth_State::loadState($authStateId, self::STAGEID);
+
+                /* Retrieve the authentication source we are executing. */
+                assert('array_key_exists(self::AUTHID, $state)');
+                $source = SimpleSAML_Auth_Source::getById($state[self::AUTHID]);
+                if ($source === NULL) {
+                        throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
+                }
+
+                /*
+                 * $source now contains the authentication source on which authenticate()
+                 * was called. We should call login() on the same authentication source.
+                 */
+
+                /* Attempt to log in. */
+                try {
+                        $attributes = $source->login_chal_resp($username, $password, $transaction_id);
+                } catch (Exception $e) {
+                        SimpleSAML_Logger::stats('Unsuccessful login attempt from '.$_SERVER['REMOTE_ADDR'].'.');
+                        throw $e;
+                }
+
+                SimpleSAML_Logger::stats('User \''.$username.'\' has been successfully authenticated.');
+
+                /* Save the attributes we received from the login-function in the $state-array. */
+                assert('is_array($attributes)');
+                $state['Attributes'] = $attributes;
+
+                /* Return control to simpleSAMLphp after successful authentication. */
+                SimpleSAML_Auth_Source::completeAuth($state);
+        }
+
+
+
 
 }
