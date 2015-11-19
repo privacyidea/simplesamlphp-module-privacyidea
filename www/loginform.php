@@ -57,6 +57,7 @@ if (array_key_exists('transaction_id', $_REQUEST)) {
 $errorCode = NULL;
 $errorParams = NULL;
 $message = '';
+$attributes = NULL;
 
 if (!empty($_REQUEST['username']) || !empty($password)) {
 	/* Either username or password set - attempt to log in. */
@@ -93,8 +94,10 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
 			$state['forcedUsername'] = $username;
 			$transaction_id = $errorParams[1];
 			$message = $errorParams[2];
+			$attributes = $errorParams[3];
 			SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
-			SimpleSAML_Logger::debug("Challenge Response  message: ". $errorParams[2]);
+			SimpleSAML_Logger::debug("Challenge Response message: ". $errorParams[2]);
+			SimpleSAML_Logger::debug("CHallenge Response attributes: ". print_r($attributes, TRUE));
 		}
 	}
 }
@@ -105,6 +108,8 @@ $t->data['stateparams'] = array('AuthState' => $authStateId);
 if (array_key_exists('forcedUsername', $state)) {
 	$t->data['username'] = $state['forcedUsername'];
 	$t->data['transaction_id'] = $transaction_id;
+	$t->data['chal_resp_message'] = $message;
+	$t->data['chal_resp_attributes'] = $attributes;
 	$t->data['forceUsername'] = TRUE;
 	$t->data['rememberUsernameEnabled'] = FALSE;
 	$t->data['rememberUsernameChecked'] = FALSE;

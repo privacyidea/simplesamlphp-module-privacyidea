@@ -28,8 +28,17 @@ if ($this->data['errorcode'] !== NULL) {
 ?>
 
 <?php
+
+$chal_resp_attr = NULL;
+$chal_resp_message = '';
+$hideResponseInput = FALSE;
+
 if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
 	$password_text = $this->t('{privacyidea:privacyidea:otp}');
+	SimpleSAML_Logger::debug("Attributes: ". print_r($this->data["chal_resp_attributes"], TRUE));
+	$chal_resp_attributes = $this->data['chal_resp_attributes'];
+	$hideResponseInput = $chal_resp_attributes->hideResponseInput;
+	$chal_resp_message = $this->data['chal_resp_message'];
 	echo '<h2 style="break: both">' .$this->t('{privacyidea:privacyidea:login_title_challenge}') . '</h2>';
 	echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text_challenge}') . '</p>';
 } else {
@@ -87,8 +96,18 @@ if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) 
 			</td>
 		</tr>
 		<tr>
-			<td style="padding: .3em;"><?php echo $password_text; ?></td>
-			<td><input id="password" type="password" tabindex="2" name="password" /></td>
+<!-------------  
+In case of challenge response with the U2F, we hide the password.
+---------------->
+<?php
+	if ($hideResponseInput) {
+		echo '<td style="padding: .3em;" colspan="2">' . $chal_resp_message . '</td>';
+	} else {
+		echo '<td style="padding: .3em;">' . $password_text . '</td>';
+		echo '<td><input id="password" type="password" tabindex="2" name="password" /></td>';
+	}
+?>
+
 <?php
 // Move submit button to next row if remember checkbox enabled
 if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
