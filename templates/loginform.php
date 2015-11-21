@@ -1,4 +1,28 @@
 <?php
+// First of all we determine how we were called
+$chal_resp_attributes = NULL;
+$chal_resp_message = '';
+$hideResponseInput = FALSE;
+$u2fSignRequest = NULL;
+$password_text = $this->t('{privacyidea:privacyidea:password_otp}');
+
+if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
+        $password_text = $this->t('{privacyidea:privacyidea:otp}');
+        SimpleSAML_Logger::debug("Attributes: ". print_r($this->data["chal_resp_attributes"], TRUE));
+        $chal_resp_attributes = $this->data['chal_resp_attributes'];
+        $hideResponseInput = $chal_resp_attributes->hideResponseInput;
+        $chal_resp_message = $this->data['chal_resp_message'];
+        // check if this is U2F
+        $u2fSignRequest = $chal_resp_attributes->u2fSignRequest;
+        SimpleSAML_Logger::debug("u2fSignRequest: ". print_r($u2fSignRequest, TRUE));
+}
+
+if ($u2fSignRequest) {
+	// Add javascript for U2F support before including the header.
+	$this->data['head'] = '<script type="text/javascript" src="'.SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js').'"></script>\n';
+	$this->data['head'] .= '<script type="text/javascript" src="'.SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js').'"></script>';
+}
+
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
 if (strlen($this->data['username']) > 0) {
         $this->data['autofocus'] = 'password';
@@ -29,25 +53,15 @@ if ($this->data['errorcode'] !== NULL) {
 
 <?php
 
-$chal_resp_attr = NULL;
-$chal_resp_message = '';
-$hideResponseInput = FALSE;
-
 if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
-	$password_text = $this->t('{privacyidea:privacyidea:otp}');
-	SimpleSAML_Logger::debug("Attributes: ". print_r($this->data["chal_resp_attributes"], TRUE));
-	$chal_resp_attributes = $this->data['chal_resp_attributes'];
-	$hideResponseInput = $chal_resp_attributes->hideResponseInput;
-	$chal_resp_message = $this->data['chal_resp_message'];
 	echo '<h2 style="break: both">' .$this->t('{privacyidea:privacyidea:login_title_challenge}') . '</h2>';
 	echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text_challenge}') . '</p>';
 } else {
-	$password_text = $this->t('{privacyidea:privacyidea:password_otp}');
 	echo '<h2 style="break: both">' . $this->t('{privacyidea:privacyidea:login_title}') . '</h2>';
 	echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text}') . '</p>';
 } // end of !CHALLENGERESPONSE
 ?>
-	<form action="?" method="post" name="f">
+	<form action="?" method="post" id="piLoginForm"  name="piLoginForm">
 	<table>
 		<tr>
 			<td rowspan="3"><img src="/<?php echo $this->data['baseurlpath']; ?>resources/icons/experience/gtk-dialog-authentication.48x48.png" id="loginicon" alt="" /></td>
@@ -58,6 +72,8 @@ if ($this->data['forceUsername']) {
 	echo '<strong style="font-size: medium">' . htmlspecialchars($this->data['username']) . '</strong>';
 	echo '<input type="hidden" id="username" name="username" value="' . htmlspecialchars($this->data['username']) . '" />';
 	echo '<input type="hidden" id="transaction_id" name="transaction_id" value="'. $this->data['transaction_id']. '" />';
+	echo '<input type="hidden" id="clientData" name="clientData" value="" />';
+	echo '<input type="hidden" id="signatureData" name="signatureData" value="" />';
 } else {
 	echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username']) . '" />';
 }
@@ -90,7 +106,9 @@ if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) 
 } else {
 	$text = $this->t('{login:login_button}');
 	echo str_repeat("\t", 4);
-	echo "<input type=\"submit\" tabindex=\"4\" id=\"regularsubmit\" value=\"{$text}\" />";
+	if ($u2fSignRequest === NULL) {
+		echo "<input type=\"submit\" tabindex=\"4\" id=\"regularsubmit\" value=\"{$text}\" />";
+	}
 }
 ?>
 			</td>
@@ -112,11 +130,12 @@ In case of challenge response with the U2F, we hide the password.
 // Move submit button to next row if remember checkbox enabled
 if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
 	$rowspan = (array_key_exists('organizations', $this->data) ? 2 : 1);
-?>
-			<td style="padding: .4em;" rowspan="<?php echo $rowspan; ?>">
-				<input type="submit" tabindex="5" id="regularsubmit" value="<?php echo $this->t('{login:login_button}'); ?>" />
-			</td>
-<?php
+	SimpleSAML_Logger::debug("u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
+	if ($u2fSignRequest === NULL) {
+		echo '<td style="padding: .4em;" rowspan="' . $rowspan . '">';
+		echo '<input type="submit" tabindex="5" id="regularsubmit" value="'. $this->t('{login:login_button}'). '" />';
+		echo '</td>';
+	}
 }
 ?>
 		</tr>
@@ -154,6 +173,7 @@ foreach ($this->data['organizations'] as $orgId => $orgDesc) {
 }
 ?>
 	<tr><td></td><td>
+	<!-- TODO: when is this called. On a mobile device. Why so complicated? -->
 	<input type="submit" tabindex="5" id="mobilesubmit" value="<?php echo $this->t('{login:login_button}'); ?>" />
 	</td></tr>
 	</table>
@@ -176,4 +196,15 @@ if(!empty($this->data['links'])) {
 }
 
 $this->includeAtTemplateBase('includes/footer.php');
+
+if ($u2fSignRequest) {
+	// We call the U2F signing function
+	SimpleSAML_Logger::debug("Calling Javascript with u2fSignRequest: ". print_r($u2fSignRequest, TRUE));
+	echo '<script type="text/javascript">';
+	echo 'sign_u2f_request(';
+	echo '"'.$u2fSignRequest->challenge.'",';
+	echo '"'.$u2fSignRequest->keyHandle.'",';
+	echo '"'.$u2fSignRequest->appId.'");';
+	echo '</script>';
+}
 ?>

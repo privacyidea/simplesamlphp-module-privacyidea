@@ -2,6 +2,8 @@
 
 /**
  * privacyidea authentication module.
+ * 2015-11-21 Cornelius Kölbel <cornelius.koelbel@netknights.it>
+ * 	      Add support for U2F authentication requests
  * 2015-11-19 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Add authenticate method to call our own template.
  *            Add handleLogin method to be able to handle challenge response.
@@ -95,7 +97,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 	protected function login($username, $password) {
 	}
 
-	protected function login_chal_resp($username, $password, $transaction_id) {
+	protected function login_chal_resp($username, $password, $transaction_id, $signaturedata, $clientdata) {
 		assert('is_string($username)');
 		assert('is_string($password)');
 		assert('is_string($transaction_id)');
@@ -109,7 +111,16 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		$params = "user=".$escUsername."&pass=".$escPassword."&realm=".$this->realm;
 
 		if ($transaction_id) {
+			SimpleSAML_Logger::debug("Authenticating with transaction_id: ". $transaction_id);
 			$params = $params . "&transaction_id=".$transaction_id;
+		}
+		if ($signaturedata) {
+			SimpleSAML_Logger::debug("Authenticating with signaturedata: ". $signaturedata);
+			$params = $params . "&signaturedata=".$signaturedata;
+		}
+		if ($clientdata) {
+			SimpleSAML_Logger::debug("Authenticating with clientdata: ". $clientdata);
+			$params = $params . "&clientdata=".$clientdata;
 		}
 		
 		//throw new Exception("url: ". $url);
@@ -143,6 +154,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		$status=True;
 		$value=False;
 		$attributes=NULL;
+		$transaction_id=NULL;
     
 		try {
 			$result = $body->result;
@@ -264,7 +276,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
          * @param string $username  The username the user wrote.
          * @param string $password  The password the user wrote.
          */
-        public static function handleLogin($authStateId, $username, $password, $transaction_id) {
+        public static function handleLogin($authStateId, $username, $password, $transaction_id, $signaturedata, $clientdata) {
                 assert('is_string($authStateId)');
                 assert('is_string($username)');
                 assert('is_string($password)');
@@ -295,7 +307,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
                 /* Attempt to log in. */
                 try {
-                        $attributes = $source->login_chal_resp($username, $password, $transaction_id);
+                        $attributes = $source->login_chal_resp($username, $password, $transaction_id, $signaturedata, $clientdata);
                 } catch (Exception $e) {
                         SimpleSAML_Logger::stats('Unsuccessful login attempt from '.$_SERVER['REMOTE_ADDR'].'.');
                         throw $e;

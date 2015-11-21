@@ -54,6 +54,17 @@ if (array_key_exists('transaction_id', $_REQUEST)) {
 	$transaction_id = '';
 }
 
+$signatureData = '';
+if (array_key_exists('signatureData', $_REQUEST)){
+	$signatureData = $_REQUEST['signatureData'];
+	SimpleSAML_Logger::debug("signaturedata: " . $signatureData);
+}
+$clientData = '';
+if (array_key_exists('clientData', $_REQUEST)) {
+	$clientData = $_REQUEST['clientData'];
+	SimpleSAML_Logger::debug("clientdata: " . $clientData);
+}
+
 $errorCode = NULL;
 $errorParams = NULL;
 $message = '';
@@ -83,7 +94,12 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
 
 	try {
 		// Here we catch the challenge response
-		sspmod_privacyidea_Auth_Source_privacyidea::handleLogin($authStateId, $username, $password, $transaction_id);
+		SimpleSAML_Logger::debug("Calling handleLogin for " . $username);
+		SimpleSAML_Logger::debug("with transaction_id " . $transaction_id);
+		SimpleSAML_Logger::debug("with signatureData " . $signatureData);
+		SimpleSAML_Logger::debug("with clientData " . $clientData);
+		sspmod_privacyidea_Auth_Source_privacyidea::handleLogin($authStateId, $username, $password,
+								$transaction_id, $signatureData, $clientData);
 	} catch (SimpleSAML_Error_Error $e) {
 		/* Login failed. Extract error code and parameters, to display the error. */
 		$errorCode = $e->getErrorCode();
