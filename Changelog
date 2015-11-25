@@ -1,0 +1,9 @@
+Version 1.2 2015-11-25
+
+  * Add Login UI that supports Challange Response and U2F tokens.
+
+
+Version 1.1 2015-11-05
+
+  * Fix problem with wrong URL path
+
