@@ -51,8 +51,11 @@ if ($this->data['errorcode'] !== NULL) {
 }  // end of errorcode
 ?>
 
-<?php
 
+<div class="container">
+<div class="login">
+<div class="loginlogo"></div>
+<?php
 if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
 	echo '<h2 style="break: both">' .$this->t('{privacyidea:privacyidea:login_title_challenge}') . '</h2>';
 	echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text_challenge}') . '</p>';
@@ -61,11 +64,9 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
 	echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text}') . '</p>';
 } // end of !CHALLENGERESPONSE
 ?>
-	<form action="?" method="post" id="piLoginForm"  name="piLoginForm">
+	<form action="?" method="post" id="piLoginForm"  name="piLoginForm" class="loginform">
 	<table>
 		<tr>
-			<td rowspan="3"><img src="/<?php echo $this->data['baseurlpath']; ?>resources/icons/experience/gtk-dialog-authentication.48x48.png" id="loginicon" alt="" /></td>
-			<td style="padding: .3em;"><?php echo $this->t('{login:username}'); ?></td>
 			<td>
 <?php
 if ($this->data['forceUsername']) {
@@ -75,7 +76,10 @@ if ($this->data['forceUsername']) {
 	echo '<input type="hidden" id="clientData" name="clientData" value="" />';
 	echo '<input type="hidden" id="signatureData" name="signatureData" value="" />';
 } else {
-	echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username']) . '" />';
+	echo '<label for="username">';
+	echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username']) . '"';
+	echo ' placeholder="'. $this->t('{login:username}') .'" />';
+	echo '</label>';
 }
 ?>
 			</td>
@@ -121,8 +125,9 @@ In case of challenge response with the U2F, we hide the password.
 	if ($hideResponseInput) {
 		echo '<td style="padding: .3em;" colspan="2">' . $chal_resp_message . '</td>';
 	} else {
-		echo '<td style="padding: .3em;">' . $password_text . '</td>';
-		echo '<td><input id="password" type="password" tabindex="2" name="password" /></td>';
+		echo '<td><label for="password">';
+		echo '<input id="password" type="password" tabindex="2" name="password" placeholder="'. $password_text . '" />';
+		echo '</label></td>';
 	}
 ?>
 
@@ -174,9 +179,11 @@ foreach ($this->data['organizations'] as $orgId => $orgDesc) {
 ?>
 	<tr><td></td><td>
 	<!-- TODO: when is this called. On a mobile device. Why so complicated? -->
-	<input type="submit" tabindex="5" id="mobilesubmit" value="<?php echo $this->t('{login:login_button}'); ?>" />
+	<!-- <input type="submit" tabindex="5" id="mobilesubmit" value="<?php echo $this->t('{login:login_button}'); ?>" />-->
 	</td></tr>
 	</table>
+</div>  <!-- End of login -->
+</div>  <!-- End of container -->
 <?php
 foreach ($this->data['stateparams'] as $name => $value) {
 	echo('<input type="hidden" name="' . htmlspecialchars($name) . '" value="' . htmlspecialchars($value) . '" />');
