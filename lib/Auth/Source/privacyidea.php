@@ -108,19 +108,19 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		$escUsername = urlencode($username);
 
 		$url = $this->privacyideaserver . '/validate/samlcheck';
-		$params = "user=".$escUsername."&pass=".$escPassword."&realm=".$this->realm;
+		$params = "user=".$escUsername."&pass=".$escPassword."&realm=".urlencode($this->realm);
 
 		if ($transaction_id) {
 			SimpleSAML_Logger::debug("Authenticating with transaction_id: ". $transaction_id);
-			$params = $params . "&transaction_id=".$transaction_id;
+			$params = $params . "&transaction_id=".urlencode($transaction_id);
 		}
 		if ($signaturedata) {
 			SimpleSAML_Logger::debug("Authenticating with signaturedata: ". $signaturedata);
-			$params = $params . "&signaturedata=".$signaturedata;
+			$params = $params . "&signaturedata=".urlencode($signaturedata);
 		}
 		if ($clientdata) {
 			SimpleSAML_Logger::debug("Authenticating with clientdata: ". $clientdata);
-			$params = $params . "&clientdata=".$clientdata;
+			$params = $params . "&clientdata=".urlencode($clientdata);
 		}
 		
 		//throw new Exception("url: ". $url);
@@ -151,10 +151,10 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		$header_size = curl_getinfo($curl_instance,CURLINFO_HEADER_SIZE);
 		$body = json_decode(substr( $response, $header_size ));
  
-		$status=True;
-		$value=False;
-		$attributes=NULL;
-		$transaction_id=NULL;
+		$status = True;
+		$value = False;
+		$attributes = NULL;
+		$transaction_id = NULL;
     
 		try {
 			$result = $body->result;
@@ -165,12 +165,12 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 			throw new SimpleSAML_Error_BadRequest("We were not able to read the response from the privacyidea server.");
 		}
 		
-		if ( $status!==True ) {
+		if ($status !== True) {
 			/* We got a valid JSON respnse, but the STATUS is false */
 			throw new SimpleSAML_Error_BadRequest("Valid JSON response, but some internal error occured in privacyidea server.");
 		} else {
 			/* The STATUS is true, so we need to check the value */
-			if ( $value!==True ) {
+			if ($value !== True) {
 				SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
 				$detail = $body->detail;
 				$message = $detail->message;
