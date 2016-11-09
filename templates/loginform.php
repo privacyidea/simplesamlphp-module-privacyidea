@@ -223,9 +223,9 @@ if ($u2fSignRequest) {
 	SimpleSAML_Logger::debug("Calling Javascript with u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
 	echo '<script type="text/javascript">';
 	echo 'sign_u2f_request(';
-	echo '"' . $u2fSignRequest->challenge . '",';
-	echo '"' . $u2fSignRequest->keyHandle . '",';
-	echo '"' . $u2fSignRequest->appId . '");';
+	echo json_encode($u2fSignRequest->challenge) . ',';
+	echo json_encode($u2fSignRequest->keyHandle) . ',';
+	echo json_encode($u2fSignRequest->appId) . ');';
 	echo '</script>';
 }
 ?>
