@@ -23,8 +23,8 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
 
 if ($u2fSignRequest) {
 	// Add javascript for U2F support before including the header.
-	$this->data['head'] = '<script type="text/javascript" src="' . SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js') . '"></script>\n';
-	$this->data['head'] .= '<script type="text/javascript" src="' . SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js') . '"></script>';
+	$this->data['head'] = '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>\n';
+	$this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js')) . '"></script>';
 }
 
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
@@ -43,7 +43,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 	?>
 
 	<div style="border-left: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; background: #f5f5f5">
-		<img src="/<?php echo $this->data['baseurlpath']; ?>resources/icons/experience/gtk-dialog-error.48x48.png"
+		<img src="/<?php echo htmlspecialchars($this->data['baseurlpath']); ?>resources/icons/experience/gtk-dialog-error.48x48.png"
 			 class="float-l erroricon" style="margin: 15px "/>
 		<h2><?php echo $this->t('{login:error_header}'); ?></h2>
 		<p>
@@ -62,14 +62,14 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 		<div class="loginlogo"></div>
 		<?php
 		if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
-			echo '<h2>' . $this->t('{privacyidea:privacyidea:login_title_challenge}') . '</h2>';
-			echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text_challenge}') . '</p>';
+			echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title_challenge}')) . '</h2>';
+			echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text_challenge}')) . '</p>';
 		} elseif ($this->data['otp_extra'] == 1) {
-			echo '<h2>' . $this->t('{privacyidea:privacyidea:otp}') . '</h2>';
-			echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:otp_extra_text}') . '</p>';
+			echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '</h2>';
+			echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp_extra_text}')) . '</p>';
 		} else {
-			echo '<h2>' . $this->t('{privacyidea:privacyidea:login_title}') . '</h2>';
-			echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text}') . '</p>';
+			echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title}')) . '</h2>';
+			echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text}')) . '</p>';
 		} // end of !CHALLENGERESPONSE
 		?>
 		<form action="?" method="post" id="piLoginForm" name="piLoginForm" class="loginform">
@@ -82,13 +82,13 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 							if ($this->data['forceUsername']) {
 								echo '<strong style="font-size: medium">' . htmlspecialchars($this->data['username']) . '</strong>';
 								echo '<input type="hidden" id="username" name="username" value="' . htmlspecialchars($this->data['username']) . '" />';
-								echo '<input type="hidden" id="transaction_id" name="transaction_id" value="' . $this->data['transaction_id'] . '" />';
+								echo '<input type="hidden" id="transaction_id" name="transaction_id" value="' . htmlspecialchars($this->data['transaction_id']) . '" />';
 								echo '<input type="hidden" id="clientData" name="clientData" value="" />';
 								echo '<input type="hidden" id="signatureData" name="signatureData" value="" />';
 							} else {
 								echo '<label for="username">';
 								echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username']) . '"';
-								echo ' placeholder="' . $this->t('{login:username}') . '" />';
+								echo ' placeholder="' . htmlspecialchars($this->t('{login:username}')) . '" />';
 								echo '</label>';
 							}
 							?>
@@ -108,14 +108,14 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 								if ($this->data['rememberUsernameEnabled']) {
 									echo str_repeat("\t", 4);
 									echo '<input type="checkbox" id="remember_username" tabindex="4" name="remember_username" value="Yes" ';
-									echo($this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ');
-									echo $this->t('{login:remember_username}');
+									echo $this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ';
+									echo htmlspecialchars($this->t('{login:remember_username}'));
 								}
 								if ($this->data['rememberMeEnabled']) {
 									echo str_repeat("\t", 4);
 									echo '<input type="checkbox" id="remember_me" tabindex="4" name="remember_me" value="Yes" ';
 									echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
-									echo $this->t('{login:remember_me}');
+									echo htmlspecialchars($this->t('{login:remember_me}'));
 								}
 							}
 							?>
@@ -128,11 +128,11 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 							<?php
 							if ($hideResponseInput) {
 								// challenge response without OTP
-								echo '<td style="padding: .3em;" colspan="2">' . $chal_resp_message . '</td>';
+								echo '<td style="padding: .3em;" colspan="2">' . htmlspecialchars($chal_resp_message) . '</td>';
 							} else {
 								// normal login
 								echo '<td><label for="password">';
-								echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . $password_text . '" />';
+								echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . htmlspecialchars($password_text) . '" />';
 								echo '</label></td>';
 							}
 							?>
@@ -144,7 +144,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 								if ($this->data["otp_extra"] == 1) {
 									echo '<label for="OTP">';
 									echo '<input type="text" id="OTP" tabindex="2" name="OTP" ';
-									echo ' placeholder="' . $this->t('{privacyidea:privacyidea:otp}') . '" />';
+									echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
 									echo '</label>';
 								}
 							?>
@@ -154,7 +154,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 				if (array_key_exists('organizations', $this->data)) {
 					?>
 					<div class="identifier-shown">
-						<?php echo $this->t('{login:organization}'); ?>
+						<?php echo htmlspecialchars($this->t('{login:organization}')); ?>
 						<select name="organization" tabindex="3">
 								<?php
 								if (array_key_exists('selectedOrg', $this->data)) {
@@ -187,7 +187,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 						<?php
 							$text = $this->t('{login:login_button}');
 							if ($u2fSignRequest === NULL) {
-								echo "<input class='rc-button rc-button-submit' type=\"submit\" tabindex=\"4\" id=\"regularsubmit\" value=\"{$text}\" />";
+								printf('<input class="rc-button rc-button-submit" type="submit" tabindex="4" id="regularsubmit" value="%s" />', htmlspecialchars($text));
 							}
 							?>
 					</div>

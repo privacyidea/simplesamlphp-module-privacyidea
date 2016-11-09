@@ -113,7 +113,7 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
 			$attributes = $errorParams[3];
 			SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
 			SimpleSAML_Logger::debug("Challenge Response message: ". $errorParams[2]);
-			SimpleSAML_Logger::debug("CHallenge Response attributes: ". print_r($attributes, TRUE));
+			SimpleSAML_Logger::debug("Challenge Response attributes: ". print_r($attributes, TRUE));
 		}
 	}
 }
