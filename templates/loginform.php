@@ -122,9 +122,9 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 
 						</div>
 						<div class="identifier-shown">
-							<!-------------
+							<!--
 							In case of challenge response with the U2F, we hide the password.
-							---------------->
+							-->
 							<?php
 							if ($hideResponseInput) {
 								// challenge response without OTP
@@ -204,8 +204,6 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 
 	</div>  <!-- End of login -->
 </div>  <!-- End of container -->
-
-
 
 
 <?php
