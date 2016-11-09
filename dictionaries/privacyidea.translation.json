@@ -1,23 +1,47 @@
 {
 	"header": {
-		"de": "Anmelden gegen privacyIDEA"
+		"en": "Authenticate against privacyIDEA",
+		"de": "Anmelden gegen privacyIDEA",
+		"nl": "Authenticeer tegen privacyIDEA"
 	},
 	"login_title": {
-		"de": "Bitte geben Sie Ihren Nutzernamen und Passwort ein"
+		"en": "Please enter your Username and your Password",
+		"de": "Bitte geben Sie Ihren Nutzernamen und Passwort ein",
+		"nl": "Vul uw inlognaam en wachtwoord in."
 	},
 	"login_text": {
-		"de": "Bitte beachten Sie, dass Sie im Passwort-Feld Ihr geheimes Passwort <em>und</em> den OTP Wert eingeben müssen."
+		"en": "Please note, that you need to enter both, your secret Password <em>and</em> the OTP value in the Password field.",
+		"de": "Bitte beachten Sie, dass Sie im Passwort-Feld Ihr geheimes Passwort <em>und</em> den OTP Wert eingeben müssen.",
+		"nl": "Let op vul je wachtwoord <em>en</em> je eenmalige wachtwoord in het wachtwoordveld."
 	},
 	"password_otp": {
-		"de": "Password + OTP"
+		"en": "Password + OTP",
+		"de": "Password + OTP",
+		"nl": "Wachtwoord + OTP"
+	},
+	"password": {
+		"en": "Password",
+		"de": "Password",
+		"nl": "Wachtwoord"
 	},
 	"otp": {
-		"de": "Einmalpasswort"
+		"en": "OTP",
+		"de": "Einmalpasswort",
+		"nl": "OTP"
 	},
 	"login_title_challenge": {
-		"de": "Bitte geben Sie Ihr Einmalpasswort ein"
+		"en": "Please enter your One Time Password",
+		"de": "Bitte geben Sie Ihr Einmalpasswort ein",
+		"nl": "Vul je eenmalige wachtwoord in."
+	},
+	"otp_extra_text": {
+		"en": "Please enter your Password and One Time Password",
+		"de": "Bitte geben Sie Ihr Password und Ihr Einmalpasswort ein",
+		"nl": "Vul je wachtwoord en eenmalige wachtwoord in."
 	},
 	"login_text_challenge": {
-		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch ein gültiges Einmalpasswort als zweiten Faktor eingeben."
+		"en": "You entered the correct PIN or password. But now you also need to enter a valid One Time Password as the second factor.",
+		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch ein gültiges Einmalpasswort als zweiten Faktor eingeben.",
+		"nl": "Je hebt het correcte wachtwoord ingevuld maar nu dien je nog het eenmalige wachtwoord in te vullen."
 	}
 }

@@ -46,6 +46,13 @@ Then you need to add the authentication source 'privacyidea:privacyidea' to
          * Optional.
          */
         'realm' => '',
+
+        /*
+         * OTP Extra
+         * 0: (default) one password field for PIN and OTP
+         * 1: Password field for password and extra field for OTP
+         */
+        'otpextra' => 1,
         
         /*
          * This is the translation from privacyIDEA attribute names to 

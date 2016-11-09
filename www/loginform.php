@@ -121,6 +121,21 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
 $globalConfig = SimpleSAML_Configuration::getInstance();
 $t = new SimpleSAML_XHTML_Template($globalConfig, 'privacyidea:loginform.php');
 $t->data['stateparams'] = array('AuthState' => $authStateId);
+
+// Determine the login mode
+$authConfig = SimpleSAML_Configuration::getOptionalConfig("authsources.php");
+$privacyideaConfig = Array();
+$keys = $authConfig->getOptions();
+foreach ($keys as $key) {
+    $config = $authConfig->getValue($key);
+    if ($config[0] == "privacyidea:privacyidea") {
+        $privacyideaConfig = $config;
+    }
+}
+$pi = new sspmod_privacyidea_Auth_Source_privacyidea(Array(), $privacyideaConfig);
+$t->data['otp_extra'] = $pi->getOtpExtra();
+
+
 if (array_key_exists('forcedUsername', $state)) {
 	$t->data['username'] = $state['forcedUsername'];
 	$t->data['transaction_id'] = $transaction_id;

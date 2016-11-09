@@ -11,11 +11,17 @@
 	"password_otp": {
 		"en": "Password + OTP"
 	},
+	"password": {
+		"en": "Password"
+	},
 	"otp": {
 		"en": "OTP"
 	},
 	"login_title_challenge": {
 		"en": "Please enter your One Time Password"
+	},
+	"otp_extra_text": {
+		"en": "Please enter your Password and One Time Password"
 	},
 	"login_text_challenge": {
 		"en": "You entered the correct PIN or password. But now you also need to enter a valid One Time Password as the second factor."
