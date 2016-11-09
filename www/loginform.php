@@ -144,17 +144,15 @@ if (array_key_exists('forcedUsername', $state)) {
 	$t->data['forceUsername'] = TRUE;
 	$t->data['rememberUsernameEnabled'] = FALSE;
 	$t->data['rememberUsernameChecked'] = FALSE;
-	$t->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
-	$t->data['rememberMeChecked'] = $source->isRememberMeChecked();
 } else {
 	$t->data['username'] = $username;
 	$t->data['forceUsername'] = FALSE;
 	$t->data['rememberUsernameEnabled'] = $source->getRememberUsernameEnabled();
 	$t->data['rememberUsernameChecked'] = $source->getRememberUsernameChecked();
-	$t->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
-	$t->data['rememberMeChecked'] = $source->isRememberMeChecked();
 	if (isset($_COOKIE[$source->getAuthId() . '-username'])) $t->data['rememberUsernameChecked'] = TRUE;
 }
+$t->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
+$t->data['rememberMeChecked'] = $source->isRememberMeChecked();
 $t->data['links'] = $source->getLoginLinks();
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
