@@ -62,21 +62,23 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
         <div class="loginlogo"></div>
         <?php
         if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
-            echo '<h2 style="break: both">' . $this->t('{privacyidea:privacyidea:login_title_challenge}') . '</h2>';
+            echo '<h2>' . $this->t('{privacyidea:privacyidea:login_title_challenge}') . '</h2>';
             echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text_challenge}') . '</p>';
         } elseif ($this->data['otp_extra'] == 1) {
-            echo '<h2 style="break: both">' . $this->t('{privacyidea:privacyidea:otp}') . '</h2>';
+            echo '<h2>' . $this->t('{privacyidea:privacyidea:otp}') . '</h2>';
             echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:otp_extra_text}') . '</p>';
         } else {
-            echo '<h2 style="break: both">' . $this->t('{privacyidea:privacyidea:login_title}') . '</h2>';
+            echo '<h2>' . $this->t('{privacyidea:privacyidea:login_title}') . '</h2>';
             echo '<p class="logintext">' . $this->t('{privacyidea:privacyidea:login_text}') . '</p>';
         } // end of !CHALLENGERESPONSE
         ?>
         <form action="?" method="post" id="piLoginForm" name="piLoginForm" class="loginform">
-            <table>
-                <tr>
-                    <td>
-                        <?php
+            <div class="form-panel first valid" id="gaia_firstform">
+                <div class="slide-out ">
+                    <div class="input-wrapper focused">
+                        <!-- per line we have an identifier-shown -->
+                        <div class="identifier-shown">
+                            <?php
                             if ($this->data['forceUsername']) {
                                 echo '<strong style="font-size: medium">' . htmlspecialchars($this->data['username']) . '</strong>';
                                 echo '<input type="hidden" id="username" name="username" value="' . htmlspecialchars($this->data['username']) . '" />';
@@ -89,91 +91,71 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 echo ' placeholder="' . $this->t('{login:username}') . '" />';
                                 echo '</label>';
                             }
-                        ?>
-                    </td>
-                    <?php
-                    if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
-                        $rowspan = 1;
-                    } elseif (array_key_exists('organizations', $this->data)) {
-                        $rowspan = 3;
-                    } else {
-                        $rowspan = 2;
-                    }
-                    ?>
-                    <td style="padding: .4em;" rowspan="<?php echo $rowspan; ?>">
-                        <?php
-                        if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
-                            if ($this->data['rememberUsernameEnabled']) {
-                                echo str_repeat("\t", 4);
-                                echo '<input type="checkbox" id="remember_username" tabindex="4" name="remember_username" value="Yes" ';
-                                echo($this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ');
-                                echo $this->t('{login:remember_username}');
-                            }
-                            if ($this->data['rememberMeEnabled']) {
-                                echo str_repeat("\t", 4);
-                                echo '<input type="checkbox" id="remember_me" tabindex="4" name="remember_me" value="Yes" ';
-                                echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
-                                echo $this->t('{login:remember_me}');
-                            }
-                        } else {
-                            $text = $this->t('{login:login_button}');
-                            echo str_repeat("\t", 4);
-                            if ($u2fSignRequest === NULL) {
-                                echo "<input type=\"submit\" tabindex=\"4\" id=\"regularsubmit\" value=\"{$text}\" />";
-                            }
-                        }
-                        ?>
-                    </td>
-                </tr>
-                <tr>
-                    <!-------------
-                    In case of challenge response with the U2F, we hide the password.
-                    ---------------->
-                    <?php
-                    if ($hideResponseInput) {
-                        // challenge response without OTP
-                        echo '<td style="padding: .3em;" colspan="2">' . $chal_resp_message . '</td>';
-                    } else {
-                        // normal login
-                        echo '<td><label for="password">';
-                        echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . $password_text . '" />';
-                        echo '</label></td>';
-                    }
-                    ?>
+                            ?>
 
-                    <?php
-                    // Move submit button to next row if remember checkbox enabled
-                    if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
-                        $rowspan = (array_key_exists('organizations', $this->data) ? 2 : 1);
-                        SimpleSAML_Logger::debug("u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
-                        if ($u2fSignRequest === NULL) {
-                            echo '<td style="padding: .4em;" rowspan="' . $rowspan . '">';
-                            echo '<input type="submit" tabindex="5" id="regularsubmit" value="' . $this->t('{login:login_button}') . '" />';
-                            echo '</td>';
-                        }
-                    }
-                    ?>
-                </tr>
-                <tr>
-                    <td>
-                    <?php
-                        // otp_extra == 1
-                        if ($this->data["otp_extra"] == 1) {
-                            echo '<label for="OTP">';
-                            echo '<input type="text" id="OTP" tabindex="2" name="OTP" ';
-                            echo ' placeholder="' . $this->t('{privacyidea:privacyidea:otp}') . '" />';
-                            echo '</label>';
-                    }
-                    ?>
-                    </td>
-                </tr>
+                            <?php
+                            if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
+                                $rowspan = 1;
+                            } elseif (array_key_exists('organizations', $this->data)) {
+                                $rowspan = 3;
+                            } else {
+                                $rowspan = 2;
+                            }
+                            ?>
+
+                            <?php
+                            if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
+                                if ($this->data['rememberUsernameEnabled']) {
+                                    echo str_repeat("\t", 4);
+                                    echo '<input type="checkbox" id="remember_username" tabindex="4" name="remember_username" value="Yes" ';
+                                    echo($this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ');
+                                    echo $this->t('{login:remember_username}');
+                                }
+                                if ($this->data['rememberMeEnabled']) {
+                                    echo str_repeat("\t", 4);
+                                    echo '<input type="checkbox" id="remember_me" tabindex="4" name="remember_me" value="Yes" ';
+                                    echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
+                                    echo $this->t('{login:remember_me}');
+                                }
+                            }
+                            ?>
+
+                        </div>
+                        <div class="identifier-shown">
+                            <!-------------
+                            In case of challenge response with the U2F, we hide the password.
+                            ---------------->
+                            <?php
+                            if ($hideResponseInput) {
+                                // challenge response without OTP
+                                echo '<td style="padding: .3em;" colspan="2">' . $chal_resp_message . '</td>';
+                            } else {
+                                // normal login
+                                echo '<td><label for="password">';
+                                echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . $password_text . '" />';
+                                echo '</label></td>';
+                            }
+                            ?>
+
+                        </div>
+                        <div class="identifier-shown">
+                            <?php
+                                // otp_extra == 1
+                                if ($this->data["otp_extra"] == 1) {
+                                    echo '<label for="OTP">';
+                                    echo '<input type="text" id="OTP" tabindex="2" name="OTP" ';
+                                    echo ' placeholder="' . $this->t('{privacyidea:privacyidea:otp}') . '" />';
+                                    echo '</label>';
+                                }
+                            ?>
+                        </div>
 
                 <?php
                 if (array_key_exists('organizations', $this->data)) {
                     ?>
-                    <tr>
-                        <td style="padding: .3em;"><?php echo $this->t('{login:organization}'); ?></td>
-                        <td><select name="organization" tabindex="3">
+                    <div class="identifier-shown">
+                        <?php echo $this->t('{login:organization}'); ?>
+                        <select name="organization" tabindex="3">
                                 <?php
                                 if (array_key_exists('selectedOrg', $this->data)) {
                                     $selectedOrg = $this->data['selectedOrg'];
@@ -195,19 +177,23 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                     echo '<option ' . $selected . 'value="' . htmlspecialchars($orgId) . '">' . htmlspecialchars($orgDesc) . '</option>';
                                 }
                                 ?>
-                            </select></td>
-                    </tr>
+                        </select>
+                    </div>
                     <?php
-                }
-                ?>
-                <tr>
-                    <td></td>
-                    <td>
-                        <!-- TODO: when is this called. On a mobile device. Why so complicated? -->
-                        <!-- <input type="submit" tabindex="5" id="mobilesubmit" value="<?php echo $this->t('{login:login_button}'); ?>" />-->
-                    </td>
-                </tr>
-            </table>
+                        }
+                    ?>
+
+                    <div class="identifier-captach">
+                        <?php
+                            $text = $this->t('{login:login_button}');
+                            if ($u2fSignRequest === NULL) {
+                                echo "<input class='rc-button rc-button-submit' type=\"submit\" tabindex=\"4\" id=\"regularsubmit\" value=\"{$text}\" />";
+                            }
+                            ?>
+                    </div>
+                    </div> <!-- focused -->
+                </div> <!-- slide-out-->
+            </div> <!-- form-panel -->
 
             <?php
             foreach ($this->data['stateparams'] as $name => $value) {

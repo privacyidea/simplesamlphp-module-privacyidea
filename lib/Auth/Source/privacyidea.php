@@ -147,6 +147,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         curl_setopt($curl_instance, CURLOPT_URL, $url);
         curl_setopt($curl_instance, CURLOPT_HEADER, TRUE);
         curl_setopt($curl_instance, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl_instance, CURLOPT_USERAGENT,'simpleSAMLphp/1.4');
         // Add POST params
         curl_setopt($curl_instance, CURLOPT_POST, 3);
         curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
