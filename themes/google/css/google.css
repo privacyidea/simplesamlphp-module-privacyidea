@@ -198,3 +198,10 @@ input[type=email], .signin-card input[type=password], .signin-card input[type=te
     height: 44px;
     font-size: 16px;
 }
+
+.btnaddonright {
+    widht: 50px;
+}
+.btnaddonright img{
+    width: 50px;
+}
