@@ -183,7 +183,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                         }
                     ?>
 
-                    <div class="identifier-captach">
+                    <div class="identifier-captcha">
                         <?php
                             $text = $this->t('{login:login_button}');
                             if ($u2fSignRequest === NULL) {
