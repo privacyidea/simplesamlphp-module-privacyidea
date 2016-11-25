@@ -281,7 +281,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         $id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
 
         $url = SimpleSAML_Module::getModuleURL('privacyidea/loginform.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('AuthState' => $id, 'loginmode' => $this->loginmode));
+        SimpleSAML_Utilities::redirectTrustedURL($url, array('AuthState' => $id));
     }
 
     /**
