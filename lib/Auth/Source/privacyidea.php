@@ -2,6 +2,8 @@
 
 /**
  * privacyidea authentication module.
+ * 2016-12-30 Andreas Böhler <dev@rnb-consulting.at>
+ *            Add support for passing additional attributes to SAML
  * 2015-11-21 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Add support for U2F authentication requests
  * 2015-11-19 Cornelius Kölbel <cornelius.koelbel@netknights.it>
@@ -234,6 +236,8 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         /* If we get this far, we have a valid login. */
         $attributes = array();
         $arr = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
+        // Add all additional attributes defined in the array map to the search array
+        $arr = array_merge(array_diff(array_keys($this->attributemap), $arr), $arr);
         reset($arr);
         foreach ($arr as $key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . $key);
