@@ -237,7 +237,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         $attributes = array();
         $arr = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
         // Add all additional attributes defined in the array map to the search array
-        $arr = array_merge(array_diff(array_keys($this->attributemap), $arr), $arr);
+        $arr = array_merge(array_keys($this->attributemap), $arr);
         reset($arr);
         foreach ($arr as $key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . $key);
