@@ -70,7 +70,7 @@ Then you need to add the authentication source 'privacyidea:privacyidea' to
 
 User attributes
 ---------------
-At the moment privacyIDEA will know and return the following attributes, 
+At the moment privacyIDEA will know and return the following attributes by default, 
 that can be mapped to SAML attributes:
 
 username:	The login name
@@ -80,3 +80,6 @@ mobile:		The mobile phone number of the user as it is retrieved from the user so
 phone:		The phone number of the user as it is retrieved from the user source
 email:		The email address of the user as it is retrieved from the user source                                
                                 
+The list can be extended by including custom attributes in the attributemap. If the 
+privacyIDEA server returns an attribute 'groups', you can map that to 'groups' if
+you include it in the attributemap. Otherwise, it is discarded.
