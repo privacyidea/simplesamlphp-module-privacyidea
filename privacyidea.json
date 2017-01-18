@@ -8,7 +8,7 @@
 	"access"		: {
 		"zip"		: {
 			"type"		: "zip",
-			"version"	: "1.4",
+			"version"	: "1.4.1",
 			"url"		: "privacyidea.zip"
 		}
 	}

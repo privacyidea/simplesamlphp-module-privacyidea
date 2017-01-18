@@ -142,9 +142,10 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
             $params = $params . "&clientdata=" . urlencode($clientdata);
         }
 
-        //throw new Exception("url: ". $url);
+        // Add some debug so we know what we are doing.
         SimpleSAML_Logger::debug("privacyidea URL:" . $url);
-        SimpleSAML_Logger::debug("Params: " . $params);
+        SimpleSAML_Logger::debug("user          : " . $escUsername);
+        SimpleSAML_Logger::debug("transaction_id: " . $transaction_id);
 
         curl_setopt($curl_instance, CURLOPT_URL, $url);
         curl_setopt($curl_instance, CURLOPT_HEADER, TRUE);
