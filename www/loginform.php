@@ -14,7 +14,7 @@
 if (!array_key_exists('AuthState', $_REQUEST)) {
 	throw new SimpleSAML_Error_BadRequest('Missing AuthState parameter.');
 }
-$authStateId = $_REQUEST['AuthState'];
+$authStateId = (string)$_REQUEST['AuthState'];
 
 // sanitize the input
 $sid = SimpleSAML_Utilities::parseStateID($authStateId);
@@ -33,7 +33,7 @@ if ($source === NULL) {
 
 
 if (array_key_exists('username', $_REQUEST)) {
-	$username = $_REQUEST['username'];
+	$username = (string)$_REQUEST['username'];
 } elseif ($source->getRememberUsernameEnabled() && array_key_exists($source->getAuthId() . '-username', $_COOKIE)) {
 	$username = $_COOKIE[$source->getAuthId() . '-username'];
 } elseif (isset($state['core:username'])) {
@@ -43,25 +43,25 @@ if (array_key_exists('username', $_REQUEST)) {
 }
 
 if (array_key_exists('password', $_REQUEST)) {
-	$password = $_REQUEST['password'];
+	$password = (string)$_REQUEST['password'];
 } else {
 	$password = '';
 }
 
 if (array_key_exists('transaction_id', $_REQUEST)) {
-	$transaction_id = $_REQUEST['transaction_id'];
+	$transaction_id = (string)$_REQUEST['transaction_id'];
 } else {
 	$transaction_id = '';
 }
 
 $signatureData = '';
 if (array_key_exists('signatureData', $_REQUEST)){
-	$signatureData = $_REQUEST['signatureData'];
+	$signatureData = (string)$_REQUEST['signatureData'];
 	SimpleSAML_Logger::debug("signaturedata: " . $signatureData);
 }
 $clientData = '';
 if (array_key_exists('clientData', $_REQUEST)) {
-	$clientData = $_REQUEST['clientData'];
+	$clientData = (string)$_REQUEST['clientData'];
 	SimpleSAML_Logger::debug("clientdata: " . $clientData);
 }
 
@@ -81,16 +81,16 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
 		$sessionHandler = SimpleSAML_SessionHandler::getSessionHandler();
 		$params = $sessionHandler->getCookieParams();
 		$params['expire'] = time();
-		$params['expire'] += (isset($_REQUEST['remember_username']) && $_REQUEST['remember_username'] == 'Yes' ? 31536000 : -300);
+		$params['expire'] += (isset($_REQUEST['remember_username']) && $_REQUEST['remember_username'] === 'Yes' ? 31536000 : -300);
 		SimpleSAML_Utilities::setCookie($source->getAuthId() . '-username', $username, $params, FALSE);
 	}
 
-    if ($source->isRememberMeEnabled()) {
-        if (array_key_exists('remember_me', $_REQUEST) && $_REQUEST['remember_me'] === 'Yes') {
-            $state['RememberMe'] = TRUE;
-            $authStateId = SimpleSAML_Auth_State::saveState($state, sspmod_core_Auth_UserPassBase::STAGEID);
-        }
-    }
+	if ($source->isRememberMeEnabled()) {
+		if (array_key_exists('remember_me', $_REQUEST) && $_REQUEST['remember_me'] === 'Yes') {
+			$state['RememberMe'] = TRUE;
+			$authStateId = SimpleSAML_Auth_State::saveState($state, sspmod_core_Auth_UserPassBase::STAGEID);
+		}
+	}
 
 	try {
 		// Here we catch the challenge response
@@ -113,7 +113,7 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
 			$attributes = $errorParams[3];
 			SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
 			SimpleSAML_Logger::debug("Challenge Response message: ". $errorParams[2]);
-			SimpleSAML_Logger::debug("CHallenge Response attributes: ". print_r($attributes, TRUE));
+			SimpleSAML_Logger::debug("Challenge Response attributes: ". print_r($attributes, TRUE));
 		}
 	}
 }
@@ -144,17 +144,15 @@ if (array_key_exists('forcedUsername', $state)) {
 	$t->data['forceUsername'] = TRUE;
 	$t->data['rememberUsernameEnabled'] = FALSE;
 	$t->data['rememberUsernameChecked'] = FALSE;
-	$t->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
-	$t->data['rememberMeChecked'] = $source->isRememberMeChecked();
 } else {
 	$t->data['username'] = $username;
 	$t->data['forceUsername'] = FALSE;
 	$t->data['rememberUsernameEnabled'] = $source->getRememberUsernameEnabled();
 	$t->data['rememberUsernameChecked'] = $source->getRememberUsernameChecked();
-	$t->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
-	$t->data['rememberMeChecked'] = $source->isRememberMeChecked();
 	if (isset($_COOKIE[$source->getAuthId() . '-username'])) $t->data['rememberUsernameChecked'] = TRUE;
 }
+$t->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
+$t->data['rememberMeChecked'] = $source->isRememberMeChecked();
 $t->data['links'] = $source->getLoginLinks();
 $t->data['errorcode'] = $errorCode;
 $t->data['errorparams'] = $errorParams;
