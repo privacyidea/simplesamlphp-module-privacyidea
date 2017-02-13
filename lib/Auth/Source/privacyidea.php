@@ -2,6 +2,8 @@
 
 /**
  * privacyidea authentication module.
+ * 2017-02-13 Cornelius Kölbel <cornelius.koelbel@netknights.it>
+ *            Forward the client IP to privacyIDEA
  * 2016-12-30 Andreas Böhler <dev@rnb-consulting.at>
  *            Add support for passing additional attributes to SAML
  * 2015-11-21 Cornelius Kölbel <cornelius.koelbel@netknights.it>
@@ -140,6 +142,16 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         if ($clientdata) {
             SimpleSAML_Logger::debug("Authenticating with clientdata: " . $clientdata);
             $params = $params . "&clientdata=" . urlencode($clientdata);
+        }
+        // determine the client IP
+        $headers = $_SERVER;
+        foreach(["X-Forwarded-For", "HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"] as $clientkey) {
+            if (array_key_exists($clientkey, $headers)) {
+                $client_ip = urlencode($headers[$clientkey]);
+                SimpleSAML_Logger::debug("Using IP from " . $clientkey . ": " . $client_ip);
+                $params = $params . "&client=" . $client_ip;
+                break;
+            }
         }
 
         // Add some debug so we know what we are doing.
