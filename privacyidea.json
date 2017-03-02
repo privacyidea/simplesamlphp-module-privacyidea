@@ -11,5 +11,19 @@
 			"version"	: "1.5",
 			"url"		: "privacyidea.zip"
 		}
-	}
+	},
+	"license":  "AGPL-3",
+	"authors": [
+		{"name": "Cornelius Kölbel",
+                 "role": "Developer",
+		 "email": "cornelius.koelbel@netknights.it"},
+		{"name": "Florian Best",
+                 "role": "Developer"},
+		{"name": "andyboeh",
+                 "role": "Developer"},
+		{"name": "Christian Kreutzer",
+		 "role": "Developer"},
+		{"name": "Robin-73",
+		 "role": "Developer"}
+	]
 }
