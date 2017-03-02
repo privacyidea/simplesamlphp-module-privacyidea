@@ -1,8 +1,18 @@
+Versio 1.5 2017-03-02
+
+  * Add Google like Login Theme
+  * Forward the Client IP to the privacyIDEA server
+  * Allow for enhanced attribute mapping
+  * Improve robustness for encoding
+  * Remove password from Debug log
+  * Remove attributes from POST data screen
+  * Remove loginmode from redirectTrustedUrl
+
 Version 1.4.1 2017-01-18
 
   * Modify the debug logging. Remove the password.
   
-Version 1.4 2016-11-xx
+Version 1.4 2016-11-01
 
   * Allow different order of login information
     * 1. username / password+otp
