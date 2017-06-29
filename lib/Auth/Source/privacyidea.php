@@ -316,7 +316,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      * @param $clientdata
      * @throws Exception
      */
-    public static function handleLogin($authStateId, $username, $password, $transaction_id, $signaturedata, $clientdata)
+    public static function handleLogin($authStateId, $username, $password, $transaction_id = NULL, $signaturedata = NULL, $clientdata = NULL)
     {
         assert('is_string($authStateId)');
         assert('is_string($username)');
