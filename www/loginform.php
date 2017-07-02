@@ -68,7 +68,7 @@ if (array_key_exists('clientData', $_REQUEST)) {
 $errorCode = NULL;
 $errorParams = NULL;
 $message = '';
-$attributes = NULL;
+$multi_challenge = NULL;
 
 if (!empty($_REQUEST['username']) || !empty($password)) {
     /* Either username or password set - attempt to log in. */
@@ -109,11 +109,16 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
             /* In case of challenge response we do not change the username */
             $state['forcedUsername'] = $username;
             $transaction_id = $errorParams[1];
-            $message = $errorParams[2];
-            $attributes = $errorParams[3];
+            // TODO: translation
+            $message = 'Please confirm with one of these tokens:';
+            $multi_challenge = $errorParams[2];
             SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
-            SimpleSAML_Logger::debug("Challenge Response message: ". $errorParams[2]);
-            SimpleSAML_Logger::debug("Challenge Response attributes: ". print_r($attributes, TRUE));
+            SimpleSAML_Logger::debug("Challenge Response multi_challenge: ". print_r($multi_challenge, TRUE));
+            for ($i = 0; $i < count($multi_challenge); $i++) {
+                SimpleSAML_Logger::debug("Token serial " . $i . ": " . print_r($multi_challenge[$i]->serial, TRUE));
+                $message = $message . ' ' . $multi_challenge[$i]->serial;
+            }
+            SimpleSAML_Logger::debug("Challenge Response message: ". $message);
         }
     }
 }
@@ -123,6 +128,7 @@ $t = new SimpleSAML_XHTML_Template($globalConfig, 'privacyidea:loginform.php');
 $t->data['stateparams'] = array('AuthState' => $authStateId);
 
 // Determine the login mode
+
 $authConfig = SimpleSAML_Configuration::getOptionalConfig("authsources.php");
 $privacyideaConfig = Array();
 $keys = $authConfig->getOptions();
@@ -140,7 +146,7 @@ if (array_key_exists('forcedUsername', $state)) {
     $t->data['username'] = $state['forcedUsername'];
     $t->data['transaction_id'] = $transaction_id;
     $t->data['chal_resp_message'] = $message;
-    $t->data['chal_resp_attributes'] = $attributes;
+    $t->data['multi_challenge'] = $multi_challenge;
     $t->data['forceUsername'] = TRUE;
     $t->data['rememberUsernameEnabled'] = FALSE;
     $t->data['rememberUsernameChecked'] = FALSE;
