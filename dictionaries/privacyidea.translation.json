@@ -10,9 +10,9 @@
 		"nl": "Vul uw inlognaam en wachtwoord in."
 	},
 	"login_text": {
-		"en": "Please note, that you need to enter both, your secret Password <em>and</em> the OTP value in the Password field.",
-		"de": "Bitte beachten Sie, dass Sie im Passwort-Feld Ihr geheimes Passwort <em>und</em> den OTP Wert eingeben müssen.",
-		"nl": "Let op vul je wachtwoord <em>en</em> je eenmalige wachtwoord in het wachtwoordveld."
+		"en": "Please note, that you need to enter both, your secret Password and the OTP value in the Password field.",
+		"de": "Bitte beachten Sie, dass Sie im Passwort-Feld Ihr geheimes Passwort und den OTP Wert eingeben müssen.",
+		"nl": "Let op vul je wachtwoord en je eenmalige wachtwoord in het wachtwoordveld."
 	},
 	"password_otp": {
 		"en": "Password + OTP",
