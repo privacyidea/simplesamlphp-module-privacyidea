@@ -2,6 +2,9 @@
 
 /**
  * privacyidea authentication module.
+ * 2017-08-17 Cornelius Kölbel <cornelius.koelbel@netknights.it>
+ *            Change POST params to array and
+ *            only add REALM if necessary
  * 2017-02-13 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Forward the client IP to privacyIDEA
  * 2016-12-30 Andreas Böhler <dev@rnb-consulting.at>
@@ -129,19 +132,25 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         $escUsername = urlencode($username);
 
         $url = $this->privacyideaserver . '/validate/samlcheck';
-        $params = "user=" . $escUsername . "&pass=" . $escPassword . "&realm=" . urlencode($this->realm);
+        $params = array(
+            "user" => $escUsername,
+            "pass" => $escPassword,
+            );
+        if (strlen($this->realm) > 0) {
+            $params["realm"] = urlencode($this->realm);
+        }
 
         if ($transaction_id) {
             SimpleSAML_Logger::debug("Authenticating with transaction_id: " . $transaction_id);
-            $params = $params . "&transaction_id=" . urlencode($transaction_id);
+            $params["transaction_id"] = urlencode($transaction_id);
         }
         if ($signaturedata) {
             SimpleSAML_Logger::debug("Authenticating with signaturedata: " . $signaturedata);
-            $params = $params . "&signaturedata=" . urlencode($signaturedata);
+            $params["signaturedata"] = urlencode($signaturedata);
         }
         if ($clientdata) {
             SimpleSAML_Logger::debug("Authenticating with clientdata: " . $clientdata);
-            $params = $params . "&clientdata=" . urlencode($clientdata);
+            $params["clientdata"] = urlencode($clientdata);
         }
         // determine the client IP
         $headers = $_SERVER;
@@ -149,7 +158,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
             if (array_key_exists($clientkey, $headers)) {
                 $client_ip = urlencode($headers[$clientkey]);
                 SimpleSAML_Logger::debug("Using IP from " . $clientkey . ": " . $client_ip);
-                $params = $params . "&client=" . $client_ip;
+                $params["client"] = $client_ip;
                 break;
             }
         }
