@@ -128,35 +128,34 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         $curl_instance = curl_init();
 
-        $escPassword = urlencode($password);
-        $escUsername = urlencode($username);
-
+        // The parameters in an array do get get urlencoded!
+        // But we encode the log data to avoid log execution
         $url = $this->privacyideaserver . '/validate/samlcheck';
         $params = array(
-            "user" => $escUsername,
-            "pass" => $escPassword,
+            "user" => $username,
+            "pass" => $password,
             );
         if (strlen($this->realm) > 0) {
-            $params["realm"] = urlencode($this->realm);
+            $params["realm"] = $this->realm;
         }
 
         if ($transaction_id) {
             SimpleSAML_Logger::debug("Authenticating with transaction_id: " . $transaction_id);
-            $params["transaction_id"] = urlencode($transaction_id);
+            $params["transaction_id"] = $transaction_id;
         }
         if ($signaturedata) {
-            SimpleSAML_Logger::debug("Authenticating with signaturedata: " . $signaturedata);
-            $params["signaturedata"] = urlencode($signaturedata);
+            SimpleSAML_Logger::debug("Authenticating with signaturedata: " . urlencode($signaturedata));
+            $params["signaturedata"] = $signaturedata;
         }
         if ($clientdata) {
-            SimpleSAML_Logger::debug("Authenticating with clientdata: " . $clientdata);
-            $params["clientdata"] = urlencode($clientdata);
+            SimpleSAML_Logger::debug("Authenticating with clientdata: " . urlencode($clientdata));
+            $params["clientdata"] = $clientdata;
         }
         // determine the client IP
         $headers = $_SERVER;
         foreach(["X-Forwarded-For", "HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"] as $clientkey) {
             if (array_key_exists($clientkey, $headers)) {
-                $client_ip = urlencode($headers[$clientkey]);
+                $client_ip = $headers[$clientkey];
                 SimpleSAML_Logger::debug("Using IP from " . $clientkey . ": " . $client_ip);
                 $params["client"] = $client_ip;
                 break;
@@ -165,7 +164,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         // Add some debug so we know what we are doing.
         SimpleSAML_Logger::debug("privacyidea URL:" . $url);
-        SimpleSAML_Logger::debug("user          : " . $escUsername);
+        SimpleSAML_Logger::debug("user          : " . urlencode($username));
         SimpleSAML_Logger::debug("transaction_id: " . $transaction_id);
 
         curl_setopt($curl_instance, CURLOPT_URL, $url);

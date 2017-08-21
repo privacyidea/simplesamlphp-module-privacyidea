@@ -1,4 +1,9 @@
-Versio 1.5 2017-03-02
+Version 1.5.1 2017-07-21
+
+  * Use array as curl parameter to be able to pass a username like
+    user@realm
+
+Version 1.5 2017-03-02
 
   * Add Google like Login Theme
   * Forward the Client IP to the privacyIDEA server
