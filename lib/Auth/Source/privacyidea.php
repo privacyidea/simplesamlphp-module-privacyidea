@@ -2,6 +2,8 @@
 
 /**
  * privacyidea authentication module.
+ * 2018-03-16 Cornelius Kölbel <cornelius.koelbel@netknights.it>
+ *            Replace [] with array()
  * 2017-08-17 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Change POST params to array and
  *            only add REALM if necessary
@@ -153,7 +155,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         }
         // determine the client IP
         $headers = $_SERVER;
-        foreach(["X-Forwarded-For", "HTTP_X_FORWARDED_FOR", "REMOTE_ADDR"] as $clientkey) {
+        foreach(array("X-Forwarded-For", "HTTP_X_FORWARDED_FOR", "REMOTE_ADDR") as $clientkey) {
             if (array_key_exists($clientkey, $headers)) {
                 $client_ip = $headers[$clientkey];
                 SimpleSAML_Logger::debug("Using IP from " . $clientkey . ": " . $client_ip);
@@ -237,7 +239,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
                 if ($transaction_id) {
                     /* If we have a transaction_id, we do challenge response */
                     SimpleSAML_Logger::debug("Throwing CHALLENGERESPONSE");
-                    throw new SimpleSAML_Error_Error(["CHALLENGERESPONSE", $transaction_id, $message, $attributes]);
+                    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $message, $attributes));
                 }
                 SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
                 throw new SimpleSAML_Error_Error("WRONGUSERPASS");
