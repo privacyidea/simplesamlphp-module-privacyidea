@@ -268,14 +268,14 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
                 // We have a key mapping
                 $mapped_key = $this->attributemap[$key];
                 SimpleSAML_Logger::debug("privacyidea mapped key: " . $mapped_key);
-                $attribute_value = $user_attributes->$key;
-                SimpleSAML_Logger::debug("privacyidea    value  : " . $attribute_value);
+                $attribute_value = $user_attributes->$key;                
                 if ($attribute_value) {
                     SimpleSAML_Logger::debug("privacyidea Mapped key in response");
                     if(is_array($attribute_value)){
                         $attributes[$mapped_key] = $attribute_value;
                     }
                     else{
+                        // If attribute is a string, we create an array
                         $attributes[$mapped_key] = array($attribute_value);
                     }
                     SimpleSAML_Logger::debug("privacyidea      value: " . print_r($attributes[$mapped_key], TRUE));
