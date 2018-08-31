@@ -66,7 +66,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
     private $attributemap = array();
 
 	/**
-	 * The attribute map. It is an array
+	 * The detail map. It is an array
 	 */
 
 	private $detailmap = array();
