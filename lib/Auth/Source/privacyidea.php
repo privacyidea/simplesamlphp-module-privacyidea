@@ -2,6 +2,8 @@
 
 /**
  * privacyidea authentication module.
+ * 2018-06-01 Nomen Nescio <info@nomennesc.io>
+ *            Add token type to attributes
  * 2018-03-16 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Replace [] with array()
  * 2017-08-17 Cornelius Kölbel <cornelius.koelbel@netknights.it>
@@ -294,7 +296,10 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
                     SimpleSAML_Logger::debug("privacyidea        value: " . print_r($attributes[$key], TRUE));
                 }
             }
-        }
+	}
+
+	$attributes['tokentype'] = array($body->detail->type);
+
         SimpleSAML_Logger::debug("privacyidea Array returned: " . print_r($attributes, True));
         return $attributes;
     }
