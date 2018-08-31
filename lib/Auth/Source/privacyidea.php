@@ -65,6 +65,12 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
     private $attributemap = array();
 
+	/**
+	 * The attribute map. It is an array
+	 */
+
+	private $detailmap = array();
+
     public function getOtpExtra()
     {
         return $this->otp_extra;
@@ -99,6 +105,9 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         if (array_key_exists('attributemap', $config)) {
             $this->attributemap = $config['attributemap'];
         }
+	    if (array_key_exists('detailmap', $config)) {
+		    $this->detailmap = $config['detailmap'];
+	    }
         if (array_key_exists('otpextra', $config)) {
             $this->otp_extra= $config['otpextra'];
         }
@@ -201,6 +210,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         try {
             $result = $body->result;
+            $otpAttributes = $body->detail;
             SimpleSAML_Logger::debug("privacyidea result:" . print_r($result, True));
             $status = $result->status;
             $value = $result->value->auth;
@@ -295,6 +305,23 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
                 }
             }
         }
+        $detailarr = array_keys($this->detailmap);
+        reset($detailarr);
+        foreach ($detailarr as $key) {
+	        SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
+        	$mapped_key = $this->detailmap[$key];
+	        SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
+        	$attribute_value = $otpAttributes->$key;
+	        if(is_array($attribute_value)){
+		        $attributes[$mapped_key] = $attribute_value;
+	        }
+	        else{
+		        // If attribute is a string, we create an array
+		        $attributes[$mapped_key] = array($attribute_value);
+	        }
+
+        }
+
         SimpleSAML_Logger::debug("privacyidea Array returned: " . print_r($attributes, True));
         return $attributes;
     }
