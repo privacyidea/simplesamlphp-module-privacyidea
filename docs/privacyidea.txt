@@ -59,12 +59,26 @@ Then you need to add the authentication source 'privacyidea:privacyidea' to
          * SAML attribute names.
          * Optional.
          */
-         'attributemap' => array('username' => 'samlLoginName',
+         'attributemap' => array(
+         			 'username' => 'samlLoginName',
          			 'surname' => 'surName',
          			 'givenname' => 'givenName',
          			 'email' => 'emailAddress',
          			 'phone' => 'telePhone',
-         			 'mobile' => 'mobilePhone'),
+         			 'mobile' => 'mobilePhone'
+         			 ),
+
+         /*
+          * Here the detail attributes can be edited.
+          * If they should not be listed, just remove them.
+          * Optional.
+          */
+          'detailmap' => array(
+          			 'message' => 'message',
+          			 'type' => 'otpType',
+          			 'serial' => 'otpSerial',
+          			 'otplen' => 'otpLength'
+          			 ),
     ),
 
 
