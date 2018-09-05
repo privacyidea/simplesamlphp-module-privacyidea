@@ -71,6 +71,12 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
 	private $detailmap = array();
 
+	/**
+	 * The concatenation map. It is an array
+	 */
+
+	private $concatenationmap = array();
+
     public function getOtpExtra()
     {
         return $this->otp_extra;
@@ -107,6 +113,9 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         }
 	    if (array_key_exists('detailmap', $config)) {
 		    $this->detailmap = $config['detailmap'];
+	    }
+	    if (array_key_exists('concatenationmap', $config)) {
+	    	$this->concatenationmap = $config['concatenationmap'];
 	    }
         if (array_key_exists('otpextra', $config)) {
             $this->otp_extra= $config['otpextra'];
@@ -320,6 +329,21 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 		        $attributes[$mapped_key] = array($attribute_value);
 	        }
 
+        }
+
+        $concatenation = array_keys($this->concatenationmap);
+        reset($concatenation);
+        foreach ($concatenation as $key) {
+        	SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
+        	$mapped_key = $this->concatenationmap[$key];
+        	SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
+        	$concatenationArr = explode(",", $key);
+        	$concatenationValues = array();
+        	foreach ($concatenationArr as $item) {
+        		$concatenationValues[] = $user_attributes->$item;
+	        }
+			$concatenationString = implode(" ", $concatenationValues);
+			$attributes[$mapped_key] = array($concatenationString);
         }
 
         SimpleSAML_Logger::debug("privacyidea Array returned: " . print_r($attributes, True));
