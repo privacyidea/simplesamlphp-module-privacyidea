@@ -1,3 +1,13 @@
+Version 1.6 2018-10-01
+
+  * Add support for multivalue attributes like groups or mobile numbers
+  * Return attributes as arrays to simpleSAMLphp
+  * Code cleanup: Replace [] with array()
+  * Remove debugging of attribute values
+  * Use default attribute map, if none is given in the config
+  * Add detailmap, to also map values from the details section (like serial or tokentype) to SAML attributes
+  * Add concatenation, to merge two attributes together
+
 Version 1.5.1 2017-07-21
 
   * Use array as curl parameter to be able to pass a username like
