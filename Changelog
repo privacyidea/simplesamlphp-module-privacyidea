@@ -6,7 +6,7 @@ Version 1.6 2018-10-01
   * Remove debugging of attribute values
   * Use default attribute map, if none is given in the config
   * Add detailmap, to also map values from the details section (like serial or tokentype) to SAML attributes
-  * Add concatenation, to merge two attributes togeather
+  * Add concatenation, to merge two attributes together
 
 Version 1.5.1 2017-07-21
 
