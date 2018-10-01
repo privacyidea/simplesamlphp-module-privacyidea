@@ -3,12 +3,12 @@
 	"name"			: "privacyidea",
 	"descr"			: "Authenticate users with multiple factors like OTP against the authentication backend privacyIDEA.",
 	"definition"	: "privacyidea.json",
-	"branch"		: "1.5.1",
+	"branch"		: "1.6",
 	"dependencies"	: ["saml"],
 	"access"		: {
 		"zip"		: {
 			"type"		: "zip",
-			"version"	: "1.5.1",
+			"version"	: "1.6",
 			"url"		: "privacyidea.zip"
 		}
 	},
@@ -17,6 +17,9 @@
 		{"name": "Cornelius Kölbel",
                  "role": "Developer",
 		 "email": "cornelius.koelbel@netknights.it"},
+		{"name": "Micha Preußer",
+		 "role": "Developer",
+		 "email": "micha.preusser@netknights.it"},
 		{"name": "Florian Best",
                  "role": "Developer"},
 		{"name": "andyboeh",
