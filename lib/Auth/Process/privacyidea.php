@@ -8,7 +8,7 @@
 
 
 
-class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
+class sspmod_privacyidea_Auth_Process_privacyidea extends \SimpleSAML_Auth_ProcessingFilter
 {
     /**
      * The URL of the privacyIDEA system
@@ -60,6 +60,7 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
 
      public function __construct(array $config, $reserved)
      {
+        SimpleSAML_Logger::info("Create the Auth Proc Filter privacyidea");
         parent::__construct($config, $reserved);
         $cfg = \SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:privacyidea');
         $this->privacyIDEA_URL = $cfg->getString('privacyideaserver');
@@ -81,6 +82,7 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
         // See: https://simplesamlphp.org/docs/stable/simplesamlphp-authproc#section_3
         // The process(&$request)-function must be implemented. If this function completes,
         // it is assumed that processing is completed, and that the $request array has been updated.
+        SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running process");
     }
 
     /**
@@ -97,6 +99,6 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
 
     public static function authenticate(array &$state, $otp)
     {
-        // TODO
+        SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running authenticate");
     }
 }
