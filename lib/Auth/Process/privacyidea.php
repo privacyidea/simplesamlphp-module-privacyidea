@@ -67,7 +67,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends \SimpleSAML_Auth_Proce
         $this->sslverifyhost = $cfg->getBoolean('sslverifyhost', true);
         $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
         $this->realm = $cfg->getString('realm');
-        $this->otpextra = int($cfg->getString('otpextra'), 0);
+        $this->otpextra = $cfg->getBoolean('otpextra', false);
      }
 
     /**
