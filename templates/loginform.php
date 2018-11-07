@@ -62,7 +62,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
         <div class="loginlogo"></div>
         <?php
         if ($this->data['errorcode'] === "CHALLENGERESPONSE" ||
-            $this->data['otpform']) {
+            $this->data['auth_proc_filter_scenario']) {
             echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title_challenge}')) . '</h2>';
             echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text_challenge}')) . '</p>';
         } elseif ($this->data['otp_extra'] == 1) {
@@ -78,7 +78,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                 <div class="slide-out ">
                     <div class="input-wrapper focused">
                         <?php
-                                if(!$this->data['otpform']) {
+                                if(!$this->data['auth_proc_filter_scenario']) {
                         ?>
                         <!-- per line we have an identifier-shown -->
                         <div class="identifier-shown">
@@ -149,7 +149,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             <?php
                                 // otp_extra == 1
                                 if ($this->data["otp_extra"] == 1 ||
-                                    $this->data['otpform']) {
+                                    $this->data['auth_proc_filter_scenario']) {
                                     echo '<label for="OTP">';
                                     echo '<input type="text" id="OTP" tabindex="2" name="OTP" ';
                                     echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
