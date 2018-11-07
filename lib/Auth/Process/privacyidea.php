@@ -6,9 +6,11 @@
  * @author Cornelius Kölbel <cornelius.koelbel@netknights.it>
  */
 
+namespace SimpleSAML\Module\privacyidea\Auth\Process;
 
+use SimpleSAML\Logger as SimpleSAML_Logger;
 
-class sspmod_privacyidea_Auth_Process_privacyidea extends \SimpleSAML_Auth_ProcessingFilter
+class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
 {
     /**
      * The URL of the privacyIDEA system
@@ -36,13 +38,11 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends \SimpleSAML_Auth_Proce
      */
     private $realm;
 
-    /**
-     * OTP Extra
-     * 0: (default) one password field for PIN and OTP
-     * 1: Password field for password and extra field for OTP
-     * @var integer
-     */
-    private $otpextra;
+	/**
+	 * uidKey
+	 * We need to know in which key in "Attributes" the UID is stored.
+	 */
+	private $uidKey;
 
     /**
      * Per se we do not need an attributemap, since all attributes are
@@ -67,7 +67,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends \SimpleSAML_Auth_Proce
         $this->sslverifyhost = $cfg->getBoolean('sslverifyhost', true);
         $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
         $this->realm = $cfg->getString('realm');
-        $this->otpextra = $cfg->getBoolean('otpextra', false);
+        $this->uidKey = $cfg->getString('uidKey');
      }
 
     /**
@@ -79,10 +79,21 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends \SimpleSAML_Auth_Proce
      */
     public function process(&$state)
     {
-        // See: https://simplesamlphp.org/docs/stable/simplesamlphp-authproc#section_3
-        // The process(&$request)-function must be implemented. If this function completes,
-        // it is assumed that processing is completed, and that the $request array has been updated.
-        SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running process");
+
+    	$state['privacyidea:privacyidea'] = array(
+    		'privacyIDEA_URL' => $this->privacyIDEA_URL,
+		    'sslverifyhost' => $this->sslverifyhost,
+		    'sslverifypeer' => $this->sslverifypeer,
+		    'realm' => $this->realm,
+		    'uidKey' => $this->uidKey,
+	    );
+
+        $id = \SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+        $url = \SimpleSAML\Module::getModuleURL('privacyidea/otpform.php');
+        \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, array('StateId' => $id));
+
+
+	    SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running process");
     }
 
     /**
@@ -97,8 +108,66 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends \SimpleSAML_Auth_Proce
      * length.
      */
 
-    public static function authenticate(array &$state, $otp)
+    public function authenticate(array &$state, $otp)
     {
+
+    	$cfg = $state['privacyidea:privacyidea'];
+
         SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running authenticate");
+	    $curl_instance = curl_init();
+	    $params = array(
+		    "user" => $state["Attributes"][$cfg['uidKey']][0],
+		    "pass" => $otp,
+		    "realm"=> $cfg['realm'],
+	    );
+	    SimpleSAML_Logger::debug("privacyIDEA: UID = " . $state["Attributes"][$cfg['uidKey']][0]);
+
+	    $url = $cfg['privacyIDEA_URL'] . "/validate/samlcheck";
+
+	    curl_setopt($curl_instance, CURLOPT_URL, $url);
+	    SimpleSAML_Logger::debug("privacyIDEA: URL = " . $url);
+	    curl_setopt($curl_instance, CURLOPT_HEADER, TRUE);
+	    curl_setopt($curl_instance, CURLOPT_RETURNTRANSFER, TRUE);
+	    curl_setopt($curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp");
+	    // Add POST params
+	    curl_setopt($curl_instance, CURLOPT_POST, 3);
+	    curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
+
+	    if ($cfg['sslverifyhost']) {
+		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
+	    } else {
+		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 0);
+	    }
+	    if ($cfg['sslverifypeer']) {
+		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 2);
+	    } else {
+		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 0);
+	    }
+	    if(!$response = curl_exec($curl_instance)) {
+	        throw new \SimpleSAML_Error_BadRequest("privacyIDEA: Bad request to PI server: " . curl_error($curl_instance));
+        };
+	    SimpleSAML_Logger::debug("privacyIDEA: \n\n\n" . $response . "\n\n\n");
+	    $header_size = curl_getinfo($curl_instance, CURLINFO_HEADER_SIZE);
+	    $body = json_decode(substr($response, $header_size));
+	    try {
+	        $result = $body->result;
+	        $status = $result->status;
+	        $value = $result->value->auth;
+        } catch (\Exception $e) {
+	        throw new \SimpleSAML_Error_BadRequest( "privacyIDEA: We were not able to read the response from the PI server");
+        }
+
+        if ($status !== True) {
+            throw new \SimpleSAML_Error_BadRequest("Valid JSON Response, but some internal error occured in PI server");
+        } else {
+            if ($value !== True){
+                SimpleSAML_Logger::debug("privacyIDEA: Wrong user pass");
+                return False;
+            } else {
+                return True;
+            }
+        }
+
+
     }
 }

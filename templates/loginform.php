@@ -61,7 +61,8 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
     <div class="login">
         <div class="loginlogo"></div>
         <?php
-        if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
+        if ($this->data['errorcode'] === "CHALLENGERESPONSE" ||
+            $this->data['otpform']) {
             echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title_challenge}')) . '</h2>';
             echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text_challenge}')) . '</p>';
         } elseif ($this->data['otp_extra'] == 1) {
@@ -72,10 +73,13 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
             echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text}')) . '</p>';
         } // end of !CHALLENGERESPONSE
         ?>
-        <form action="?" method="post" id="piLoginForm" name="piLoginForm" class="loginform">
+        <form action="" method="post" id="piLoginForm" name="piLoginForm" class="loginform">
             <div class="form-panel first valid" id="gaia_firstform">
                 <div class="slide-out ">
                     <div class="input-wrapper focused">
+                        <?php
+                                if(!$this->data['otpform']) {
+                        ?>
                         <!-- per line we have an identifier-shown -->
                         <div class="identifier-shown">
                             <?php
@@ -138,10 +142,14 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             ?>
 
                         </div>
+                        <?php
+                        }
+                        ?>
                         <div class="identifier-shown">
                             <?php
                                 // otp_extra == 1
-                                if ($this->data["otp_extra"] == 1) {
+                                if ($this->data["otp_extra"] == 1 ||
+                                    $this->data['otpform']) {
                                     echo '<label for="OTP">';
                                     echo '<input type="text" id="OTP" tabindex="2" name="OTP" ';
                                     echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
