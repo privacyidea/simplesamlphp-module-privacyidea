@@ -21,7 +21,7 @@
 	$cfg = SimpleSAML_Configuration::getInstance();
 	$tpl = new SimpleSAML_XHTML_Template($cfg, 'privacyidea:loginform.php');
 	$trans = $tpl->getTranslator();
-	$tpl->data['otpform'] = true;
+	$tpl->data['auth_proc_filter_scenario'] = true;
 	$tpl->data['params'] = array('StateId' => $authStateId);
 	$tpl->data['error'] = ($error) ? $trans->t($error) : false;
 	$tpl->show();
