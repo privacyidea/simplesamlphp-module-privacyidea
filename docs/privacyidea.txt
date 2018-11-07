@@ -17,7 +17,19 @@ The response can also contain some attributes.
 
 To enable this module, create a file 'enable' in the
 directorpy 'modules/privacyidea/'.
-Then you need to add the authentication source 'privacyidea:privacyidea' to
+
+
+You can use this plugin in two different ways
+Method 1) authenticate against privacyIDEA only
+Method 2) authenticate the 1st factor against your authsource and the 2nd factor against privacyIDEA
+
+
+
+Method 1
+========
+
+
+You need to add the authentication source 'privacyidea:privacyidea' to
 'config/authsources.php'. Do it like this:
 
     'example-privacyidea' => array(
@@ -105,3 +117,39 @@ email:		The email address of the user as it is retrieved from the user source
 The list can be extended by including custom attributes in the attributemap. If the 
 privacyIDEA server returns an attribute 'groups', you can map that to 'groups' if
 you include it in the attributemap. Otherwise, it is discarded.
+
+
+
+
+Method 2
+========
+
+
+If you want to use privacyIDEA as an auth proc filter, you have to change the config.php file.
+Use the following example:
+
+'authproc.idp' => array(
+
+  // The number indicates the priority
+  25 => array(
+
+  // You must not change the class name
+    'class'             => 'privacyidea:privacyidea',
+
+  // This is the URL to your privacyidea server
+    'privacyideaserver' => 'https://privacyidea.local',
+
+  // Enter the realm, where your users are stored
+    'realm'             => 'test',
+
+  // The uidKey is the username's attribute key
+    'uidKey'            => 'uid',
+
+  // To verify host, enter true. Do not enter false in productive environments.
+    'sslverifyhost'     => true,
+
+  // To verify peer, enter true. Do not enter false in productive environments.
+    'sslverifypeer'     => true,
+    
+    ),
+),
