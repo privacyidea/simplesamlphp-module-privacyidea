@@ -1,4 +1,12 @@
 <?php
+if(isset($this->data['auth_proc_filter_scenario'])) {
+    $this->data['errorcode'] = NULL;
+    $this->data['otp_extra'] = NULL;
+    $this->data['username'] = NULL;
+    $this->data['stateparams'] = NULL;
+} else {
+    $this->data['auth_proc_filter_scenario'] = 0;
+}
 // First of all we determine how we were called
 $chal_resp_attributes = NULL;
 $chal_resp_message = '';
@@ -204,8 +212,10 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
             </div> <!-- form-panel -->
 
             <?php
-            foreach ($this->data['stateparams'] as $name => $value) {
-                echo('<input type="hidden" name="' . htmlspecialchars($name) . '" value="' . htmlspecialchars($value) . '" />');
+            if ($this->data['stateparams'] !== NULL) {
+	            foreach ($this->data['stateparams'] as $name => $value) {
+		            echo('<input type="hidden" name="' . htmlspecialchars($name) . '" value="' . htmlspecialchars($value) . '" />');
+	            }
             }
             ?>
         </form>
