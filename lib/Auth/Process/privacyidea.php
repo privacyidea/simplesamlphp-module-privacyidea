@@ -6,11 +6,9 @@
  * @author Cornelius Kölbel <cornelius.koelbel@netknights.it>
  */
 
-namespace SimpleSAML\Module\privacyidea\Auth\Process;
 
-use SimpleSAML\Logger as SimpleSAML_Logger;
 
-class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
+class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_ProcessingFilter
 {
     /**
      * The URL of the privacyIDEA system
@@ -62,7 +60,7 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
      {
         SimpleSAML_Logger::info("Create the Auth Proc Filter privacyidea");
         parent::__construct($config, $reserved);
-        $cfg = \SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:privacyidea');
+        $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:privacyidea');
         $this->privacyIDEA_URL = $cfg->getString('privacyideaserver');
         $this->sslverifyhost = $cfg->getBoolean('sslverifyhost', true);
         $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
@@ -88,9 +86,10 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
 		    'uidKey' => $this->uidKey,
 	    );
 
-        $id = \SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
-        $url = \SimpleSAML\Module::getModuleURL('privacyidea/otpform.php');
-        \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, array('StateId' => $id));
+        $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+        $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
+        SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
+
 
 
 	    SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running process");
@@ -108,7 +107,7 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
      * length.
      */
 
-    public function authenticate(array &$state, $otp)
+    public static function authenticate(array &$state, $otp)
     {
 
     	$cfg = $state['privacyidea:privacyidea'];
@@ -144,7 +143,7 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
 		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 0);
 	    }
 	    if(!$response = curl_exec($curl_instance)) {
-	        throw new \SimpleSAML_Error_BadRequest("privacyIDEA: Bad request to PI server: " . curl_error($curl_instance));
+	        throw new SimpleSAML_Error_BadRequest("privacyIDEA: Bad request to PI server: " . curl_error($curl_instance));
         };
 	    SimpleSAML_Logger::debug("privacyIDEA: \n\n\n" . $response . "\n\n\n");
 	    $header_size = curl_getinfo($curl_instance, CURLINFO_HEADER_SIZE);
@@ -153,17 +152,18 @@ class privacyidea extends \SimpleSAML_Auth_ProcessingFilter
 	        $result = $body->result;
 	        $status = $result->status;
 	        $value = $result->value->auth;
-        } catch (\Exception $e) {
-	        throw new \SimpleSAML_Error_BadRequest( "privacyIDEA: We were not able to read the response from the PI server");
+        } catch (Exception $e) {
+	        throw new SimpleSAML_Error_BadRequest( "privacyIDEA: We were not able to read the response from the PI server");
         }
 
         if ($status !== True) {
-            throw new \SimpleSAML_Error_BadRequest("Valid JSON Response, but some internal error occured in PI server");
+            throw new SimpleSAML_Error_BadRequest("Valid JSON Response, but some internal error occured in PI server");
         } else {
             if ($value !== True){
                 SimpleSAML_Logger::debug("privacyIDEA: Wrong user pass");
                 return False;
             } else {
+	            SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully");
                 return True;
             }
         }
