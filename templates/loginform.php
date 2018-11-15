@@ -159,7 +159,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 if ($this->data["otp_extra"] == 1 ||
                                     $this->data['auth_proc_filter_scenario']) {
                                     echo '<label for="OTP">';
-                                    echo '<input type="text" id="OTP" tabindex="2" name="OTP" ';
+                                    echo '<input type="password" id="OTP" tabindex="2" name="OTP" ';
                                     echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
                                     echo '</label>';
                                 }
