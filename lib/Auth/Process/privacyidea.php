@@ -42,6 +42,13 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	 */
 	private $uidKey;
 
+	/**
+	 * enabledKey
+	 * If a different authproc should be able to turn on or off privacyIDEA, the key for it can be entered here.
+	 * If it's true, we will do 2FA.
+	 */
+	private $enabledKey;
+
     /**
      * Per se we do not need an attributemap, since all attributes are
      * usually set by the authsource
@@ -66,6 +73,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
         $this->realm = $cfg->getString('realm');
         $this->uidKey = $cfg->getString('uidKey');
+        $this->enabledKey = $cfg->getString('enabledKey', 'pienabled');
      }
 
     /**
@@ -77,7 +85,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
      */
     public function process(&$state)
     {
-
+	    SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running process");
     	$state['privacyidea:privacyidea'] = array(
     		'privacyIDEA_URL' => $this->privacyIDEA_URL,
 		    'sslverifyhost' => $this->sslverifyhost,
@@ -86,13 +94,20 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    'uidKey' => $this->uidKey,
 	    );
 
-        $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
-        $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
+    	if(isset($state["Attributes"][$this->enabledKey][0])) {
+    		$piEnabled = $state["Attributes"][$this->enabledKey][0];
+	    } else {
+    		$piEnabled = True;
+	    }
 
-
-
-	    SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running process");
+		if($piEnabled) {
+			SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
+			$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
+			$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
+			SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
+		} else {
+			SimpleSAML_Logger::debug("privacyIDEA: " . $this->enabledKey . " is set to false -> privacyIDEA is disabled");
+		}
     }
 
     /**
