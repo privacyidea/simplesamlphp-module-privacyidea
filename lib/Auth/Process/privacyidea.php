@@ -43,8 +43,13 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	private $uidKey;
 
 	/**
+	 * enabledPath
+	 * If a different authproc should be able to turn on or off privacyIDEA, the path to the key be entered here.
+	 */
+	private $enabledPath;
+
+	/**
 	 * enabledKey
-	 * If a different authproc should be able to turn on or off privacyIDEA, the key for it can be entered here.
 	 * If it's true, we will do 2FA.
 	 */
 	private $enabledKey;
@@ -73,7 +78,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
         $this->realm = $cfg->getString('realm');
         $this->uidKey = $cfg->getString('uidKey');
-        $this->enabledKey = $cfg->getString('enabledKey', 'pienabled');
+        $this->enabledPath = $cfg->getString('enabledPath', 'privacyIDEA');
+        $this->enabledKey = $cfg->getString('enabledKey', 'enabled');
      }
 
     /**
@@ -94,8 +100,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    'uidKey' => $this->uidKey,
 	    );
 
-    	if(isset($state["Attributes"][$this->enabledKey][0])) {
-    		$piEnabled = $state["Attributes"][$this->enabledKey][0];
+    	if(isset($state[$this->enabledPath][$this->enabledKey][0])) {
+    		$piEnabled = $state[$this->enabledPath][$this->enabledKey][0];
 	    } else {
     		$piEnabled = True;
 	    }
@@ -106,7 +112,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 			$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
 			SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
 		} else {
-			SimpleSAML_Logger::debug("privacyIDEA: " . $this->enabledKey . " is set to false -> privacyIDEA is disabled");
+			SimpleSAML_Logger::debug("privacyIDEA: " . $this->enabledPath . " -> " . $this->enabledKey . " is not set to true -> privacyIDEA is disabled");
 		}
     }
 

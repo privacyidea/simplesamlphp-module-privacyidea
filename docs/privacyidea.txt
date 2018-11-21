@@ -136,6 +136,12 @@ Use the following example:
   // You must not change the class name
     'class'             => 'privacyidea:privacyidea',
 
+  // Other authproc filters can disable 2FA if you want to.
+  // For that you need to enter the path end the key, which should be true or false.
+  // If it is not set, privacyIDEA will be enadbled
+    'enabledPath'       => '',
+    'enabledKey'        => '',
+
   // This is the URL to your privacyidea server
     'privacyideaserver' => 'https://privacyidea.local',
 
