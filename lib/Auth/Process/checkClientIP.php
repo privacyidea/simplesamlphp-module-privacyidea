@@ -9,8 +9,7 @@
 class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_ProcessingFilter {
 
 	/**
-     * range of excluded IPs
-     * enter start and end IP
+	 * enter excluded ip addresses
 	 * @var array|mixed
 	 */
     private $excludeClientIPs = array();
@@ -24,13 +23,23 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
      }
 
 	public function process( &$state ) {
-        $startIP = ip2long($this->excludeClientIPs[0]);
-        $endIP = ip2long($this->excludeClientIPs[1]);
-        $clientIP = ip2long($_SERVER['REMOTE_ADDR']);
-
-        if ($clientIP >= $startIP && $clientIP <= $endIP) {
-            $state['privacyIDEA']['enabled'][0] = false;
-        }
+		$clientIP = ip2long($_SERVER['REMOTE_ADDR']);
+		$piEnabled = true;
+		foreach ( $this->excludeClientIPs as $ipAddress ) {
+			if (strpos($ipAddress, '-') !== false) {
+				$range = explode('-', $ipAddress);
+				$startIP = ip2long($range[0]);
+				$endIP = ip2long($range[1]);
+				if ($clientIP >= $startIP && $clientIP <= $endIP) {
+					$piEnabled = false;
+				}
+			} else {
+				if ($clientIP == ip2long($ipAddress)) {
+					$piEnabled = false;
+				}
+			}
+     	}
+		$state['privacyIDEA']['enabled'][0] = $piEnabled;
 
 	}
 
