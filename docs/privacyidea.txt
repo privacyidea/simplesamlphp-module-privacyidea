@@ -138,7 +138,8 @@ Use the following example:
 
   // Other authproc filters can disable 2FA if you want to.
   // For that you need to enter the path end the key, which should be true or false.
-  // If it is not set, privacyIDEA will be enadbled
+  // privacyIDEA will only be disabled, if the value of the key is set to false,
+  // in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
     'enabledPath'       => '',
     'enabledKey'        => '',
 
