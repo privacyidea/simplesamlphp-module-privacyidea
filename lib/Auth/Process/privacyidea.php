@@ -91,7 +91,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
      */
     public function process(&$state)
     {
-	    SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running process");
+	    SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: Entering process function");
     	$state['privacyidea:privacyidea'] = array(
     		'privacyIDEA_URL' => $this->privacyIDEA_URL,
 		    'sslverifyhost' => $this->sslverifyhost,
