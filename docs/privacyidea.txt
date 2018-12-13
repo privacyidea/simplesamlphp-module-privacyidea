@@ -137,8 +137,8 @@ Use the following example:
     'class'             => 'privacyidea:privacyidea',
 
   // Other authproc filters can disable 2FA if you want to.
-  // If privacyIDEA should listen to the setting, you have to enter the state's path and key,
-  // which will be edit by previous auth proc filters.
+  // If privacyIDEA should listen to the setting, you have to enter the state's path and key.
+  // The value of this key will be set by a previous auth proc filger.
   // privacyIDEA will only be disabled, if the value of the key is set to false,
   // in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
     'enabledPath'       => '',
