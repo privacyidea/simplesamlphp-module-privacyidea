@@ -13,7 +13,7 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
 	 * enter excluded ip addresses
 	 * @var array|mixed
 	 */
-    private $excludeClientIPs = array();
+     private $excludeClientIPs = array();
 
      public function __construct(array $config, $reserved)
      {
