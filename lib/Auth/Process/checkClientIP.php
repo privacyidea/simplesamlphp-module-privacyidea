@@ -24,7 +24,7 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
      }
 
 	public function process( &$state ) {
-		$clientIP = ip2long($_SERVER['REMOTE_ADDR']);
+		$clientIP = ip2long($this->getClientIP());
 		$piEnabled = true;
 		foreach ( $this->excludeClientIPs as $ipAddress ) {
 			if (strpos($ipAddress, '-') !== false) {
@@ -42,6 +42,18 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
      	}
 		$state['privacyIDEA']['enabled'][0] = $piEnabled;
 
+	}
+
+	public function getClientIP(){
+		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)){
+			return  $_SERVER["HTTP_X_FORWARDED_FOR"];
+		}else if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
+			return $_SERVER["REMOTE_ADDR"];
+		}else if (array_key_exists('HTTP_CLIENT_IP', $_SERVER)) {
+			return $_SERVER["HTTP_CLIENT_IP"];
+		}
+
+		return '';
 	}
 
 }
