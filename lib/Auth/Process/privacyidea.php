@@ -61,11 +61,11 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         SimpleSAML_Logger::info("Create the Auth Proc Filter privacyidea");
         parent::__construct($config, $reserved);
         $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:privacyidea');
-        $this->privacyIDEA_URL = $cfg->getString('privacyideaserver');
+        $this->privacyIDEA_URL = $cfg->getString('privacyideaserver', '');
         $this->sslverifyhost = $cfg->getBoolean('sslverifyhost', true);
         $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
-        $this->realm = $cfg->getString('realm');
-        $this->uidKey = $cfg->getString('uidKey');
+        $this->realm = $cfg->getString('realm', '');
+        $this->uidKey = $cfg->getString('uidKey', '');
      }
 
     /**
@@ -110,7 +110,11 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     public static function authenticate(array &$state, $otp)
     {
 
-    	$cfg = $state['privacyidea:privacyidea'];
+    	if (isset($state['privacyidea:serverconfig'])) {
+		    $cfg = $state['privacyidea:serverconfig'];
+	    } else {
+		    $cfg = $state['privacyidea:privacyidea'];
+	    }
 
         SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running authenticate");
 	    $curl_instance = curl_init();

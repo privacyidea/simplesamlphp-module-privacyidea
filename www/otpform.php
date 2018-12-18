@@ -21,6 +21,11 @@
 	$cfg = SimpleSAML_Configuration::getInstance();
 	$tpl = new SimpleSAML_XHTML_Template($cfg, 'privacyidea:loginform.php');
 	$tpl->data['auth_proc_filter_scenario'] = true;
+	if (isset($state['privacyidea:tokenEnrollment']['tokenQR'])) {
+		$tpl->data['tokenQR'] = $state['privacyidea:tokenEnrollment']['tokenQR'];
+	} else {
+		$tpl->data['tokenQR'] = null;
+	}
 	$tpl->data['params'] = array('StateId' => $authStateId);
 	$tpl->show();
 

@@ -43,18 +43,16 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		$this->tokenType = $cfg->getString('tokenType', 'totp');
 		$this->serviceAccount = $cfg->getString('serviceAccount', 'service');
 		$this->servicePass = $cfg->getString('servicePass', 'service');
-
-		$cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:privacyidea');
-		$this->privacyIDEA_URL = $cfg->getString('privacyideaserver', 'https://appliance1.intranet.de');
-		$this->sslverifyhost = $cfg->getBoolean('sslverifyhost', false);
-		$this->sslverifypeer = $cfg->getBoolean('sslverifypeer', false);
-		$this->uidKey = $cfg->getString('uidKey', 'uid');
 	}
 
 	public function process( &$state ) {
+		$this->privacyIDEA_URL = $state['privacyidea:serverconfig']['privacyIDEA_URL'];
+		$this->sslverifyhost = $state['privacyidea:serverconfig']['sslverifyhost'];
+		$this->sslverifypeer = $state['privacyidea:serverconfig']['sslverifypeer'];
+		$this->uidKey = $state['privacyidea:serverconfig']['uidKey'];
 		$this->token = $this->fetchAuthToken();
 		if (!$this->userHasToken($state)) {
-			$state['privaycidea:tokenEnrollment:tokenQR'] = $this->enrollToken($state);
+			$state['privacyidea:tokenEnrollment']['tokenQR'] = $this->enrollToken($state);
 		}
 	}
 
