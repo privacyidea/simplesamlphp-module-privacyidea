@@ -100,6 +100,11 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    'uidKey' => $this->uidKey,
 	    );
 
+    	if (isset($state['privacyidea:serverconfig']['enabledPath'])) {
+		    $this->enabledPath = $state['privacyidea:serverconfig']['enabledPath'];
+		    $this->enabledKey = $state['privacyidea:serverconfig']['enabledKey'];
+	    }
+
     	if(isset($state[$this->enabledPath][$this->enabledKey][0])) {
     		$piEnabled = $state[$this->enabledPath][$this->enabledKey][0];
 	    } else {

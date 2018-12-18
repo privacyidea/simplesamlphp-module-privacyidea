@@ -31,11 +31,42 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 	 */
 	private $servicePass;
 
+	/**
+	 * This is the token, which will be fetched by the service account.
+	 * It is needed to get the number of tokens and to enroll one.
+	 * @var String
+	 */
 	private $token;
 
+	/**
+	 * Check if the hostname matches the name in the certificate
+	 * @var boolean
+	 */
 	private $sslverifyhost;
+
+	/**
+	 * Check if the certificate is valid, signed by a trusted CA
+	 * @var boolean
+	 */
 	private $sslverifypeer;
+
+	/**
+	 * The key where the username is stored (must be under Attributes)
+	 * @var string
+	 */
 	private $uidKey;
+
+	/**
+	 * If another authproc filter should be able to turn on or off privacyIDEA, the path to the key be entered here.
+	 * @var string
+	 */
+	private $enabledPath;
+
+	/**
+	 * The location for the key to enable or disable 2FA with privacyIDEA.
+	 * @var string
+	 */
+	private $enabledKey;
 
 	public function __construct( array $config, $reserved ) {
 		parent::__construct( $config, $reserved );
@@ -50,9 +81,21 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		$this->sslverifyhost = $state['privacyidea:serverconfig']['sslverifyhost'];
 		$this->sslverifypeer = $state['privacyidea:serverconfig']['sslverifypeer'];
 		$this->uidKey = $state['privacyidea:serverconfig']['uidKey'];
-		$this->token = $this->fetchAuthToken();
-		if (!$this->userHasToken($state)) {
-			$state['privacyidea:tokenEnrollment']['tokenQR'] = $this->enrollToken($state);
+		$this->enabledPath = $state['privacyidea:serverconfig']['enabledPath'];
+		$this->enabledKey = $state['privacyidea:serverconfig']['enabledKey'];
+
+
+		if(isset($state[$this->enabledPath][$this->enabledKey][0])) {
+			$piEnabled = $state[$this->enabledPath][$this->enabledKey][0];
+		} else {
+			$piEnabled = True;
+		}
+
+		if ($piEnabled) {
+			$this->token = $this->fetchAuthToken();
+			if (!$this->userHasToken($state)) {
+				$state['privacyidea:tokenEnrollment']['tokenQR'] = $this->enrollToken($state);
+			}
 		}
 	}
 

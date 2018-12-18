@@ -36,6 +36,18 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 	 */
 	private $uidKey;
 
+	/**
+	 * If another authproc filter should be able to turn on or off privacyIDEA, the path to the key be entered here.
+	 * @var string
+	 */
+	private $enabledPath;
+
+	/**
+	 * The location for the key to enable or disable 2FA with privacyIDEA.
+	 * @var string
+	 */
+	private $enabledKey;
+
 	public function __construct( array $config, $reserved ) {
 
 		parent::__construct( $config, $reserved );
@@ -45,6 +57,8 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		$this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
 		$this->realm = $cfg->getString('realm', '');
 		$this->uidKey = $cfg->getString('uidKey', 'uid');
+		$this->enabledPath = $cfg->getString('enabledPath', 'privacyIDEA');
+		$this->enabledKey = $cfg->getString('enabledKey', 'enabled');
 	}
 
 	public function process( &$state ) {
@@ -55,6 +69,10 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		    'sslverifypeer' => $this->sslverifypeer,
 		    'realm' => $this->realm,
 		    'uidKey' => $this->uidKey,
+			'enabledPath' => $this->enabledPath,
+			'enabledKey' => $this->enabledKey,
 		);
+		SimpleSAML_Logger::debug("privacyIDEA: enabledPath " . $this->enabledPath);
+		SimpleSAML_Logger::debug("privacyIDEA: enabledPath " . $state['privacyidea:serverconfig']['enabledPath']);
 	}
 }
