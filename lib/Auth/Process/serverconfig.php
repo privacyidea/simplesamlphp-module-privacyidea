@@ -52,7 +52,7 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 
 		parent::__construct( $config, $reserved );
 		$cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:serverconfig');
-		$this->privacyIDEA_URL = $cfg->getString('privacyideaserver');
+		$this->privacyIDEA_URL = $cfg->getString('privacyideaserver', '');
 		$this->sslverifyhost = $cfg->getBoolean('sslverifyhost', true);
 		$this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
 		$this->realm = $cfg->getString('realm', '');

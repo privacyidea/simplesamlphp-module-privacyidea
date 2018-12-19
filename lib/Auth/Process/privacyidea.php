@@ -111,6 +111,11 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     		$piEnabled = True;
 	    }
 
+		if ($this->privacyIDEA_URL === '') {
+			$piEnabled = False;
+			SimpleSAML_Logger::error("privacyIDEA url is not set!");
+		}
+
 		if($piEnabled) {
 			SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
 			$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );

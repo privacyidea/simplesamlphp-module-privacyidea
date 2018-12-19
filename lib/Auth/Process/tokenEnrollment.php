@@ -96,6 +96,11 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			SimpleSAML_Logger::error("privacyIDEA service account for token enrollment is not set!");
 		}
 
+		if ($this->privacyIDEA_URL === '') {
+			$piEnabled = False;
+			SimpleSAML_Logger::error("privacyIDEA url is not set!");
+		}
+
 		if ($piEnabled) {
 			$this->auth_token = $this->fetchAuthToken();
 			if (!$this->userHasToken($state)) {
