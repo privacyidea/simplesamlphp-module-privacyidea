@@ -36,7 +36,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 	 * It is needed to get the number of tokens and to enroll one.
 	 * @var String
 	 */
-	private $token;
+	private $auth_token;
 
 	/**
 	 * Check if the hostname matches the name in the certificate
@@ -97,7 +97,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		}
 
 		if ($piEnabled) {
-			$this->token = $this->fetchAuthToken();
+			$this->auth_token = $this->fetchAuthToken();
 			if (!$this->userHasToken($state)) {
 				$state['privacyidea:tokenEnrollment']['tokenQR'] = $this->enrollToken($state);
 			}
@@ -113,7 +113,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"type" => $this->tokenType,
 		);
 		$headers = array(
-			"authorization: " . $this->token,
+			"authorization: " . $this->auth_token,
 		);
 
 		$url = $this->privacyIDEA_URL . "/token/init";
@@ -161,7 +161,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"user" => $state["Attributes"][$this->uidKey][0],
 		);
 		$headers = array(
-			"authorization: " . $this->token,
+			"authorization: " . $this->auth_token,
 		);
 
 		$url = $this->privacyIDEA_URL . "/token/?";
