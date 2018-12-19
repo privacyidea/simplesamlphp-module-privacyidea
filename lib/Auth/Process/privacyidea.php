@@ -86,8 +86,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         parent::__construct($config, $reserved);
         $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:privacyidea');
         $this->privacyIDEA_URL = $cfg->getString('privacyideaserver', '');
-        $this->sslverifyhost = $cfg->getBoolean('sslverifyhost', true);
-        $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
+        $this->sslverifyhost = $cfg->getBoolean('sslverifyhost', null);
+        $this->sslverifypeer = $cfg->getBoolean('sslverifypeer', null);
         $this->realm = $cfg->getString('realm', '');
         $this->uidKey = $cfg->getString('uidKey', '');
         $this->enabledPath = $cfg->getString('enabledPath', '');
