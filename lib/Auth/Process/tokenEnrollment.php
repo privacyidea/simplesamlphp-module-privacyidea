@@ -72,8 +72,8 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		parent::__construct( $config, $reserved );
 		$cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:tokenEnrollment');
 		$this->tokenType = $cfg->getString('tokenType', 'totp');
-		$this->serviceAccount = $cfg->getString('serviceAccount', 'service');
-		$this->servicePass = $cfg->getString('servicePass', 'service');
+		$this->serviceAccount = $cfg->getString('serviceAccount', '');
+		$this->servicePass = $cfg->getString('servicePass', '');
 	}
 
 	public function process( &$state ) {
@@ -89,6 +89,11 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			$piEnabled = $state[$this->enabledPath][$this->enabledKey][0];
 		} else {
 			$piEnabled = True;
+		}
+
+		if ($this->serviceAccount === '' or $this->servicePass === '') {
+			$piEnabled = False;
+			SimpleSAML_Logger::error("privacyIDEA service account for token enrollment is not set!");
 		}
 
 		if ($piEnabled) {
