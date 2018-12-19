@@ -71,18 +71,48 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 	public function __construct( array $config, $reserved ) {
 		parent::__construct( $config, $reserved );
 		$cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:tokenEnrollment');
+		$this->privacyIDEA_URL = $cfg->getString('privacyideaserver', '');
+		$this->sslverifyhost = $cfg->getBoolean('sslverifyhost', null);
+		$this->sslverifypeer = $cfg->getBoolean('sslverifypeer', null);
+		$this->uidKey = $cfg->getString('uidKey', '');
+		$this->enabledPath = $cfg->getString('enabledPath', '');
+		$this->enabledKey = $cfg->getString('enabledKey', '');
 		$this->tokenType = $cfg->getString('tokenType', 'totp');
 		$this->serviceAccount = $cfg->getString('serviceAccount', '');
 		$this->servicePass = $cfg->getString('servicePass', '');
 	}
 
 	public function process( &$state ) {
-		$this->privacyIDEA_URL = $state['privacyidea:serverconfig']['privacyIDEA_URL'];
-		$this->sslverifyhost = $state['privacyidea:serverconfig']['sslverifyhost'];
-		$this->sslverifypeer = $state['privacyidea:serverconfig']['sslverifypeer'];
-		$this->uidKey = $state['privacyidea:serverconfig']['uidKey'];
-		$this->enabledPath = $state['privacyidea:serverconfig']['enabledPath'];
-		$this->enabledKey = $state['privacyidea:serverconfig']['enabledKey'];
+
+		/**
+		 * If a configuration is not set in privacyidea:privacyidea,
+		 * We are using the config from privacyidea:serverconfig.
+		 */
+
+		if ($this->privacyIDEA_URL === '') {
+			$this->privacyIDEA_URL = $state['privacyidea:serverconfig']['privacyIDEA_URL'];
+		}
+		if ($this->sslverifyhost === null) {
+			$this->sslverifyhost = $state['privacyidea:serverconfig']['sslverifyhost'];
+		}
+		if ($this->sslverifypeer === null) {
+			$this->sslverifypeer = $state['privacyidea:serverconfig']['sslverifypeer'];
+		}
+		if ($this->uidKey === '') {
+			$this->uidKey = $state['privacyidea:serverconfig']['uidKey'];
+		}
+		if ($this->enabledPath === '') {
+			$this->enabledPath = $state['privacyidea:serverconfig']['enabledPath'];
+		}
+		if ($this->enabledKey === '') {
+			$this->enabledKey = $state['privacyidea:serverconfig']['enabledKey'];
+		}
+		if ($this->serviceAccount === '') {
+			$this->serviceAccount = $state['privacyidea:serverconfig']['serviceAccount'];
+		}
+		if ($this->servicePass === '') {
+			$this->servicePass = $state['privacyidea:serverconfig']['servicePass'];
+		}
 
 
 		if(isset($state[$this->enabledPath][$this->enabledKey][0])) {

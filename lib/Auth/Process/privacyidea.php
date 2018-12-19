@@ -54,6 +54,18 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	 */
 	private $enabledKey;
 
+	/**
+	 * The username for the service account
+	 * @var String
+	 */
+	private $serviceAccount;
+
+	/**
+	 * The password for the service account
+	 * @var String
+	 */
+	private $servicePass;
+
     /**
      * Per se we do not need an attributemap, since all attributes are
      * usually set by the authsource
@@ -80,6 +92,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         $this->uidKey = $cfg->getString('uidKey', 'uid');
         $this->enabledPath = $cfg->getString('enabledPath', 'privacyIDEA');
         $this->enabledKey = $cfg->getString('enabledKey', 'enabled');
+        $this->serviceAccount = $cfg->getString('serviceAccount', '');
+	    $this->servicePass = $cfg->getString('servicePass', '');
      }
 
     /**
@@ -92,6 +106,37 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     public function process(&$state)
     {
 	    SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: Entering process function");
+
+	    /**
+	     * If a configuration is not set in privacyidea:tokenEnrollment,
+	     * We are using the config from privacyidea:serverconfig.
+	     */
+
+	    if ($this->privacyIDEA_URL === '') {
+		    $this->privacyIDEA_URL = $state['privacyidea:serverconfig']['privacyIDEA_URL'];
+	    }
+	    if ($this->sslverifyhost === null) {
+		    $this->sslverifyhost = $state['privacyidea:serverconfig']['sslverifyhost'];
+	    }
+	    if ($this->sslverifypeer === null) {
+		    $this->sslverifypeer = $state['privacyidea:serverconfig']['sslverifypeer'];
+	    }
+	    if ($this->uidKey === '') {
+		    $this->uidKey = $state['privacyidea:serverconfig']['uidKey'];
+	    }
+	    if ($this->enabledPath === '') {
+		    $this->enabledPath = $state['privacyidea:serverconfig']['enabledPath'];
+	    }
+	    if ($this->enabledKey === '') {
+		    $this->enabledKey = $state['privacyidea:serverconfig']['enabledKey'];
+	    }
+	    if ($this->serviceAccount === '') {
+		    $this->serviceAccount = $state['privacyidea:serverconfig']['serviceAccount'];
+	    }
+	    if ($this->servicePass === '') {
+		    $this->servicePass = $state['privacyidea:serverconfig']['servicePass'];
+	    }
+
     	$state['privacyidea:privacyidea'] = array(
     		'privacyIDEA_URL' => $this->privacyIDEA_URL,
 		    'sslverifyhost' => $this->sslverifyhost,

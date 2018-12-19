@@ -48,6 +48,18 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 	 */
 	private $enabledKey;
 
+	/**
+	 * The username for the service account
+	 * @var String
+	 */
+	private $serviceAccount;
+
+	/**
+	 * The password for the service account
+	 * @var String
+	 */
+	private $servicePass;
+
 	public function __construct( array $config, $reserved ) {
 
 		parent::__construct( $config, $reserved );
@@ -59,6 +71,9 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		$this->uidKey = $cfg->getString('uidKey', 'uid');
 		$this->enabledPath = $cfg->getString('enabledPath', 'privacyIDEA');
 		$this->enabledKey = $cfg->getString('enabledKey', 'enabled');
+		$this->serviceAccount = $cfg->getString('serviceAccount', '');
+		$this->servicePass = $cfg->getString('servicePass', '');
+
 	}
 
 	public function process( &$state ) {
@@ -71,6 +86,8 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		    'uidKey' => $this->uidKey,
 			'enabledPath' => $this->enabledPath,
 			'enabledKey' => $this->enabledKey,
+			'serviceAccount' => $this->serviceAccount,
+			'servicePass' => $this->servicePass,
 		);
 		SimpleSAML_Logger::debug("privacyIDEA: enabledPath " . $this->enabledPath);
 		SimpleSAML_Logger::debug("privacyIDEA: enabledPath " . $state['privacyidea:serverconfig']['enabledPath']);
