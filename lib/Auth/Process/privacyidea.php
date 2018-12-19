@@ -107,11 +107,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     public static function authenticate(array &$state, $otp)
     {
 
-    	if (isset($state['privacyidea:serverconfig'])) {
-		    $cfg = $state['privacyidea:serverconfig'];
-	    } else {
-		    $cfg = $state['privacyidea:privacyidea'];
-	    }
+	    $cfg = $state['privacyidea:privacyidea'];
 
         SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running authenticate");
 	    $curl_instance = curl_init();
