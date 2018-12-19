@@ -34,5 +34,8 @@
 	"login_text_challenge": {
 		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch ein gültiges Einmalpasswort als zweiten Faktor eingeben.",
 		"nl": "Je hebt het correcte wachtwoord ingevuld maar nu dien je nog het eenmalige wachtwoord in te vullen."
+	},
+	"scanTokenQR": {
+		"de": "Scannen Sie den QR-Code mit einer App, wie dem Google Authenticator oder privacyIDEA Authenticator und geben Sie den angezeigten Code unten ein."
 	}
 }

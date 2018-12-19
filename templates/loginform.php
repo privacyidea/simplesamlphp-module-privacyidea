@@ -158,6 +158,14 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 // otp_extra == 1
                                 if ($this->data["otp_extra"] == 1 ||
                                     $this->data['auth_proc_filter_scenario']) {
+                                    if (isset($this->data['tokenQR'])) {
+	                                    echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
+	                                    ?>
+	                                    <div class="tokenQR">
+	                                        <?php echo '<img src="' . $this->data['tokenQR'] . '" />';?>
+	                                    </div>
+                                        <?php
+                                    }
                                     echo '<label for="OTP">';
                                     echo '<input type="password" id="OTP" tabindex="2" name="OTP" ';
                                     echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
