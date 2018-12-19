@@ -7,89 +7,31 @@
 class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_ProcessingFilter {
 
 	/**
-	 * The url of the privacyIDEA system
-	 * @var string
+	 * This contains the server configuration
+	 * @var array
 	 */
-	private $privacyIDEA_URL;
-
-	/**
-	 * Check if the hostname matches the name in the certificate
-	 * @var boolean
-	 */
-	private $sslverifyhost;
-
-	/**
-	 * Check if the certificate is valid, signed by a trusted CA
-	 * @var boolean
-	 */
-	private $sslverifypeer;
-
-	/**
-	 * The realm where the user is located in
-	 * @var string
-	 */
-	private $realm;
-
-	/**
-	 * The key where the username is stored (must be under Attributes)
-	 * @var string
-	 */
-	private $uidKey;
-
-	/**
-	 * If another authproc filter should be able to turn on or off privacyIDEA, the path to the key be entered here.
-	 * @var string
-	 */
-	private $enabledPath;
-
-	/**
-	 * The location for the key to enable or disable 2FA with privacyIDEA.
-	 * @var string
-	 */
-	private $enabledKey;
-
-	/**
-	 * The username for the service account
-	 * @var String
-	 */
-	private $serviceAccount;
-
-	/**
-	 * The password for the service account
-	 * @var String
-	 */
-	private $servicePass;
+	private $serverconfig;
 
 	public function __construct( array $config, $reserved ) {
 
 		parent::__construct( $config, $reserved );
 		$cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:serverconfig');
-		$this->privacyIDEA_URL = $cfg->getString('privacyideaserver', '');
-		$this->sslverifyhost = $cfg->getBoolean('sslverifyhost', true);
-		$this->sslverifypeer = $cfg->getBoolean('sslverifypeer', true);
-		$this->realm = $cfg->getString('realm', '');
-		$this->uidKey = $cfg->getString('uidKey', 'uid');
-		$this->enabledPath = $cfg->getString('enabledPath', 'privacyIDEA');
-		$this->enabledKey = $cfg->getString('enabledKey', 'enabled');
-		$this->serviceAccount = $cfg->getString('serviceAccount', '');
-		$this->servicePass = $cfg->getString('servicePass', '');
+		$this->serverconfig['privacyideaserver'] = $cfg->getString('privacyideaserver', '');
+		$this->serverconfig['sslverifyhost'] = $cfg->getBoolean('sslverifyhost', true);
+		$this->serverconfig['sslverifypeer'] = $cfg->getBoolean('sslverifypeer', true);
+		$this->serverconfig['realm'] = $cfg->getString('realm', '');
+		$this->serverconfig['uidKey'] = $cfg->getString('uidKey', 'uid');
+		$this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', 'privacyIDEA');
+		$this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', 'enabled');
+		$this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', '');
+		$this->serverconfig['servicePass'] = $cfg->getString('servicePass', '');
 
 	}
 
 	public function process( &$state ) {
 
-		$state['privacyidea:serverconfig'] = array(
-    		'privacyIDEA_URL' => $this->privacyIDEA_URL,
-		    'sslverifyhost' => $this->sslverifyhost,
-		    'sslverifypeer' => $this->sslverifypeer,
-		    'realm' => $this->realm,
-		    'uidKey' => $this->uidKey,
-			'enabledPath' => $this->enabledPath,
-			'enabledKey' => $this->enabledKey,
-			'serviceAccount' => $this->serviceAccount,
-			'servicePass' => $this->servicePass,
-		);
-		SimpleSAML_Logger::debug("privacyIDEA: enabledPath " . $this->enabledPath);
-		SimpleSAML_Logger::debug("privacyIDEA: enabledPath " . $state['privacyidea:serverconfig']['enabledPath']);
+		foreach ( $this->serverconfig as $key => $value) {
+			$state['privacyidea:serverconfig'][$key] = $value;
+		}
 	}
 }

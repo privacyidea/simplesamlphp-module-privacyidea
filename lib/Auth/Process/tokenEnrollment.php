@@ -9,29 +9,6 @@
 class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_ProcessingFilter {
 
 	/**
-	 *
-	 */
-	private $privacyIDEA_URL;
-
-	/**
-	 * The administrator has to configure which token type the user should enroll.
-	 * @var String
-	 */
-	private $tokenType;
-
-	/**
-	 * The username for the service account
-	 * @var String
-	 */
-	private $serviceAccount;
-
-	/**
-	 * The password for the service account
-	 * @var String
-	 */
-	private $servicePass;
-
-	/**
 	 * This is the token, which will be fetched by the service account.
 	 * It is needed to get the number of tokens and to enroll one.
 	 * @var String
@@ -39,94 +16,47 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 	private $auth_token;
 
 	/**
-	 * Check if the hostname matches the name in the certificate
-	 * @var boolean
+	 * This contains the server configuration
+	 * @var array
 	 */
-	private $sslverifyhost;
-
-	/**
-	 * Check if the certificate is valid, signed by a trusted CA
-	 * @var boolean
-	 */
-	private $sslverifypeer;
-
-	/**
-	 * The key where the username is stored (must be under Attributes)
-	 * @var string
-	 */
-	private $uidKey;
-
-	/**
-	 * If another authproc filter should be able to turn on or off privacyIDEA, the path to the key be entered here.
-	 * @var string
-	 */
-	private $enabledPath;
-
-	/**
-	 * The location for the key to enable or disable 2FA with privacyIDEA.
-	 * @var string
-	 */
-	private $enabledKey;
+	private $serverconfig;
 
 	public function __construct( array $config, $reserved ) {
 		parent::__construct( $config, $reserved );
 		$cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:tokenEnrollment');
-		$this->privacyIDEA_URL = $cfg->getString('privacyideaserver', '');
-		$this->sslverifyhost = $cfg->getBoolean('sslverifyhost', null);
-		$this->sslverifypeer = $cfg->getBoolean('sslverifypeer', null);
-		$this->uidKey = $cfg->getString('uidKey', '');
-		$this->enabledPath = $cfg->getString('enabledPath', '');
-		$this->enabledKey = $cfg->getString('enabledKey', '');
-		$this->tokenType = $cfg->getString('tokenType', 'totp');
-		$this->serviceAccount = $cfg->getString('serviceAccount', '');
-		$this->servicePass = $cfg->getString('servicePass', '');
+        $this->serverconfig['privacyideaserver'] = $cfg->getString('privacyideaserver', null);
+        $this->serverconfig['sslverifyhost'] = $cfg->getBoolean('sslverifyhost', null);
+        $this->serverconfig['sslverifypeer'] = $cfg->getBoolean('sslverifypeer', null);
+        $this->serverconfig['realm'] = $cfg->getString('realm', null);
+        $this->serverconfig['uidKey'] = $cfg->getString('uidKey', null);
+        $this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', null);
+        $this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', null);
+        $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', null);
+	    $this->serverconfig['servicePass'] = $cfg->getString('servicePass', null);
+	    $this->serverconfig['tokenType'] = $cfg->getString('tokenType', 'totp');
 	}
 
 	public function process( &$state ) {
 
-		/**
-		 * If a configuration is not set in privacyidea:privacyidea,
-		 * We are using the config from privacyidea:serverconfig.
-		 */
-
-		if ($this->privacyIDEA_URL === '') {
-			$this->privacyIDEA_URL = $state['privacyidea:serverconfig']['privacyIDEA_URL'];
-		}
-		if ($this->sslverifyhost === null) {
-			$this->sslverifyhost = $state['privacyidea:serverconfig']['sslverifyhost'];
-		}
-		if ($this->sslverifypeer === null) {
-			$this->sslverifypeer = $state['privacyidea:serverconfig']['sslverifypeer'];
-		}
-		if ($this->uidKey === '') {
-			$this->uidKey = $state['privacyidea:serverconfig']['uidKey'];
-		}
-		if ($this->enabledPath === '') {
-			$this->enabledPath = $state['privacyidea:serverconfig']['enabledPath'];
-		}
-		if ($this->enabledKey === '') {
-			$this->enabledKey = $state['privacyidea:serverconfig']['enabledKey'];
-		}
-		if ($this->serviceAccount === '') {
-			$this->serviceAccount = $state['privacyidea:serverconfig']['serviceAccount'];
-		}
-		if ($this->servicePass === '') {
-			$this->servicePass = $state['privacyidea:serverconfig']['servicePass'];
-		}
+		foreach ($this->serverconfig as $key => $value) {
+	    	if ($value === null) {
+	    		$this->serverconfig[$key] = $state['privacyidea:serverconfig'][$key];
+		    }
+	    }
 
 
-		if(isset($state[$this->enabledPath][$this->enabledKey][0])) {
-			$piEnabled = $state[$this->enabledPath][$this->enabledKey][0];
+		if(isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
+			$piEnabled = $state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0];
 		} else {
 			$piEnabled = True;
 		}
 
-		if ($this->serviceAccount === '' or $this->servicePass === '') {
+		if ($this->serverconfig['serviceAccount'] === null or $this->serverconfig['servicePass'] === null) {
 			$piEnabled = False;
 			SimpleSAML_Logger::error("privacyIDEA service account for token enrollment is not set!");
 		}
 
-		if ($this->privacyIDEA_URL === '') {
+		if ($this->serverconfig['privacyideaserver'] === null) {
 			$piEnabled = False;
 			SimpleSAML_Logger::error("privacyIDEA url is not set!");
 		}
@@ -143,15 +73,15 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 
 		$curl_instance = curl_init();
 		$params        = array(
-			"user" => $state["Attributes"][$this->uidKey][0],
+			"user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
 			"genkey" => 1,
-			"type" => $this->tokenType,
+			"type" => $this->serverconfig['tokenType'],
 		);
 		$headers = array(
 			"authorization: " . $this->auth_token,
 		);
 
-		$url = $this->privacyIDEA_URL . "/token/init";
+		$url = $this->serverconfig['privacyideaserver'] . "/token/init";
 
 		curl_setopt( $curl_instance, CURLOPT_URL, $url );
 		curl_setopt( $curl_instance, CURLOPT_HEADER, true );
@@ -162,12 +92,12 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		curl_setopt( $curl_instance, CURLOPT_POST, 3 );
 		curl_setopt( $curl_instance, CURLOPT_POSTFIELDS, $params );
 
-		if ( $this->sslverifyhost ) {
+		if ( $this->serverconfig['sslverifyhost'] ) {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 2 );
 		} else {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 0 );
 		}
-		if ( $this->sslverifypeer ) {
+		if ( $this->serverconfig['sslverifypeer'] ) {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 2 );
 		} else {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 0 );
@@ -193,25 +123,25 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 
 		$curl_instance = curl_init();
 		$params = array(
-			"user" => $state["Attributes"][$this->uidKey][0],
+			"user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
 		);
 		$headers = array(
 			"authorization: " . $this->auth_token,
 		);
 
-		$url = $this->privacyIDEA_URL . "/token/?";
+		$url = $this->serverconfig['privacyideaserver'] . "/token/?";
 
 		curl_setopt( $curl_instance, CURLOPT_URL, $url . $params );
 		curl_setopt( $curl_instance, CURLOPT_HEADER, true );
 		curl_setopt( $curl_instance, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt( $curl_instance, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp" );
-		if ( $this->sslverifyhost ) {
+		if ( $this->serverconfig['sslverifyhost'] ) {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 2 );
 		} else {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 0 );
 		}
-		if ( $this->sslverifypeer ) {
+		if ( $this->serverconfig['sslverifypeer'] ) {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 2 );
 		} else {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 0 );
@@ -242,11 +172,11 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 
 		$curl_instance = curl_init();
 		$params        = array(
-			"username" => $this->serviceAccount,
-			"password" => $this->servicePass,
+			"username" => $this->serverconfig['serviceAccount'],
+			"password" => $this->serverconfig['servicePass'],
 		);
 
-		$url = $this->privacyIDEA_URL . "/auth";
+		$url = $this->serverconfig['privacyideaserver'] . "/auth";
 
 		curl_setopt( $curl_instance, CURLOPT_URL, $url );
 		curl_setopt( $curl_instance, CURLOPT_HEADER, true );
@@ -256,12 +186,12 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		curl_setopt( $curl_instance, CURLOPT_POST, 3 );
 		curl_setopt( $curl_instance, CURLOPT_POSTFIELDS, $params );
 
-		if ( $this->sslverifyhost ) {
+		if ( $this->serverconfig['sslverifyhost'] ) {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 2 );
 		} else {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 0 );
 		}
-		if ( $this->sslverifypeer ) {
+		if ( $this->serverconfig['sslverifypeer'] ) {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 2 );
 		} else {
 			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 0 );
