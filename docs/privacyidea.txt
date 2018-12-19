@@ -160,6 +160,16 @@ Use the following example:
          *  Check if the certificate is valid, signed by a trusted CA
          */
         'sslverifypeer'     => true,
+
+        /**
+         *  Here you need to enter the username of your service account
+         */
+        'serviceAccount'    => 'service',
+
+        /**
+         *  Enter here the password for your service account
+         */
+        'servicePass'       => 'service',
         
         /**
          *  Other authproc filters can disable 2FA if you want to.
@@ -198,14 +208,12 @@ Use the following example:
         'tokenType'         => 'totp',
 
         /**
-         *  Here you need to enter the username of your service account
+         *  If it is needed, you can overwrite the configuration here.
+         *  You have to use the same name as it is in privacyidea:serverconfig
+         *  For example:
+         *  'serviceAccount' => 'service',
+         *  'servicePass' => 'service',
          */
-        'serviceAccount'    => 'service',
-
-        /**
-         *  Enter here the password for your service account
-         */
-        'servicePass'       => 'service',
     ),
 
     /**
@@ -213,4 +221,12 @@ Use the following example:
      */
     25 => array(
         'class'             => 'privacyidea:privacyidea',
+        
+        /**
+         *  If it is needed, you can overwrite the configuration here.
+         *  You have to use the same name as it is in privacyidea:serverconfig
+         *  For example:
+         *  'serviceAccount' => 'service',
+         *  'servicePass' => 'service',
+         */
 ),
