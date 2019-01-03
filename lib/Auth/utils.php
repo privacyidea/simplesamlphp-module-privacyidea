@@ -18,8 +18,8 @@ class sspmod_privacyidea_Auth_utils {
 		curl_setopt($curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp");
 
 		if ($method_post) {
-				curl_setopt($curl_instance, CURLOPT_POST, 3);
-				curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
+			curl_setopt($curl_instance, CURLOPT_POST, 3);
+			curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
 		}
 		if ($serverconfig['sslverifyhost']) {
 			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
