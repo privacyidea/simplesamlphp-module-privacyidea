@@ -79,7 +79,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"authorization: " . $this->auth_token,
 		);
 
-		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/init");
+		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/init", true);
 		try {
 			$detail = $body->detail;
 			$googleurl = $detail->googleurl;
@@ -101,7 +101,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"authorization: " . $this->auth_token,
 		);
 
-		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/?");
+		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/?", false);
 		try {
 			$result = $body->result;
 			$value  = $result->value;
@@ -123,7 +123,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"password" => $this->serverconfig['servicePass'],
 		);
 
-		$body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/auth");
+		$body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/auth", true);
 		try {
 			$result = $body->result;
 			$value  = $result->value;

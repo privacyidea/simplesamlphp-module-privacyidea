@@ -169,7 +169,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         SimpleSAML_Logger::debug("user          : " . urlencode($username));
         SimpleSAML_Logger::debug("transaction_id: " . $transaction_id);
 
-        $body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/validate/samlcheck");
+        $body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/validate/samlcheck", true);
 
         $status = True;
         $value = False;

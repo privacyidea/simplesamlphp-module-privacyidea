@@ -115,7 +115,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    "realm"=> $cfg['realm'],
 	    );
 
-	    $body = sspmod_privacyidea_Auth_utils::curl($params, null, $cfg, "/validate/samlcheck");
+	    $body = sspmod_privacyidea_Auth_utils::curl($params, null, $cfg, "/validate/samlcheck", true);
 
 	    try {
 		    $result = $body->result;

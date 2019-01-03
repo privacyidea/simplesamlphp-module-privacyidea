@@ -5,7 +5,7 @@
  */
 class sspmod_privacyidea_Auth_utils {
 
-	public function curl($params, $headers, $serverconfig, $url_ending) {
+	public function curl($params, $headers, $serverconfig, $url_ending, $method_post) {
 		$curl_instance = curl_init();
 		$url = $serverconfig['privacyideaserver'] . $url_ending;
 
@@ -17,9 +17,7 @@ class sspmod_privacyidea_Auth_utils {
 		curl_setopt($curl_instance, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp");
 
-		if ($url_ending == "/token/init" ||
-		    $url_ending == "/auth" ||
-		    $url_ending == "/validate/samlcheck") {
+		if ($method_post) {
 				curl_setopt($curl_instance, CURLOPT_POST, 3);
 				curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
 		}
