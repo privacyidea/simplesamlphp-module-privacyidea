@@ -228,7 +228,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         }
 
         if ($status !== True) {
-            /* We got a valid JSON respnse, but the STATUS is false */
+            /* We got a valid JSON response, but the STATUS is false */
             throw new SimpleSAML_Error_BadRequest("Valid JSON response, but some internal error occured in privacyidea server.");
         } else {
             /* The STATUS is true, so we need to check the value */
