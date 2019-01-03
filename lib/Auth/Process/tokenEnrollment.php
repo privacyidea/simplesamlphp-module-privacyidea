@@ -44,7 +44,6 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		    }
 	    }
 
-
 		if(isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
 			$piEnabled = $state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0];
 		} else {
@@ -71,7 +70,6 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 
 	public function enrollToken ( &$state ) {
 
-		$curl_instance = curl_init();
 		$params        = array(
 			"user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
 			"genkey" => 1,
@@ -81,38 +79,13 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"authorization: " . $this->auth_token,
 		);
 
-		$url = $this->serverconfig['privacyideaserver'] . "/token/init";
-
-		curl_setopt( $curl_instance, CURLOPT_URL, $url );
-		curl_setopt( $curl_instance, CURLOPT_HEADER, true );
-		curl_setopt( $curl_instance, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt( $curl_instance, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp" );
-		// Add POST params
-		curl_setopt( $curl_instance, CURLOPT_POST, 3 );
-		curl_setopt( $curl_instance, CURLOPT_POSTFIELDS, $params );
-
-		if ( $this->serverconfig['sslverifyhost'] ) {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 2 );
-		} else {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 0 );
-		}
-		if ( $this->serverconfig['sslverifypeer'] ) {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 2 );
-		} else {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 0 );
-		}
-		if ( ! $response = curl_exec( $curl_instance ) ) {
-			throw new SimpleSAML_Error_BadRequest( "privacyIDEA: Bad request to PI server: " . curl_error( $curl_instance ) );
-		};
-		$header_size = curl_getinfo( $curl_instance, CURLINFO_HEADER_SIZE );
-		$body = json_decode( substr( $response, $header_size ) );
+		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/init");
 		try {
 			$detail = $body->detail;
 			$googleurl = $detail->googleurl;
 			$img = $googleurl->img;
-		} catch ( Exception $e ) {
-			throw new SimpleSAML_Error_BadRequest( "privacyIDEA: We were not able to read the response from the PI server" );
+		} catch (Exception $e) {
+			throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
 		}
 		return $img;
 
@@ -121,7 +94,6 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 
 	public function userHasToken( &$state ) {
 
-		$curl_instance = curl_init();
 		$params = array(
 			"user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
 		);
@@ -129,86 +101,36 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"authorization: " . $this->auth_token,
 		);
 
-		$url = $this->serverconfig['privacyideaserver'] . "/token/?";
-
-		curl_setopt( $curl_instance, CURLOPT_URL, $url . $params );
-		curl_setopt( $curl_instance, CURLOPT_HEADER, true );
-		curl_setopt( $curl_instance, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt( $curl_instance, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp" );
-		if ( $this->serverconfig['sslverifyhost'] ) {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 2 );
-		} else {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 0 );
-		}
-		if ( $this->serverconfig['sslverifypeer'] ) {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 2 );
-		} else {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 0 );
-		}
-		if ( ! $response = curl_exec( $curl_instance ) ) {
-			throw new SimpleSAML_Error_BadRequest( "privacyIDEA: Bad request to PI server: " . curl_error( $curl_instance ) );
-		};
-	    SimpleSAML_Logger::debug("privacyIDEA: \n\n\n" . $response . "\n\n\n");
-		$header_size = curl_getinfo( $curl_instance, CURLINFO_HEADER_SIZE );
-		$body = json_decode( substr( $response, $header_size ) );
+		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/?");
 		try {
 			$result = $body->result;
-			$value = $result->value;
-			$count = $value->count;
-		} catch ( Exception $e ) {
-			throw new SimpleSAML_Error_BadRequest( "privacyIDEA: We were not able to read the response from the PI server" );
+			$value  = $result->value;
+			$count  = $value->count;
+		} catch (Exception $e) {
+			throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
 		}
 		if ($count == 0) {
 			return false;
 		} else {
-			SimpleSAML_Logger::debug("privacyIDEA: user has" . $count . " tokens.");
 			return true;
 		}
-
 	}
 
 	public function fetchAuthToken() {
 
-		$curl_instance = curl_init();
-		$params        = array(
+		$params = array(
 			"username" => $this->serverconfig['serviceAccount'],
 			"password" => $this->serverconfig['servicePass'],
 		);
 
-		$url = $this->serverconfig['privacyideaserver'] . "/auth";
-
-		curl_setopt( $curl_instance, CURLOPT_URL, $url );
-		curl_setopt( $curl_instance, CURLOPT_HEADER, true );
-		curl_setopt( $curl_instance, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp" );
-		// Add POST params
-		curl_setopt( $curl_instance, CURLOPT_POST, 3 );
-		curl_setopt( $curl_instance, CURLOPT_POSTFIELDS, $params );
-
-		if ( $this->serverconfig['sslverifyhost'] ) {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 2 );
-		} else {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYHOST, 0 );
-		}
-		if ( $this->serverconfig['sslverifypeer'] ) {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 2 );
-		} else {
-			curl_setopt( $curl_instance, CURLOPT_SSL_VERIFYPEER, 0 );
-		}
-		if ( ! $response = curl_exec( $curl_instance ) ) {
-			throw new SimpleSAML_Error_BadRequest( "privacyIDEA: Bad request to PI server: " . curl_error( $curl_instance ) );
-		};
-		$header_size = curl_getinfo( $curl_instance, CURLINFO_HEADER_SIZE );
-		$body = json_decode( substr( $response, $header_size ) );
+		$body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/auth");
 		try {
 			$result = $body->result;
-			$value = $result->value;
-			$token = $value->token;
-		} catch ( Exception $e ) {
-			throw new SimpleSAML_Error_BadRequest( "privacyIDEA: We were not able to read the response from the PI server" );
+			$value  = $result->value;
+			$token  = $value->token;
+		} catch (Exception $e) {
+			throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
 		}
 		return $token;
-
 	}
 }

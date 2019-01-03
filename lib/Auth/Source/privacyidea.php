@@ -33,26 +33,11 @@
  */
 class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPassBase
 {
-
-    /**
-     * The URL of the privacyidea server
-     */
-    private $privacyideaserver;
-
-    /**
-     * If the sslcert should be checked
-     */
-    private $sslverifyhost;
-
-    /**
-     * If the sslcert should be checked
-     */
-    private $sslverifypeer;
-
-    /**
-     * The realm of the user
-     */
-    private $realm;
+	/**
+	 * The serverconfig is listed in this array
+	 * @var array
+	 */
+	private $serverconfig;
 
     /**
      * the otp_extra, default to 0
@@ -97,16 +82,16 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         parent::__construct($info, $config);
 
         if (array_key_exists('privacyideaserver', $config)) {
-            $this->privacyideaserver = $config['privacyideaserver'];
+            $this->serverconfig['privacyideaserver'] = $config['privacyideaserver'];
         }
         if (array_key_exists('realm', $config)) {
-            $this->realm = $config['realm'];
+            $this->serverconfig['realm'] = $config['realm'];
         }
         if (array_key_exists('sslverifyhost', $config)) {
-            $this->sslverifyhost = $config['sslverifyhost'];
+            $this->serverconfig['sslverifyhost'] = $config['sslverifyhost'];
         }
         if (array_key_exists('sslverifypeer', $config)) {
-            $this->sslverifypeer = $config['sslverifypeer'];
+            $this->serverconfig['sslverifypeer'] = $config['sslverifypeer'];
         }
         if (array_key_exists('attributemap', $config)) {
             $this->attributemap = $config['attributemap'];
@@ -146,17 +131,14 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         assert('is_string($password)');
         assert('is_string($transaction_id)');
 
-        $curl_instance = curl_init();
-
         // The parameters in an array do get get urlencoded!
         // But we encode the log data to avoid log execution
-        $url = $this->privacyideaserver . '/validate/samlcheck';
         $params = array(
             "user" => $username,
             "pass" => $password,
             );
-        if (strlen($this->realm) > 0) {
-            $params["realm"] = $this->realm;
+        if (strlen($this->serverconfig['realm']) > 0) {
+            $params["realm"] = $this->serverconfig['realm'];
         }
 
         if ($transaction_id) {
@@ -183,34 +165,11 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         }
 
         // Add some debug so we know what we are doing.
-        SimpleSAML_Logger::debug("privacyidea URL:" . $url);
+        SimpleSAML_Logger::debug("privacyidea URL:" . $this->serverconfig['privacyideaserver']);
         SimpleSAML_Logger::debug("user          : " . urlencode($username));
         SimpleSAML_Logger::debug("transaction_id: " . $transaction_id);
 
-        curl_setopt($curl_instance, CURLOPT_URL, $url);
-        curl_setopt($curl_instance, CURLOPT_HEADER, TRUE);
-        curl_setopt($curl_instance, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($curl_instance, CURLOPT_USERAGENT,'simpleSAMLphp/1.4');
-        // Add POST params
-        curl_setopt($curl_instance, CURLOPT_POST, 3);
-        curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
-
-        if ($this->sslverifyhost) {
-            curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
-        } else {
-            curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 0);
-        }
-        if ($this->sslverifypeer) {
-            curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 2);
-        } else {
-            curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 0);
-        }
-
-        if (!$response = curl_exec($curl_instance)) {
-            throw new SimpleSAML_Error_BadRequest("Bad Request to PI server: " . curl_error($curl_instance));
-        };
-        $header_size = curl_getinfo($curl_instance, CURLINFO_HEADER_SIZE);
-        $body = json_decode(substr($response, $header_size));
+        $body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/validate/samlcheck");
 
         $status = True;
         $value = False;
