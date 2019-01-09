@@ -140,39 +140,39 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 
 	    if ($status !== true) {
 		    throw new SimpleSAML_Error_BadRequest("privacyIDEA: Valid JSON response, but some internal error occured in PI server");
-	    } else {
-		    if ( $auth !== true ) {
-			    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
-			    $detail = $body->detail;
-			    $message = $detail->message;
-			    if (property_exists($detail, "transaction_id")){
-				    $transaction_id = $detail->transaction_id;
-			    }
-			    if (property_exists( $detail, "attributes")){
-				    $attributes = $detail->attributes;
-				    if (property_exists( $attributes, "u2fSignRequest")){
-					    SimpleSAML_Logger::debug("This is an U2F authentication request");
-					    SimpleSAML_Logger::debug(print_r($attributes, true));
-					    /*
-						 * In case of U2F the $attributes looks like this:
-						[img] => static/css/FIDO-U2F-Security-Key-444x444.png#012
-						[hideResponseInput] => 1#012
-						[u2fSignRequest] => [challenge] => yji-PL1V0QELilDL3m6Lc-1yahpKZiU-z6ye5Zz2mp8#012
-									[version] => U2F_V2#012
-									[keyHandle] => fxDKTr6o8EEGWPyEyRVDvnoeA0c6v-dgvbN-6Mxc6XBmEItsw#012
-									[appId] => https://172.16.200.138#012        )#012#012)
-						*/
-				    }
-			    }
-			    if ($transaction_id){
-				    /* If we have a transaction_id, we do challenge response */
-				    SimpleSAML_Logger::debug( "Throwing CHALLENGERESPONSE" );
-				    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $message, $attributes));
-			    }
-			    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
-			    throw new SimpleSAML_Error_Error( "WRONGUSERPASS" );
-		    }
 	    }
+	    if ( $auth !== true ) {
+		    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
+		    $detail = $body->detail;
+		    $message = $detail->message;
+		    if (property_exists($detail, "transaction_id")){
+			    $transaction_id = $detail->transaction_id;
+		    }
+		    if (property_exists( $detail, "attributes")){
+			    $attributes = $detail->attributes;
+			    if (property_exists( $attributes, "u2fSignRequest")){
+				    SimpleSAML_Logger::debug("This is an U2F authentication request");
+				    SimpleSAML_Logger::debug(print_r($attributes, true));
+				    /*
+					 * In case of U2F the $attributes looks like this:
+					[img] => static/css/FIDO-U2F-Security-Key-444x444.png#012
+					[hideResponseInput] => 1#012
+					[u2fSignRequest] => [challenge] => yji-PL1V0QELilDL3m6Lc-1yahpKZiU-z6ye5Zz2mp8#012
+								[version] => U2F_V2#012
+								[keyHandle] => fxDKTr6o8EEGWPyEyRVDvnoeA0c6v-dgvbN-6Mxc6XBmEItsw#012
+								[appId] => https://172.16.200.138#012        )#012#012)
+					*/
+			    }
+		    }
+		    if ($transaction_id){
+			    /* If we have a transaction_id, we do challenge response */
+			    SimpleSAML_Logger::debug( "Throwing CHALLENGERESPONSE" );
+			    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $message, $attributes));
+		    }
+		    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
+		    throw new SimpleSAML_Error_Error( "WRONGUSERPASS" );
+		}
+
 	    SimpleSAML_Logger::debug( "privacyIDEA: User authenticated successfully" );
 	    return true;
     }
