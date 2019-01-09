@@ -40,7 +40,7 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
 
 if ($u2fSignRequest) {
     // Add javascript for U2F support before including the header.
-    $this->data['head'] = '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>\n';
+    $this->data['head'] = '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>';
     $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js')) . '"></script>';
 }
 
