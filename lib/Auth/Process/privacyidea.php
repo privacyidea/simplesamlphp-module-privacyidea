@@ -146,9 +146,6 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
 		    $detail = $body->detail;
 		    $message = $detail->message;
-		    if (property_exists($detail, "transaction_id")){
-			    $transaction_id = $detail->transaction_id;
-		    }
 		    if (property_exists( $detail, "attributes")){
 			    $attributes = $detail->attributes;
 			    if (property_exists( $attributes, "u2fSignRequest")){
@@ -165,7 +162,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 					*/
 			    }
 		    }
-		    if ($transaction_id){
+		    if (property_exists($detail, "transaction_id")){
+		    	$transaction_id = $detail->transaction_id;
 			    /* If we have a transaction_id, we do challenge response */
 			    SimpleSAML_Logger::debug( "Throwing CHALLENGERESPONSE" );
 			    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $message, $attributes));
