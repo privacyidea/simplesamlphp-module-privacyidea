@@ -1,9 +1,18 @@
 <?php
 if(isset($this->data['auth_proc_filter_scenario'])) {
-    $this->data['errorcode'] = NULL;
-    $this->data['otp_extra'] = NULL;
-    $this->data['username'] = NULL;
-    $this->data['stateparams'] = NULL;
+	if (!isset($this->data['errorcode'])) {
+		$this->data['errorcode'] = null;
+	}
+	if (!isset($this->data['username'])) {
+		$this->data['username'] = null;
+	}
+	if (!isset($this->data['stateparams'])) {
+		$this->data['stateparams'] = null;
+	}
+	if (!isset($this->data['transaction_id'])) {
+	    $this->data['transaction_id'] = null;
+    }
+	$this->data['otp_extra'] = NULL;
 } else {
     $this->data['auth_proc_filter_scenario'] = 0;
 }
@@ -31,7 +40,7 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
 
 if ($u2fSignRequest) {
     // Add javascript for U2F support before including the header.
-    $this->data['head'] = '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>\n';
+    $this->data['head'] = '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>';
     $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js')) . '"></script>';
 }
 
@@ -85,9 +94,6 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
             <div class="form-panel first valid" id="gaia_firstform">
                 <div class="slide-out ">
                     <div class="input-wrapper focused">
-                        <?php
-                                if(!$this->data['auth_proc_filter_scenario']) {
-                        ?>
                         <!-- per line we have an identifier-shown -->
                         <div class="identifier-shown">
                             <?php
@@ -104,33 +110,35 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 echo '</label>';
                             }
                             ?>
-
                             <?php
-                            if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
-                                $rowspan = 1;
-                            } elseif (array_key_exists('organizations', $this->data)) {
-                                $rowspan = 3;
-                            } else {
-                                $rowspan = 2;
+                            if(!$this->data['auth_proc_filter_scenario']) {
+	                            if ( $this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled'] ) {
+		                            $rowspan = 1;
+	                            } elseif ( array_key_exists( 'organizations', $this->data ) ) {
+		                            $rowspan = 3;
+	                            } else {
+		                            $rowspan = 2;
+	                            }
+	                            ?>
+
+	                            <?php
+	                            if ( $this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled'] ) {
+		                            if ( $this->data['rememberUsernameEnabled'] ) {
+			                            echo str_repeat( "\t", 4 );
+			                            echo '<input type="checkbox" id="remember_username" tabindex="4" name="remember_username" value="Yes" ';
+			                            echo $this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ';
+			                            echo htmlspecialchars( $this->t( '{login:remember_username}' ) );
+		                            }
+		                            if ( $this->data['rememberMeEnabled'] ) {
+			                            echo str_repeat( "\t", 4 );
+			                            echo '<input type="checkbox" id="remember_me" tabindex="4" name="remember_me" value="Yes" ';
+			                            echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
+			                            echo htmlspecialchars( $this->t( '{login:remember_me}' ) );
+		                            }
+	                            }
                             }
                             ?>
 
-                            <?php
-                            if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
-                                if ($this->data['rememberUsernameEnabled']) {
-                                    echo str_repeat("\t", 4);
-                                    echo '<input type="checkbox" id="remember_username" tabindex="4" name="remember_username" value="Yes" ';
-                                    echo $this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ';
-                                    echo htmlspecialchars($this->t('{login:remember_username}'));
-                                }
-                                if ($this->data['rememberMeEnabled']) {
-                                    echo str_repeat("\t", 4);
-                                    echo '<input type="checkbox" id="remember_me" tabindex="4" name="remember_me" value="Yes" ';
-                                    echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
-                                    echo htmlspecialchars($this->t('{login:remember_me}'));
-                                }
-                            }
-                            ?>
 
                         </div>
                         <div class="identifier-shown">
@@ -143,6 +151,14 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 echo '<td style="padding: .3em;" colspan="2">' . htmlspecialchars($chal_resp_message) . '</td>';
                             } else {
                                 // normal login
+	                            if (isset($this->data['tokenQR'])) {
+		                            echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
+		                            ?>
+                                    <div class="tokenQR">
+			                            <?php echo '<img src="' . $this->data['tokenQR'] . '" />';?>
+                                    </div>
+		                            <?php
+	                            }
                                 echo '<td><label for="password">';
                                 echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . htmlspecialchars($password_text) . '" />';
                                 echo '</label></td>';
@@ -150,22 +166,10 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             ?>
 
                         </div>
-                        <?php
-                        }
-                        ?>
                         <div class="identifier-shown">
                             <?php
                                 // otp_extra == 1
-                                if ($this->data["otp_extra"] == 1 ||
-                                    $this->data['auth_proc_filter_scenario']) {
-                                    if (isset($this->data['tokenQR'])) {
-	                                    echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
-	                                    ?>
-	                                    <div class="tokenQR">
-	                                        <?php echo '<img src="' . $this->data['tokenQR'] . '" />';?>
-	                                    </div>
-                                        <?php
-                                    }
+                                if ($this->data["otp_extra"] == 1) {
                                     echo '<label for="OTP">';
                                     echo '<input type="password" id="OTP" tabindex="2" name="OTP" ';
                                     echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
