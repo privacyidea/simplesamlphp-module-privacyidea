@@ -109,61 +109,34 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 
 	    $cfg = $state['privacyidea:privacyidea'];
 
-        SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: running authenticate");
-	    $curl_instance = curl_init();
 	    $params = array(
 		    "user" => $state["Attributes"][$cfg['uidKey']][0],
 		    "pass" => $otp,
 		    "realm"=> $cfg['realm'],
 	    );
-	    SimpleSAML_Logger::debug("privacyIDEA: UID = " . $state["Attributes"][$cfg['uidKey']][0]);
 
-	    $url = $cfg['privacyideaserver'] . "/validate/samlcheck";
+	    $body = sspmod_privacyidea_Auth_utils::curl($params, null, $cfg, "/validate/samlcheck", "POST");
 
-	    curl_setopt($curl_instance, CURLOPT_URL, $url);
-	    SimpleSAML_Logger::debug("privacyIDEA: URL = " . $url);
-	    curl_setopt($curl_instance, CURLOPT_HEADER, TRUE);
-	    curl_setopt($curl_instance, CURLOPT_RETURNTRANSFER, TRUE);
-	    curl_setopt($curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp");
-	    // Add POST params
-	    curl_setopt($curl_instance, CURLOPT_POST, 3);
-	    curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
-
-	    if ($cfg['sslverifyhost']) {
-		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
-	    } else {
-		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 0);
-	    }
-	    if ($cfg['sslverifypeer']) {
-		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 2);
-	    } else {
-		    curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 0);
-	    }
-	    if(!$response = curl_exec($curl_instance)) {
-	        throw new SimpleSAML_Error_BadRequest("privacyIDEA: Bad request to PI server: " . curl_error($curl_instance));
-        };
-	    SimpleSAML_Logger::debug("privacyIDEA: \n\n\n" . $response . "\n\n\n");
-	    $header_size = curl_getinfo($curl_instance, CURLINFO_HEADER_SIZE);
-	    $body = json_decode(substr($response, $header_size));
 	    try {
-	        $result = $body->result;
-	        $status = $result->status;
-	        $value = $result->value->auth;
-        } catch (Exception $e) {
-	        throw new SimpleSAML_Error_BadRequest( "privacyIDEA: We were not able to read the response from the PI server");
-        }
+		    $result = $body->result;
+		    $status = $result->status;
+		    $value  = $result->value;
+		    $auth   = $value->auth;
+	    } catch (Exception $e) {
+		    throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
+	    }
 
-        if ($status !== True) {
-            throw new SimpleSAML_Error_BadRequest("Valid JSON Response, but some internal error occured in PI server");
-        } else {
-            if ($value !== True){
-                SimpleSAML_Logger::debug("privacyIDEA: Wrong user pass");
-                return False;
-            } else {
-	            SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully");
-                return True;
-            }
-        }
+	    if ($status !== true) {
+		    throw new SimpleSAML_Error_BadRequest("privacyIDEA: Valid JSON response, but some internal error occured in PI server");
+	    } else {
+		    if ($auth !== true) {
+			    SimpleSAML_Logger::debug( "privacyIDEA: Wrong user pass" );
+			    return false;
+		    } else {
+			    SimpleSAML_Logger::debug( "privacyIDEA: User authenticated successfully" );
+			    return true;
+		    }
+	    }
 
 
     }
