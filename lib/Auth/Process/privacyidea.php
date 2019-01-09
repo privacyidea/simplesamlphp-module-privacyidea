@@ -126,8 +126,9 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             SimpleSAML_Logger::debug("Authenticating with clientdata: " . urlencode($clientdata));
             $params["clientdata"] = $clientdata;
         }
-	    $body = sspmod_privacyidea_Auth_utils::curl($params, null, $cfg, "/validate/samlcheck", true);
 		$attributes = NULL;
+
+	    $body = sspmod_privacyidea_Auth_utils::curl($params, null, $cfg, "/validate/samlcheck", "POST");
 
 	    try {
 		    $result = $body->result;
