@@ -151,6 +151,14 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 echo '<td style="padding: .3em;" colspan="2">' . htmlspecialchars($chal_resp_message) . '</td>';
                             } else {
                                 // normal login
+	                            if (isset($this->data['tokenQR'])) {
+		                            echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
+		                            ?>
+                                    <div class="tokenQR">
+			                            <?php echo '<img src="' . $this->data['tokenQR'] . '" />';?>
+                                    </div>
+		                            <?php
+	                            }
                                 echo '<td><label for="password">';
                                 echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . htmlspecialchars($password_text) . '" />';
                                 echo '</label></td>';
@@ -162,14 +170,6 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             <?php
                                 // otp_extra == 1
                                 if ($this->data["otp_extra"] == 1) {
-                                    if (isset($this->data['tokenQR'])) {
-	                                    echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
-	                                    ?>
-	                                    <div class="tokenQR">
-	                                        <?php echo '<img src="' . $this->data['tokenQR'] . '" />';?>
-	                                    </div>
-                                        <?php
-                                    }
                                     echo '<label for="OTP">';
                                     echo '<input type="password" id="OTP" tabindex="2" name="OTP" ';
                                     echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
