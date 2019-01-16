@@ -42,6 +42,12 @@ class sspmod_privacyidea_Auth_utils {
 		if ($http_method === "POST") {
 			curl_setopt($curl_instance, CURLOPT_POST, 3);
 			curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
+		} elseif ($http_method === "GET") {
+			$params_str = '?';
+			foreach ($params as $key => $value) {
+				$params_str .=$key . "=" . $value . "&";
+			}
+			curl_setopt($curl_instance, CURLOPT_URL, $url . $params_str);
 		}
 		if ($serverconfig['sslverifyhost']) {
 			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
