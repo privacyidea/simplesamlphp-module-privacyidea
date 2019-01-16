@@ -17,7 +17,7 @@ if(isset($this->data['auth_proc_filter_scenario'])) {
     $this->data['auth_proc_filter_scenario'] = 0;
 }
 // First of all we determine how we were called
-$chal_resp_attributes = NULL;
+$multi_challenge = NULL;
 $chal_resp_message = '';
 $hideResponseInput = FALSE;
 $u2fSignRequest = NULL;
@@ -29,13 +29,24 @@ if ($this->data['otp_extra'] == 1){
 
 if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
     $password_text = $this->t('{privacyidea:privacyidea:otp}');
-    SimpleSAML_Logger::debug("Attributes: " . print_r($this->data["chal_resp_attributes"], TRUE));
-    $chal_resp_attributes = $this->data['chal_resp_attributes'];
-    $hideResponseInput = $chal_resp_attributes->hideResponseInput;
+    SimpleSAML_Logger::debug("multi_challenge: " . print_r($this->data["multi_challenge"], TRUE));
+    $multi_challenge = $this->data['multi_challenge'];
     $chal_resp_message = $this->data['chal_resp_message'];
     // check if this is U2F
-    $u2fSignRequest = $chal_resp_attributes->u2fSignRequest;
     SimpleSAML_Logger::debug("u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
+    $hideResponseInput = true;
+    $u2fSignRequest = false;
+    for ($i = 0; $i < count($multi_challenge); $i++) {
+        SimpleSAML_Logger::debug("multi_challenge " . $i . " hide: " . print_r($multi_challenge[$i]->attributes->hideResponseInput, TRUE));
+        // not all challenges have hideResponseInput true
+        if (!$multi_challenge[$i]->attributes->hideResponseInput) {
+            $hideResponseInput = false;
+        }
+        // we have at least one U2F token
+        if ($multi_challenge[$i]->attributes->u2fSignRequest) {
+            $u2fSignRequest = true;
+        }
+    }
 }
 
 if ($u2fSignRequest) {
@@ -251,11 +262,21 @@ $this->includeAtTemplateBase('includes/footer.php');
 if ($u2fSignRequest) {
     // We call the U2F signing function
     SimpleSAML_Logger::debug("Calling Javascript with u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
+    SimpleSAML_Logger::debug("Calling Javascript with multi_challenge: " . print_r($multi_challenge, TRUE));
+    for ($i = 0; $i < count($multi_challenge); $i++) {
+        SimpleSAML_Logger::debug("multi_challenge u2fSignRequest: " . print_r($multi_challenge[$i]->attributes->u2fSignRequest, TRUE));
+        $signRequests[$i] = $multi_challenge[$i]->attributes->u2fSignRequest;
+    }
+    SimpleSAML_Logger::debug("signRequests: " . print_r($signRequests, TRUE));
+    SimpleSAML_Logger::debug("signRequests json: " . json_encode($signRequests, TRUE));
     echo '<script type="text/javascript">';
-    echo 'sign_u2f_request(';
-    echo json_encode($u2fSignRequest->challenge) . ',';
-    echo json_encode($u2fSignRequest->keyHandle) . ',';
-    echo json_encode($u2fSignRequest->appId) . ');';
+	echo 'var signRequests = ' . json_encode($signRequests) . ';';
+	echo '    u2f.sign(signRequests, function (result) {
+                console.log(result);
+                document.getElementById("signatureData").value = result.signatureData;
+                document.getElementById("clientData").value = result.clientData;
+                document.forms["piLoginForm"].submit();
+        });';
     echo '</script>';
 }
 ?>

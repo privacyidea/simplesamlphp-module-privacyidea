@@ -173,7 +173,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         $status = True;
         $value = False;
-        $attributes = NULL;
+        $multi_challenge = NULL;
         $transaction_id = NULL;
 
         try {
@@ -194,28 +194,16 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
             if ($value !== True) {
                 SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
                 $detail = $body->detail;
-                $message = $detail->message;
-                if (property_exists($detail, "attributes")) {
-                    $attributes = $detail->attributes;
-                    if (property_exists($attributes, "u2fSignRequest")) {
-                        SimpleSAML_Logger::debug("This is an U2F authentication request");
-                        SimpleSAML_Logger::debug(print_r($attributes, TRUE));
-                        /*
-                         * In case of U2F the $attributes looks like this:
-                        [img] => static/css/FIDO-U2F-Security-Key-444x444.png#012
-                        [hideResponseInput] => 1#012
-                        [u2fSignRequest] => [challenge] => yji-PL1V0QELilDL3m6Lc-1yahpKZiU-z6ye5Zz2mp8#012
-                                    [version] => U2F_V2#012
-                                    [keyHandle] => fxDKTr6o8EEGWPyEyRVDvnoeA0c6v-dgvbN-6Mxc6XBmEItsw#012
-                                    [appId] => https://172.16.200.138#012        )#012#012)
-                        */
-                    }
+
+                if (property_exists($detail, "multi_challenge")) {
+                	$multi_challenge = $detail->multi_challenge;
                 }
+
                 if (property_exists($detail, "transaction_id")) {
                 	$transaction_id = $detail->transaction_id;
                     /* If we have a transaction_id, we do challenge response */
                     SimpleSAML_Logger::debug("Throwing CHALLENGERESPONSE");
-                    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $message, $attributes));
+                    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $multi_challenge));
                 }
                 SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
                 throw new SimpleSAML_Error_Error("WRONGUSERPASS");

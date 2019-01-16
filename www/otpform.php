@@ -44,11 +44,15 @@
 	            $uidKey = $state['privacyidea:privacyidea']['uidKey'];
 	            $username = $state['Attributes'][$uidKey][0];
 	            $transaction_id = $errorParams[1];
-	            $message = $errorParams[2];
-	            $attributes = $errorParams[3];
+	            $message = 'Please confirm with one of these tokens';
+	            $multi_challenge = $errorParams[2];
 	            SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
-	            SimpleSAML_Logger::debug("Challenge Response message: ". $errorParams[2]);
-	            SimpleSAML_Logger::debug("Challenge Response attributes: ". print_r($attributes, TRUE));
+	            SimpleSAML_Logger::debug("Challenge Response multi_challenge: " . print_r($multi_challenge, TRUE));
+	            for ($i = 0; $i < count($multi_challenge); $i++) {
+	            	SimpleSAML_Logger::debug("Token serial " . $i . ": " . print_r($multi_challenge[$i]->serial, TRUE));
+	            	$message = $message . ' ' . $multi_challenge[$i]->serial;
+	            }
+	            SimpleSAML_Logger::debug("Challenge Response message: " . $message);
 	        }
 		}
 	}
@@ -67,7 +71,7 @@
 	if (isset($username)) {
         $tpl->data['transaction_id'] = $transaction_id;
         $tpl->data['chal_resp_message'] = $message;
-        $tpl->data['chal_resp_attributes'] = $attributes;
+        $tpl->data['multi_challenge'] = $multi_challenge;
         $tpl->data['errorcode'] = $errorCode;
 		$tpl->data['errorparams'] = $errorParams;
 	}
