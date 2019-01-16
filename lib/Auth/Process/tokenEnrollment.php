@@ -101,7 +101,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 			"authorization: " . $this->auth_token,
 		);
 
-		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/?", "GET");
+		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/", "GET");
 		try {
 			$result = $body->result;
 			$value  = $result->value;
