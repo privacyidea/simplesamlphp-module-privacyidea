@@ -68,7 +68,9 @@
         $tpl->data['transaction_id'] = $transaction_id;
         $tpl->data['chal_resp_message'] = $message;
         $tpl->data['chal_resp_attributes'] = $attributes;
-        $tpl->data['errorcode'] = $errorCode;
+	}
+	if (isset($errorCode)) {
+		$tpl->data['errorcode'] = $errorCode;
 		$tpl->data['errorparams'] = $errorParams;
 	}
 	$tpl->data['forceUsername'] = TRUE;
