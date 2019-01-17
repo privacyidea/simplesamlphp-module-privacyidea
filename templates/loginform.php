@@ -15,6 +15,9 @@ if(isset($this->data['auth_proc_filter_scenario'])) {
 	$this->data['otp_extra'] = NULL;
 } else {
     $this->data['auth_proc_filter_scenario'] = 0;
+    $this->data['use_otp'] = null;
+    $this->data['use_u2f'] = null;
+    $this->data['doChallengeResponse'] = false;
 }
 // First of all we determine how we were called
 $multi_challenge = NULL;
@@ -23,11 +26,13 @@ $hideResponseInput = FALSE;
 $u2fSignRequest = NULL;
 if ($this->data['otp_extra'] == 1){
     $password_text = $this->t('{privacyidea:privacyidea:password}');
+} elseif ($this->data['use_otp']) {
+    $password_text = $this->t('{privacyidea:privacyidea:otp}');
 } else {
     $password_text = $this->t('{privacyidea:privacyidea:password_otp}');
 }
 
-if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
+if ($this->data['errorcode'] === "CHALLENGERESPONSE" || $this->data['doChallengeResponse']) {
     $password_text = $this->t('{privacyidea:privacyidea:otp}');
     SimpleSAML_Logger::debug("multi_challenge: " . print_r($this->data["multi_challenge"], TRUE));
     $multi_challenge = $this->data['multi_challenge'];
@@ -37,14 +42,16 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
     $hideResponseInput = true;
     $u2fSignRequest = false;
     for ($i = 0; $i < count($multi_challenge); $i++) {
-        SimpleSAML_Logger::debug("multi_challenge " . $i . " hide: " . print_r($multi_challenge[$i]->attributes->hideResponseInput, TRUE));
-        // not all challenges have hideResponseInput true
-        if (!$multi_challenge[$i]->attributes->hideResponseInput) {
-            $hideResponseInput = false;
-        }
-        // we have at least one U2F token
-        if ($multi_challenge[$i]->attributes->u2fSignRequest) {
-            $u2fSignRequest = true;
+        if ($multi_challenge[$i]->type === "u2f") {
+	        SimpleSAML_Logger::debug( "multi_challenge " . $i . " hide: " . print_r( $multi_challenge[ $i ]->attributes->hideResponseInput, true ) );
+	        // not all challenges have hideResponseInput true
+	        if ( ! $multi_challenge[ $i ]->attributes->hideResponseInput ) {
+		        $hideResponseInput = false;
+	        }
+	        // we have at least one U2F token
+	        if ( $multi_challenge[ $i ]->attributes->u2fSignRequest ) {
+		        $u2fSignRequest = true;
+	        }
         }
     }
 }
@@ -160,7 +167,8 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             if ($hideResponseInput) {
                                 // challenge response without OTP
                                 echo '<td style="padding: .3em;" colspan="2">' . htmlspecialchars($chal_resp_message) . '</td>';
-                            } else {
+                            }
+                            if (!$hideResponseInput || $this->data['use_otp']){
                                 // normal login
 	                            if (isset($this->data['tokenQR'])) {
 		                            echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
@@ -225,7 +233,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                     <div class="identifier-captcha">
                         <?php
                             $text = $this->t('{login:login_button}');
-                            if ($u2fSignRequest === NULL) {
+                            if ($u2fSignRequest === NULL || $this->data['use_otp']) {
                                 printf('<input class="rc-button rc-button-submit" type="submit" tabindex="4" id="regularsubmit" value="%s" />', htmlspecialchars($text));
                             }
                             ?>
@@ -264,8 +272,10 @@ if ($u2fSignRequest) {
     SimpleSAML_Logger::debug("Calling Javascript with u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
     SimpleSAML_Logger::debug("Calling Javascript with multi_challenge: " . print_r($multi_challenge, TRUE));
     for ($i = 0; $i < count($multi_challenge); $i++) {
-        SimpleSAML_Logger::debug("multi_challenge u2fSignRequest: " . print_r($multi_challenge[$i]->attributes->u2fSignRequest, TRUE));
-        $signRequests[$i] = $multi_challenge[$i]->attributes->u2fSignRequest;
+        if ($multi_challenge[$i]->type === "u2f") {
+	        SimpleSAML_Logger::debug( "multi_challenge u2fSignRequest: " . print_r( $multi_challenge[ $i ]->attributes->u2fSignRequest, true ) );
+	        $signRequests[] = $multi_challenge[ $i ]->attributes->u2fSignRequest;
+        }
     }
     SimpleSAML_Logger::debug("signRequests: " . print_r($signRequests, TRUE));
     SimpleSAML_Logger::debug("signRequests json: " . json_encode($signRequests, TRUE));

@@ -69,4 +69,21 @@ class sspmod_privacyidea_Auth_utils {
 		return $body;
 	}
 
+	public function fetchAuthToken($serverconfig) {
+		$params = array(
+			"username" => $serverconfig['serviceAccount'],
+			"password" => $serverconfig['servicePass'],
+		);
+
+		$body = self::curl($params, null, $serverconfig, "/auth", "POST");
+		try {
+			$result = $body->result;
+			$value = $result->value;
+			$token = $value->token;
+		} catch (Exception $e) {
+			throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
+		}
+		return $token;
+	}
+
 }

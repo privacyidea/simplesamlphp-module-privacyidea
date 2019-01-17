@@ -170,6 +170,11 @@ Use the following example:
          *  Enter here the password for your service account
          */
         'servicePass'       => 'service',
+
+        /**
+         *  You can enable or disable trigger challenge
+         */
+        'doTriggerChallenge' => true
         
         /**
          *  Other authproc filters can disable 2FA if you want to.
