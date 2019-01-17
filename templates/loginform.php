@@ -31,7 +31,7 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE") {
     $password_text = $this->t('{privacyidea:privacyidea:otp}');
     SimpleSAML_Logger::debug("multi_challenge: " . print_r($this->data["multi_challenge"], TRUE));
     $multi_challenge = $this->data['multi_challenge'];
-    $chal_resp_message = $this->data['chal_resp_message'];
+    $chal_resp_message = $this->t('{privacyidea:privacyidea:chal_resp_message}') . $this->data['chal_resp_message'];
     // check if this is U2F
     SimpleSAML_Logger::debug("u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
     $hideResponseInput = true;

@@ -109,7 +109,7 @@ if (!empty($_REQUEST['username']) || !empty($password)) {
             /* In case of challenge response we do not change the username */
             $state['forcedUsername'] = $username;
             $transaction_id = $errorParams[1];
-            $message = 'Please confirm with one of these tokens: ';
+            $message = '';
             $multi_challenge = $errorParams[2];
             SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
             SimpleSAML_Logger::debug("Challenge Response multi_challenge: " . print_r($multi_challenge, TRUE));

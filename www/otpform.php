@@ -44,7 +44,7 @@
 	            $uidKey = $state['privacyidea:privacyidea']['uidKey'];
 	            $username = $state['Attributes'][$uidKey][0];
 	            $transaction_id = $errorParams[1];
-	            $message = 'Please confirm with one of these tokens';
+	            $message = '';
 	            $multi_challenge = $errorParams[2];
 	            SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
 	            SimpleSAML_Logger::debug("Challenge Response multi_challenge: " . print_r($multi_challenge, TRUE));
