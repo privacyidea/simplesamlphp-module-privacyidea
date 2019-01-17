@@ -39,6 +39,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         $this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', null);
         $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', null);
 	    $this->serverconfig['servicePass'] = $cfg->getString('servicePass', null);
+	    $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', null);
      }
 
     /**
@@ -83,6 +84,43 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		}
 
 		if($piEnabled) {
+			if ($this->serverconfig['doTriggerChallenge']) {
+				$authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
+				$params = array(
+					"user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
+				);
+				$headers = array(
+					"authorization:" . $authToken,
+				);
+				$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/validate/triggerchallenge", "POST");
+				try {
+					$detail = $body->detail;
+					$multi_challenge = $detail->multi_challenge;
+				} catch (Exception $e) {
+					throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
+				}
+				$use_u2f = false;
+				$use_otp = false;
+				for ($i = 0; $i < count($multi_challenge); $i++) {
+					if ($multi_challenge[$i]->type === "u2f") {
+						$use_u2f = true;
+					} else {
+						$use_otp = true;
+					}
+				}
+				if ($use_u2f === true) {
+					SimpleSAML_Logger::debug("privacyIDEA: The user has u2f token");
+					$state['privacyidea:privacyidea:doTriggerChallenge'] = array(
+						"transaction_id" => $detail->transaction_id,
+						"multi_challenge" => $multi_challenge,
+					);
+				}
+				if ($use_otp === true) {
+					SimpleSAML_Logger::debug("privacyIDEA: The user has otp token");
+				}
+				$state['privacyidea:privacyidea:doTriggerChallenge']['use_u2f'] = $use_u2f;
+				$state['privacyidea:privacyidea:doTriggerChallenge']['use_otp'] = $use_otp;
+			}
 			SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
 			$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
 			$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );

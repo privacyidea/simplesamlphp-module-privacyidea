@@ -61,7 +61,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		}
 
 		if ($piEnabled) {
-			$this->auth_token = $this->fetchAuthToken();
+			$this->auth_token = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
 			if (!$this->userHasToken($state)) {
 				$state['privacyidea:tokenEnrollment']['tokenQR'] = $this->enrollToken($state);
 			}
@@ -114,23 +114,5 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		} else {
 			return true;
 		}
-	}
-
-	public function fetchAuthToken() {
-
-		$params = array(
-			"username" => $this->serverconfig['serviceAccount'],
-			"password" => $this->serverconfig['servicePass'],
-		);
-
-		$body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/auth", "POST");
-		try {
-			$result = $body->result;
-			$value  = $result->value;
-			$token  = $value->token;
-		} catch (Exception $e) {
-			throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-		}
-		return $token;
 	}
 }
