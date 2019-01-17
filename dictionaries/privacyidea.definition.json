@@ -28,5 +28,8 @@
 	},
 	"scanTokenQR": {
 		"en": "Scan this QR code with an app like Google Authenticator or privacyIDEA Authenticator and enter the displayed code below."
+	},
+	"chal_resp_message": {
+		"en": "Please confirm with one of these tokens: "
 	}
 }

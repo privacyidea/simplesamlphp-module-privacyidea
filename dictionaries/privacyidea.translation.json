@@ -37,5 +37,8 @@
 	},
 	"scanTokenQR": {
 		"de": "Scannen Sie den QR-Code mit einer App, wie dem Google Authenticator oder privacyIDEA Authenticator und geben Sie den angezeigten Code unten ein."
+	},
+	"chal_resp_message": {
+		"de": "Bitte bestätigen Sie mit einem der folgenden Token: "
 	}
 }
