@@ -63,33 +63,43 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 		if ($piEnabled) {
 			$this->auth_token = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
 			if (!$this->userHasToken($state)) {
-				$state['privacyidea:tokenEnrollment']['tokenQR'] = $this->enrollToken($state);
+				$body = $this->enrollToken($state);
+				if ($this->serverconfig['tokenType'] === "u2f") {
+					try {
+						$detail = $body->detail;
+						$serial = $detail->serial;
+						$state['privacyidea:tokenEnrollment']['serial'] = $serial;
+						$state['privacyidea:tokenEnrollment']['authToken'] = $this->auth_token;
+					} catch (Exception $e) {
+						throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
+					}
+				} else {
+					try {
+						$detail = $body->detail;
+						$googleurl = $detail->googleurl;
+						$img = $googleurl->img;
+						$state['privacyidea:tokenEnrollment']['tokenQR'] = $img;
+					} catch (Exception $e) {
+						throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
+					}
+				}
 			}
 		}
 	}
 
-	public function enrollToken ( &$state ) {
+	public function enrollToken (&$state) {
 
 		$params        = array(
 			"user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
 			"genkey" => 1,
 			"type" => $this->serverconfig['tokenType'],
+			"description" => "Enrolled with simpleSAMLphp",
 		);
 		$headers = array(
 			"authorization: " . $this->auth_token,
 		);
 
-		$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/init", "POST");
-		try {
-			$detail = $body->detail;
-			$googleurl = $detail->googleurl;
-			$img = $googleurl->img;
-		} catch (Exception $e) {
-			throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-		}
-		return $img;
-
-
+		return sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/init", "POST");
 	}
 
 	public function userHasToken( &$state ) {

@@ -142,7 +142,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
      * length.
      */
 
-    public static function authenticate(array &$state, $otp, $transaction_id, $signaturedata, $clientdata)
+    public static function authenticate(array &$state, $otp, $transaction_id, $signaturedata, $clientdata, $registrationdata)
     {
 
 	    $cfg = $state['privacyidea:privacyidea'];
@@ -164,8 +164,23 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             SimpleSAML_Logger::debug("Authenticating with clientdata: " . urlencode($clientdata));
             $params["clientdata"] = $clientdata;
         }
+        if ($registrationdata) {
+        	SimpleSAML_Logger::debug("Authenticating with regdata: " . urlencode($registrationdata));
+        	$params["regdata"] = $registrationdata;
+        }
         $multi_challenge = NULL;
 
+        if (isset($state['privacyidea:tokenEnrollment']['serial']) && $transaction_id) {
+        	$params['type'] = "u2f";
+        	$params['description'] = "Enrolled with simpleSAMLphp";
+        	$params['serial'] = $state['privacyidea:tokenEnrollment']['serial'];
+        	$authToken = $state['privacyidea:tokenEnrollment']['authToken'];
+        	$headers = array(
+		        "authorization: " . $authToken,
+	        );
+        	$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $cfg, "/token/init", "POST");
+        	return true;
+        }
 	    $body = sspmod_privacyidea_Auth_utils::curl($params, null, $cfg, "/validate/samlcheck", "POST");
 
 	    try {
