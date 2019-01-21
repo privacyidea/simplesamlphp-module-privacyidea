@@ -208,7 +208,7 @@ Use the following example:
         'class'             => 'privacyidea:tokenEnrollment',
 
         /**
-         *  You can select a time based otp (totp) or an event based otp (hotp)
+         *  You can select a time based otp (totp), an event based otp (hotp) or a u2f (u2f)
          */
         'tokenType'         => 'totp',
 
