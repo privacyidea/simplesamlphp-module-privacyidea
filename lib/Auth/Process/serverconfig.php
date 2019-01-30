@@ -38,17 +38,17 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 	public function process( &$state ) {
 
 	    if (is_array($this->serverconfig['uidKey'])) {
-            foreach ($this->serverconfig['uidKey'] as $uidKey) {
-                SimpleSAML_Logger::debug("uidArray: " . $uidKey);
-                if (isset($state['Attributes'][$uidKey][0])){
-                    $this->serverconfig['uidKey'] = $uidKey;
-                    break;
+                foreach ($this->serverconfig['uidKey'] as $uidKey) {
+                    SimpleSAML_Logger::debug("uidArray: " . $uidKey);
+                    if (isset($state['Attributes'][$uidKey][0])){
+                        $this->serverconfig['uidKey'] = $uidKey;
+                        break;
+                    }
                 }
             }
-        }
 
-		foreach ( $this->serverconfig as $key => $value) {
-			$state['privacyidea:serverconfig'][$key] = $value;
-		}
+	    foreach ( $this->serverconfig as $key => $value) {
+		$state['privacyidea:serverconfig'][$key] = $value;
+	    }
 	}
 }
