@@ -21,12 +21,12 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		$this->serverconfig['sslverifypeer'] = $cfg->getBoolean('sslverifypeer', true);
 		$this->serverconfig['realm'] = $cfg->getString('realm', '');
 		try {
-            $this->serverconfig['uidKey'] = $cfg->getArray('uidKey');
-            SimpleSAML_Logger::debug("uidArray: try");
-        } catch (Exception $e) {
-            $this->serverconfig['uidKey'] = $cfg->getString('uidKey', 'uid');
-            SimpleSAML_Logger::debug("uidArray: catch");
-        }
+            	    $this->serverconfig['uidKey'] = $cfg->getArray('uidKey');
+            	    SimpleSAML_Logger::debug("uidArray: try");
+        	} catch (Exception $e) {
+            	    $this->serverconfig['uidKey'] = $cfg->getString('uidKey', 'uid');
+            	    SimpleSAML_Logger::debug("uidArray: catch");
+        	}
 		$this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', 'privacyIDEA');
 		$this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', 'enabled');
 		$this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', '');
