@@ -21,6 +21,11 @@
             $clientData = (string)$_REQUEST['clientData'];
             SimpleSAML_Logger::debug("clientdata: " . $clientData);
 		}
+		$registrationData = '';
+		if (array_key_exists('registrationData', $_REQUEST)) {
+			$registrationData = (string)$_REQUEST['registrationData'];
+			SimpleSAML_Logger::debug("registrationdata: " . $registrationData);
+		}
 		if (isset($_REQUEST['password'])) {
 			$password = $_REQUEST['password'];
 		} else {
@@ -28,7 +33,7 @@
 		}
 
 	    try {
-		    if(sspmod_privacyidea_Auth_Process_privacyidea::authenticate($state, $password, $transaction_id, $signatureData, $clientData)) {
+		    if(sspmod_privacyidea_Auth_Process_privacyidea::authenticate($state, $password, $transaction_id, $signatureData, $clientData, $registrationData)) {
 			    SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
 			    SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
 		    } else {
@@ -85,6 +90,10 @@
 		$tpl->data['tokenQR'] = $state['privacyidea:tokenEnrollment']['tokenQR'];
 	} else {
 		$tpl->data['tokenQR'] = null;
+	}
+	if (isset($state['privacyidea:tokenEnrollment']['enrollU2F'])) {
+		$tpl->data['serial'] = $state['privacyidea:tokenEnrollment']['serial'];
+		$tpl->data['enrollU2F'] = true;
 	}
 	$tpl->data['params'] = array('StateId' => $authStateId);
 

@@ -24,12 +24,15 @@
 		"en": "Please enter your Password and One Time Password"
 	},
 	"login_text_challenge": {
-		"en": "You entered the correct PIN or password. But now you also need to enter a valid One Time Password as the second factor."
+		"en": "You entered the correct PIN or password. But now you also need to use your second factor."
 	},
 	"scanTokenQR": {
 		"en": "Scan this QR code with an app like Google Authenticator or privacyIDEA Authenticator and enter the displayed code below."
 	},
 	"chal_resp_message": {
 		"en": "Please confirm with one of these tokens: "
+	},
+	"enroll_u2f": {
+		"en": "Please use your u2f device to finish the enrollment process"
 	}
 }

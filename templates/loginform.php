@@ -107,6 +107,9 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
             echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title}')) . '</h2>';
             echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text}')) . '</p>';
         } // end of !CHALLENGERESPONSE
+        if (isset($this->data['enrollU2F'])) {
+			echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:enroll_u2f}')) . '</p>';
+        }
         ?>
         <form action="" method="post" id="piLoginForm" name="piLoginForm" class="loginform">
             <div class="form-panel first valid" id="gaia_firstform">
@@ -121,6 +124,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 echo '<input type="hidden" id="transaction_id" name="transaction_id" value="' . htmlspecialchars($this->data['transaction_id']) . '" />';
                                 echo '<input type="hidden" id="clientData" name="clientData" value="" />';
                                 echo '<input type="hidden" id="signatureData" name="signatureData" value="" />';
+                                echo '<input type="hidden" id="registrationData" name="registrationData" value="" />';
                             } else {
                                 echo '<label for="username">';
                                 echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username']) . '"';
@@ -280,13 +284,23 @@ if ($u2fSignRequest) {
     SimpleSAML_Logger::debug("signRequests: " . print_r($signRequests, TRUE));
     SimpleSAML_Logger::debug("signRequests json: " . json_encode($signRequests, TRUE));
     echo '<script type="text/javascript">';
-	echo 'var signRequests = ' . json_encode($signRequests) . ';';
-	echo '    u2f.sign(signRequests, function (result) {
-                console.log(result);
-                document.getElementById("signatureData").value = result.signatureData;
-                document.getElementById("clientData").value = result.clientData;
-                document.forms["piLoginForm"].submit();
-        });';
+    if (isset($this->data['enrollU2F'])) {
+        for ($i = 0; $i < count($multi_challenge); $i++) {
+            if ($multi_challenge[$i]->serial = $this->data['serial']) {
+                $attributes = $multi_challenge[$i]->attributes;
+                $u2fSignRequest = $attributes->u2fSignRequest;
+            }
+        }
+        echo 'register_u2f_request(';
+        echo json_encode($u2fSignRequest->appId) . ", ";
+        echo json_encode($u2fSignRequest->challenge) . ", ";
+        echo json_encode($u2fSignRequest->keyHandle);
+	    echo ');';
+    } else {
+	    echo 'sign_u2f_request(';
+        echo json_encode($signRequests);
+        echo ');';
+    }
     echo '</script>';
 }
 ?>
