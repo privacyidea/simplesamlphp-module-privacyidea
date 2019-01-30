@@ -22,10 +22,8 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		$this->serverconfig['realm'] = $cfg->getString('realm', '');
 		try {
             	    $this->serverconfig['uidKey'] = $cfg->getArray('uidKey');
-            	    SimpleSAML_Logger::debug("uidArray: try");
         	} catch (Exception $e) {
-            	    $this->serverconfig['uidKey'] = $cfg->getString('uidKey', 'uid');
-            	    SimpleSAML_Logger::debug("uidArray: catch");
+            	    $this->serverconfig['uidKey'] = array($cfg->getString('uidKey', 'uid'));
         	}
 		$this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', 'privacyIDEA');
 		$this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', 'enabled');
@@ -37,15 +35,12 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 
 	public function process( &$state ) {
 
-	    if (is_array($this->serverconfig['uidKey'])) {
-                foreach ($this->serverconfig['uidKey'] as $uidKey) {
-                    SimpleSAML_Logger::debug("uidArray: " . $uidKey);
-                    if (isset($state['Attributes'][$uidKey][0])){
-                        $this->serverconfig['uidKey'] = $uidKey;
-                        break;
-                    }
-                }
-            }
+	    foreach ($this->serverconfig['uidKey'] as $uidKey) {
+	        if (isset($state['Attributes'][$uidKey][0])){
+	            $this->serverconfig['uidKey'] = $uidKey;
+	            break;
+	        }
+	    }
 
 	    foreach ( $this->serverconfig as $key => $value) {
 		$state['privacyidea:serverconfig'][$key] = $value;
