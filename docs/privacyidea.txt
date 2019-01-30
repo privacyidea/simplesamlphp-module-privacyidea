@@ -148,8 +148,10 @@ Use the following example:
 
         /**
          *  The uidKey is the username's attribute key.
+         *  You can choose a single one or multiple ones. The first set will be used.
          */
         'uidKey'            => 'uid',
+        //  'uidKey'        => array('uid', 'userName', 'uName'),
 
         /**
          *  Check if the hostname matches the name in the certificate (set to true or false)
