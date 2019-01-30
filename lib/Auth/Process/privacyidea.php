@@ -170,7 +170,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         }
         $multi_challenge = NULL;
 
-        if (isset($state['privacyidea:tokenEnrollment']['serial']) && $transaction_id) {
+        if (isset($state['privacyidea:tokenEnrollment']['enrollU2F']) && $transaction_id) {
         	$params['type'] = "u2f";
         	$params['description'] = "Enrolled with simpleSAMLphp";
         	$params['serial'] = $state['privacyidea:tokenEnrollment']['serial'];

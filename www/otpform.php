@@ -91,8 +91,9 @@
 	} else {
 		$tpl->data['tokenQR'] = null;
 	}
-	if (isset($state['privacyidea:tokenEnrollment']['serial'])) {
+	if (isset($state['privacyidea:tokenEnrollment']['enrollU2F'])) {
 		$tpl->data['serial'] = $state['privacyidea:tokenEnrollment']['serial'];
+		$tpl->data['enrollU2F'] = true;
 	}
 	$tpl->data['params'] = array('StateId' => $authStateId);
 

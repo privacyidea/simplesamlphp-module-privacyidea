@@ -68,6 +68,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 					try {
 						$detail = $body->detail;
 						$serial = $detail->serial;
+						$state['privacyidea:tokenEnrollment']['enrollU2F'] = true;
 						$state['privacyidea:tokenEnrollment']['serial'] = $serial;
 						$state['privacyidea:tokenEnrollment']['authToken'] = $this->auth_token;
 					} catch (Exception $e) {

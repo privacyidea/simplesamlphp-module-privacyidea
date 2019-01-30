@@ -281,7 +281,7 @@ if ($u2fSignRequest) {
     SimpleSAML_Logger::debug("signRequests: " . print_r($signRequests, TRUE));
     SimpleSAML_Logger::debug("signRequests json: " . json_encode($signRequests, TRUE));
     echo '<script type="text/javascript">';
-    if (isset($this->data['serial'])) {
+    if (isset($this->data['enrollU2F'])) {
         for ($i = 0; $i < count($multi_challenge); $i++) {
             if ($multi_challenge[$i]->serial = $this->data['serial']) {
                 $attributes = $multi_challenge[$i]->attributes;
