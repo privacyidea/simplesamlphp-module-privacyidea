@@ -107,6 +107,9 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
             echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title}')) . '</h2>';
             echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text}')) . '</p>';
         } // end of !CHALLENGERESPONSE
+        if (isset($this->data['enrollU2F'])) {
+			echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:enroll_u2f}')) . '</p>';
+        }
         ?>
         <form action="" method="post" id="piLoginForm" name="piLoginForm" class="loginform">
             <div class="form-panel first valid" id="gaia_firstform">
