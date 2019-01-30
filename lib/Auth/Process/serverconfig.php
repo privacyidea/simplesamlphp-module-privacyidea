@@ -30,6 +30,7 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		$this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', '');
 		$this->serverconfig['servicePass'] = $cfg->getString('servicePass', '');
 		$this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', false);
+		$this->serverconfig['passOnNoToken'] = $cfg->getBoolean('passOnNoToken', false);
 
 	}
 

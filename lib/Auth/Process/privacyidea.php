@@ -44,6 +44,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', null);
 	    $this->serverconfig['servicePass'] = $cfg->getString('servicePass', null);
 	    $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', null);
+	    $this->serverconfig['passOnNoToken'] = $cfg->getBoolean('passOnNoToken', null);
      }
 
     /**
@@ -106,6 +107,17 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 					"authorization:" . $authToken,
 				);
 				$body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/validate/triggerchallenge", "POST");
+				if ($this->serverconfig['passOnNoToken']) {
+					try {
+						$result = $body->result;
+						$value = $result->value;
+					} catch (Exception $e) {
+						throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
+					}
+					if ($value === 0) {
+						return;
+					}
+				}
 				try {
 					$detail = $body->detail;
 					$multi_challenge = $detail->multi_challenge;
