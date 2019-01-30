@@ -34,7 +34,11 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         $this->serverconfig['sslverifyhost'] = $cfg->getBoolean('sslverifyhost', null);
         $this->serverconfig['sslverifypeer'] = $cfg->getBoolean('sslverifypeer', null);
         $this->serverconfig['realm'] = $cfg->getString('realm', null);
-        $this->serverconfig['uidKey'] = $cfg->getString('uidKey', null);
+         try {
+             $this->serverconfig['uidKey'] = array($cfg->getString('uidKey'));
+         } catch (Exception $e) {
+             $this->serverconfig['uidKey'] = $cfg->getArray('uidKey', null);
+         }
         $this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', null);
         $this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', null);
         $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', null);
@@ -57,6 +61,15 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	     * If a configuration is not set in privacyidea:tokenEnrollment,
 	     * We are using the config from privacyidea:serverconfig.
 	     */
+
+	    if (!empty($this->serverconfig['uidKey'])) {
+            foreach ($this->serverconfig['uidKey'] as $uidKey) {
+                if (isset($state['Attributes'][$uidKey][0])) {
+                    $this->serverconfig['uidKey'] = $uidKey;
+                    break;
+                }
+            }
+        }
 
 	    foreach ($this->serverconfig as $key => $value) {
 	    	if ($value === null) {
