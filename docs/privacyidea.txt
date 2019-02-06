@@ -195,6 +195,12 @@ Use the following example:
          */
 
         'tryFirstAuthentication' => true,
+
+        /**
+         *  You can decide, which password should be used for tryFirstAuthentication
+         */
+
+         'tryFirstAuthPass' => 'simpleSAMLphp',
     ),
 
     /**

@@ -45,6 +45,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	    $this->serverconfig['servicePass'] = $cfg->getString('servicePass', null);
 	    $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', null);
 	    $this->serverconfig['tryFirstAuthentication'] = $cfg->getBoolean('tryFirstAuthentication', null);
+	    $this->serverconfig['tryFirstAuthPass'] = $cfg->getString('tryFirstAuthPass', null);
      }
 
     /**
@@ -100,7 +101,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		if($piEnabled) {
 			if ($this->serverconfig['tryFirstAuthentication']) {
 				try {
-					if ($this->authenticate($state, "simpleSAMLphp", null, null, null, null)) {
+					if ($this->authenticate($state, $this->serverconfig['tryFirstAuthPass'], null, null, null, null)) {
 						return;
 					}
 				} catch (SimpleSAML_Error_Error $e) {
