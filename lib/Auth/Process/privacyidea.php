@@ -44,6 +44,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', null);
 	    $this->serverconfig['servicePass'] = $cfg->getString('servicePass', null);
 	    $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', null);
+	    $this->serverconfig['tryFirstAuthentication'] = $cfg->getBoolean('tryFirstAuthentication', null);
+	    $this->serverconfig['tryFirstAuthPass'] = $cfg->getString('tryFirstAuthPass', null);
      }
 
     /**
@@ -97,6 +99,15 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		}
 
 		if($piEnabled) {
+			if ($this->serverconfig['tryFirstAuthentication']) {
+				try {
+					if ($this->authenticate($state, $this->serverconfig['tryFirstAuthPass'], null, null, null, null)) {
+						return;
+					}
+				} catch (SimpleSAML_Error_Error $e) {
+					SimpleSAML_Logger::debug("privacyIDEA: user has token");
+				}
+			}
 			if ($this->serverconfig['doTriggerChallenge']) {
 				$authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
 				$params = array(

@@ -176,7 +176,7 @@ Use the following example:
         /**
          *  You can enable or disable trigger challenge
          */
-        'doTriggerChallenge' => true
+        'doTriggerChallenge' => true,
         
         /**
          *  Other authproc filters can disable 2FA if you want to.
@@ -187,6 +187,20 @@ Use the following example:
          */
         'enabledPath'       => '',
         'enabledKey'        => '',
+
+        /**
+         *  If you want to use passOnNoToken or passOnNoUser, you can decide, if this module should send a password to
+         *  privacyIDEA. If passOnNoToken is activated and the user does not have a token, he will be passed by privacyIDEA.
+         *  NOTE: Do not use it with privacyidea:tokenEnrollment.
+         */
+
+        'tryFirstAuthentication' => true,
+
+        /**
+         *  You can decide, which password should be used for tryFirstAuthentication
+         */
+
+         'tryFirstAuthPass' => 'simpleSAMLphp',
     ),
 
     /**
