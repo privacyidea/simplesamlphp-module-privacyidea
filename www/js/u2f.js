@@ -8,7 +8,6 @@ function sign_u2f_request(signRequests) {
 }
 
 function register_u2f_request(appId, challenge, keyHandle) {
-	console.log("bin in register_u2f_request")
 	var registerRequests = [{
 		"challenge": challenge,
 		"appId": appId,
