@@ -51,20 +51,20 @@
 		$triggerChallenge = $state['privacyidea:privacyidea:checkTokenType'];
 		if ($triggerChallenge['use_u2f']) {
 			$doChallengeResponse = true;
-			$uidKey = $state['privacyidea:privacyidea']['uidKey'];
-			$username = $state['Attributes'][$uidKey][0];
-			$transaction_id = $triggerChallenge['transaction_id'];
-			$message = '';
-			$multi_challenge = $triggerChallenge['multi_challenge'];
-			SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $transaction_id);
-			SimpleSAML_Logger::debug("Challenge Response multi_challenge: " . print_r($multi_challenge, TRUE));
-			for ($i = 0; $i < count($multi_challenge); $i++) {
-				SimpleSAML_Logger::debug("Token serial " . $i . ": " . print_r($multi_challenge[$i]->serial, TRUE));
-				$message = $message . ' ' . $multi_challenge[$i]->serial;
-			}
 		}
 		if ($triggerChallenge['use_otp']) {
 			$use_otp = true;
+		}
+		$uidKey = $state['privacyidea:privacyidea']['uidKey'];
+		$username = $state['Attributes'][$uidKey][0];
+		$transaction_id = $triggerChallenge['transaction_id'];
+		$message = '';
+		$multi_challenge = $triggerChallenge['multi_challenge'];
+		SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $transaction_id);
+		SimpleSAML_Logger::debug("Challenge Response multi_challenge: " . print_r($multi_challenge, TRUE));
+		for ($i = 0; $i < count($multi_challenge); $i++) {
+			SimpleSAML_Logger::debug("Token serial " . $i . ": " . print_r($multi_challenge[$i]->serial, TRUE));
+			$message = $message . ' ' . $multi_challenge[$i]->serial;
 		}
 	}
 
