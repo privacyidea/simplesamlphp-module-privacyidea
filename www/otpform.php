@@ -44,26 +44,11 @@
             $errorCode = $e->getErrorCode();
             $errorParams = $e->getParameters();
             SimpleSAML_Logger::debug("Login failed. Catching errorCode: ". $errorCode);
-            if ($errorCode === "CHALLENGERESPONSE" ) {
-	            /* In case of challenge response we do not change the username */
-	            $uidKey = $state['privacyidea:privacyidea']['uidKey'];
-	            $username = $state['Attributes'][$uidKey][0];
-	            $transaction_id = $errorParams[1];
-	            $message = '';
-	            $multi_challenge = $errorParams[2];
-	            SimpleSAML_Logger::debug("Challenge Response transaction_id: ". $errorParams[1]);
-	            SimpleSAML_Logger::debug("Challenge Response multi_challenge: " . print_r($multi_challenge, TRUE));
-	            for ($i = 0; $i < count($multi_challenge); $i++) {
-	            	SimpleSAML_Logger::debug("Token serial " . $i . ": " . print_r($multi_challenge[$i]->serial, TRUE));
-	            	$message = $message . ' ' . $multi_challenge[$i]->serial;
-	            }
-	            SimpleSAML_Logger::debug("Challenge Response message: " . $message);
-	        }
 		}
 	}
 	$doChallengeResponse = false;
-	if (isset($state['privacyidea:privacyidea:doTriggerChallenge'])) {
-		$triggerChallenge = $state['privacyidea:privacyidea:doTriggerChallenge'];
+	if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
+		$triggerChallenge = $state['privacyidea:privacyidea:checkTokenType'];
 		if ($triggerChallenge['use_u2f']) {
 			$doChallengeResponse = true;
 			$uidKey = $state['privacyidea:privacyidea']['uidKey'];
