@@ -225,12 +225,22 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    if (property_exists($detail, "multi_challenge")) {
 		    	$multi_challenge = $detail->multi_challenge;
 		    }
-		    if (property_exists($detail, "transaction_id")){
+
+		    // If type is u2f, we do not have a wrong user pass, we must do challenge response!
+			// This needs privacyIDEA 2.23.4!!
+		    if ($detail->type === "u2f"){
 		    	$transaction_id = $detail->transaction_id;
-			    /* If we have a transaction_id, we do challenge response */
 			    SimpleSAML_Logger::debug( "Throwing CHALLENGERESPONSE" );
 			    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $multi_challenge));
 		    }
+
+		    // If multi challenge is set and we do not challenge response, a token was triggered (like email or sms)
+			// So we do not need an error message
+		    if (isset ($multi_challenge)) {
+		    	return false;
+			}
+
+		    // If not: Wrong user pass
 		    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
 		    throw new SimpleSAML_Error_Error( "WRONGUSERPASS" );
 		}
