@@ -9,6 +9,9 @@ that runs in your network. Users can authenticate with normal OTP tokens,
 Challenge Response tokens like EMail and SMS or with U2F devices.
 TiQR is currently not supported.
 
+### Configuration
+Please check the [documentation](https://github.com/privacyidea/simplesamlphp-module-privacyidea/blob/master/docs/privacyidea.md)
+
 ### Packagist and Composer
 
 The package is listed at packagist.
