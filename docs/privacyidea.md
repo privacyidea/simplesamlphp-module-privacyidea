@@ -32,74 +32,76 @@ Method 1
 You need to add the authentication source 'privacyidea:privacyidea' to
 'config/authsources.php'. Do it like this:
 
-    'example-privacyidea' => array(
-        'privacyidea:privacyidea',
+```PHP
+'example-privacyidea' => array(
+    'privacyidea:privacyidea',
 
-        /* 
-         * The URI (including protocol and port) of the privacyidea server
-         * Required.
-         */
-        'privacyideaserver' => 'https://your.server.com',
+    /* 
+     * The URI (including protocol and port) of the privacyidea server
+     * Required.
+     */
+    'privacyideaserver' => 'https://your.server.com',
 
-        /*
-         * Check if the hostname matches the name in the certificate
-         * Optional.
-         */
-        'sslverifyhost' => False,
+    /*
+     * Check if the hostname matches the name in the certificate
+     * Optional.
+     */
+    'sslverifyhost' => False,
 
-        /*
-         * Check if the certificate is valid, signed by a trusted CA
-         * Optional.
-         */
-        'sslverifypeer' => False,
+    /*
+     * Check if the certificate is valid, signed by a trusted CA
+     * Optional.
+     */
+    'sslverifypeer' => False,
         
-        /*
-         * The realm where the user is located in.
-         * Optional.
-         */
-        'realm' => '',
+    /*
+     * The realm where the user is located in.
+     * Optional.
+     */
+    'realm' => '',
 
-        /*
-         * OTP Extra
-         * 0: (default) one password field for PIN and OTP
-         * 1: Password field for password and extra field for OTP
-         */
-        'otpextra' => 1,
+    /*
+     * OTP Extra
+     * 0: (default) one password field for PIN and OTP
+     * 1: Password field for password and extra field for OTP
+     */
+    'otpextra' => 1,
         
-        /*
-         * This is the translation from privacyIDEA attribute names to 
-         * SAML attribute names.
-         * Optional.
-         */
-         'attributemap' => array(
-         			 'username' => 'samlLoginName',
-         			 'surname' => 'surName',
-         			 'givenname' => 'givenName',
-         			 'email' => 'emailAddress',
-         			 'phone' => 'telePhone',
-         			 'mobile' => 'mobilePhone'
-         			 ),
-
-        /*
-         * You are able to concatenate attributes like the given and surname.
-         * Optional.
-         */
-         'concatenationmap' => array(
-         			'givenname,surname' => 'fullName',
-         			),
-
-         /*
-          * Here the detail attributes can be edited.
-          * If they should not be listed, just remove them.
-          * Optional.
-          */
-          'detailmap' => array(
-          			 'message' => 'message',
-          			 'type' => 'otpType',
-          			 'serial' => 'otpSerial',
-          			 'otplen' => 'otpLength'
-          			 ),
+    /*
+     * This is the translation from privacyIDEA attribute names to 
+     * SAML attribute names.
+     * Optional.
+     */
+    'attributemap' => array(
+        'username' => 'samlLoginName',
+        'surname' => 'surName',
+        'givenname' => 'givenName',
+        'email' => 'emailAddress',
+        'phone' => 'telePhone',
+        'mobile' => 'mobilePhone'
     ),
+
+    /*
+     * You are able to concatenate attributes like the given and surname.
+     * Optional.
+     */
+    'concatenationmap' => array(
+        'givenname,surname' => 'fullName',
+    ),
+
+    /*
+     * Here the detail attributes can be edited.
+     * If they should not be listed, just remove them.
+     * Optional.
+     */
+    'detailmap' => array(
+        'message' => 'message',
+        'type' => 'otpType',
+        'serial' => 'otpSerial',
+        'otplen' => 'otpLength'
+    ),
+),
+```
 
 
 User attributes
@@ -128,6 +130,7 @@ Method 2
 If you want to use privacyIDEA as an auth proc filter, you have to change the config.php or the metadata.
 Use the following example:
 
+```PHP
 'authproc.idp' => array(
 
     /**
@@ -251,3 +254,4 @@ Use the following example:
          *  'servicePass' => 'service',
          */
 ),
+```
