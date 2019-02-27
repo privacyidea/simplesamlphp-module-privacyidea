@@ -3,12 +3,15 @@ function sign_u2f_request(signRequests) {
 		console.log(result);
 		document.getElementById("signatureData").value = result.signatureData;
 		document.getElementById("clientData").value = result.clientData;
-		document.forms["piLoginForm"].submit();
+		if (result.errorMessage === "InvalidStateError: A request is already pending.") {
+			document.getElementById("u2fTryAgain").style.display = "block";
+		} else {
+			document.forms["piLoginForm"].submit();
+		}
 	})
 }
 
 function register_u2f_request(appId, challenge, keyHandle) {
-	console.log("bin in register_u2f_request")
 	var registerRequests = [{
 		"challenge": challenge,
 		"appId": appId,

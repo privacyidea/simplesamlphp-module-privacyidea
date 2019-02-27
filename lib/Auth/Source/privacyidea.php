@@ -125,7 +125,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
     {
     }
 
-    protected function login_chal_resp($username, $password, $transaction_id, $signaturedata, $clientdata)
+    protected function login_chal_resp($state, $username, $password, $transaction_id, $signaturedata, $clientdata)
     {
         assert('is_string($username)');
         assert('is_string($password)');
@@ -196,17 +196,17 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
                 $detail = $body->detail;
 
                 if (property_exists($detail, "multi_challenge")) {
-                	$multi_challenge = $detail->multi_challenge;
-                }
 
-                if (property_exists($detail, "transaction_id")) {
-                	$transaction_id = $detail->transaction_id;
-                    /* If we have a transaction_id, we do challenge response */
-                    SimpleSAML_Logger::debug("Throwing CHALLENGERESPONSE");
-                    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $multi_challenge));
-                }
-                SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
-                throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+                	$state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
+					$state['privacyidea:privacyidea']['username'] = $username;
+					$state['forcedUsername'] = true;
+					$id  = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+					$url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
+					SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
+					return true;
+                } else {
+					throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+				}
             }
         }
 
@@ -310,12 +310,13 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         /* We are going to need the authId in order to retrieve this authentication source later. */
         $state[self::AUTHID] = $this->authId;
+        $state['privacyidea:privacyidea:authenticationMethod'] = "authsource";
         SimpleSAML_Logger::debug("privacyIDEA authId: " . $this->authId);
 
-        $id = SimpleSAML_Auth_State::saveState($state, self::STAGEID);
+        $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
 
-        $url = SimpleSAML_Module::getModuleURL('privacyidea/loginform.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('AuthState' => $id));
+        $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
+        SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
     }
 
     /**
@@ -354,7 +355,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         }
 
         /* Here we retrieve the state array we saved in the authenticate-function. */
-        $state = SimpleSAML_Auth_State::loadState($authStateId, self::STAGEID);
+        $state = SimpleSAML_Auth_State::loadState($authStateId, "privacyidea:privacyidea:init");
 
         /* Retrieve the authentication source we are executing. */
         assert('array_key_exists(self::AUTHID, $state)');
@@ -370,7 +371,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         /* Attempt to log in. */
         try {
-            $attributes = $source->login_chal_resp($username, $password, $transaction_id, $signaturedata, $clientdata);
+            $attributes = $source->login_chal_resp($state, $username, $password, $transaction_id, $signaturedata, $clientdata);
         } catch (Exception $e) {
             SimpleSAML_Logger::stats('Unsuccessful login attempt from ' . $_SERVER['REMOTE_ADDR'] . '.');
             throw $e;

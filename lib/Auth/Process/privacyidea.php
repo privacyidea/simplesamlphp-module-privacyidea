@@ -126,6 +126,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 				$state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
 			}
 			SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
+			$state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
 			$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
 			$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
 			SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
@@ -201,19 +202,24 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	    }
 	    if ( $auth !== true ) {
 		    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
-		    $detail = $body->detail;
-		    if (property_exists($detail, "multi_challenge")) {
+		    if (property_exists($body, "detail")) {
+				$detail = $body->detail;
+				if (property_exists($detail, "multi_challenge")) {
 
-		    	$state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
+					$state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
 
-				SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
-				$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
-				$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
-				SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
-				return true;
-		    }
-		    else {
-		    	throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+					SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
+					$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
+					$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
+					SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
+					return true;
+				}
+				else {
+					SimpleSAML_Logger::error("privacyIDEA WRONG USER PASSWORD");
+					throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+				}
+			} else {
+				throw new SimpleSAML_Error_Error("WRONGUSERPASS");
 			}
 		}
 

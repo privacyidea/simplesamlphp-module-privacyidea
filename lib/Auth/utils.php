@@ -102,7 +102,9 @@ class sspmod_privacyidea_Auth_utils {
 			"transaction_id" => $detail->transaction_id,
 			"multi_challenge" => $multi_challenge,
 		);
-
+		if ($use_u2f === true) {
+			SimpleSAML_Logger::debug("privacyIDEA: The user has u2f token");
+		}
 		if ($use_otp === true) {
 			SimpleSAML_Logger::debug("privacyIDEA: The user has otp token");
 		}
