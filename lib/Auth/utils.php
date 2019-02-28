@@ -86,4 +86,32 @@ class sspmod_privacyidea_Auth_utils {
 		return $token;
 	}
 
+	public function checkTokenType($state, $body) {
+		$detail = $body->detail;
+		$multi_challenge = $detail->multi_challenge;
+		$use_u2f = false;
+		$use_otp = false;
+		for ($i = 0; $i < count($multi_challenge); $i++) {
+			if ($multi_challenge[$i]->type === "u2f") {
+				$use_u2f = true;
+			} else {
+				$use_otp = true;
+			}
+		}
+		$state['privacyidea:privacyidea:checkTokenType'] = array(
+			"transaction_id" => $detail->transaction_id,
+			"multi_challenge" => $multi_challenge,
+		);
+		if ($use_u2f === true) {
+			SimpleSAML_Logger::debug("privacyIDEA: The user has u2f token");
+		}
+		if ($use_otp === true) {
+			SimpleSAML_Logger::debug("privacyIDEA: The user has otp token");
+		}
+		$state['privacyidea:privacyidea:checkTokenType']['use_u2f'] = $use_u2f;
+		$state['privacyidea:privacyidea:checkTokenType']['use_otp'] = $use_otp;
+
+		return $state;
+	}
+
 }

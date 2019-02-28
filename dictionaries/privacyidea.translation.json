@@ -42,5 +42,11 @@
 	},
 	"enroll_u2f": {
 		"de": "Bitte nutzen Sie Ihr U2F-Gerät, um das Ausrollen fertigzustellen."
+	},
+	"u2fNotWorking": {
+		"de": "U2F funktioniert momentan nicht."
+	},
+	"tryAgain": {
+		"de": "Nochmal versuchen"
 	}
 }

@@ -1,13 +1,7 @@
 <?php
 if(isset($this->data['auth_proc_filter_scenario'])) {
-	if (!isset($this->data['errorcode'])) {
-		$this->data['errorcode'] = null;
-	}
 	if (!isset($this->data['username'])) {
 		$this->data['username'] = null;
-	}
-	if (!isset($this->data['stateparams'])) {
-		$this->data['stateparams'] = null;
 	}
 	if (!isset($this->data['transaction_id'])) {
 	    $this->data['transaction_id'] = null;
@@ -15,13 +9,14 @@ if(isset($this->data['auth_proc_filter_scenario'])) {
 	$this->data['otp_extra'] = NULL;
 } else {
     $this->data['auth_proc_filter_scenario'] = 0;
-    $this->data['use_otp'] = null;
-    $this->data['use_u2f'] = null;
-    $this->data['doChallengeResponse'] = false;
 }
 // First of all we determine how we were called
 $multi_challenge = NULL;
-$chal_resp_message = '';
+if (isset($this->data['chal_resp_message'])) {
+	$chal_resp_message = $this->t('{privacyidea:privacyidea:chal_resp_message}') . $this->data['chal_resp_message'];
+} else {
+    $chal_resp_message = "";
+}
 $hideResponseInput = FALSE;
 $u2fSignRequest = NULL;
 if ($this->data['otp_extra'] == 1){
@@ -36,7 +31,6 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE" || $this->data['doChallenge
     $password_text = $this->t('{privacyidea:privacyidea:otp}');
     SimpleSAML_Logger::debug("multi_challenge: " . print_r($this->data["multi_challenge"], TRUE));
     $multi_challenge = $this->data['multi_challenge'];
-    $chal_resp_message = $this->t('{privacyidea:privacyidea:chal_resp_message}') . $this->data['chal_resp_message'];
     // check if this is U2F
     SimpleSAML_Logger::debug("u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
     $hideResponseInput = true;
@@ -168,10 +162,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             In case of challenge response with the U2F, we hide the password.
                             -->
                             <?php
-                            if ($hideResponseInput) {
-                                // challenge response without OTP
-                                echo '<td style="padding: .3em;" colspan="2">' . htmlspecialchars($chal_resp_message) . '</td>';
-                            }
+                            echo '<td style="padding: .3em;" colspan="2">' . htmlspecialchars($chal_resp_message) . '</td>';
                             if (!$hideResponseInput || $this->data['use_otp']){
                                 // normal login
 	                            if (isset($this->data['tokenQR'])) {
@@ -186,6 +177,9 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . htmlspecialchars($password_text) . '" />';
                                 echo '</label></td>';
                             }
+                            echo '<p id="u2fTryAgain" name="u2fTryAgain" style="display: none">' . htmlspecialchars($this->t('{privacyidea:privacyidea:u2fNotWorking}'));
+                            echo '<input class="rc-button" type="button" id="u2fTryAgain" name="u2fTryAgain" value="' . $this->t('{privacyidea:privacyidea:tryAgain}') . '" onClick="window.location.reload()" />';
+                            echo '</p>'
                             ?>
 
                         </div>

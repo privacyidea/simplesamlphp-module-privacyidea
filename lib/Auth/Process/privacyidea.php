@@ -123,29 +123,10 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 				} catch (Exception $e) {
 					throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
 				}
-				$use_u2f = false;
-				$use_otp = false;
-				for ($i = 0; $i < count($multi_challenge); $i++) {
-					if ($multi_challenge[$i]->type === "u2f") {
-						$use_u2f = true;
-					} else {
-						$use_otp = true;
-					}
-				}
-				if ($use_u2f === true) {
-					SimpleSAML_Logger::debug("privacyIDEA: The user has u2f token");
-					$state['privacyidea:privacyidea:doTriggerChallenge'] = array(
-						"transaction_id" => $detail->transaction_id,
-						"multi_challenge" => $multi_challenge,
-					);
-				}
-				if ($use_otp === true) {
-					SimpleSAML_Logger::debug("privacyIDEA: The user has otp token");
-				}
-				$state['privacyidea:privacyidea:doTriggerChallenge']['use_u2f'] = $use_u2f;
-				$state['privacyidea:privacyidea:doTriggerChallenge']['use_otp'] = $use_otp;
+				$state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
 			}
 			SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
+			$state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
 			$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
 			$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
 			SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
@@ -221,18 +202,25 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	    }
 	    if ( $auth !== true ) {
 		    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
-		    $detail = $body->detail;
-		    if (property_exists($detail, "multi_challenge")) {
-		    	$multi_challenge = $detail->multi_challenge;
-		    }
-		    if (property_exists($detail, "transaction_id")){
-		    	$transaction_id = $detail->transaction_id;
-			    /* If we have a transaction_id, we do challenge response */
-			    SimpleSAML_Logger::debug( "Throwing CHALLENGERESPONSE" );
-			    throw new SimpleSAML_Error_Error(array("CHALLENGERESPONSE", $transaction_id, $multi_challenge));
-		    }
-		    SimpleSAML_Logger::debug( "Throwing WRONGUSERPASS" );
-		    throw new SimpleSAML_Error_Error( "WRONGUSERPASS" );
+		    if (property_exists($body, "detail")) {
+				$detail = $body->detail;
+				if (property_exists($detail, "multi_challenge")) {
+
+					$state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
+
+					SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
+					$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
+					$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
+					SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
+					return true;
+				}
+				else {
+					SimpleSAML_Logger::error("privacyIDEA WRONG USER PASSWORD");
+					throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+				}
+			} else {
+				throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+			}
 		}
 
 	    SimpleSAML_Logger::debug( "privacyIDEA: User authenticated successfully" );

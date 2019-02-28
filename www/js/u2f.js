@@ -1,9 +1,13 @@
 function sign_u2f_request(signRequests) {
 	u2f.sign(signRequests, function (result) {
 		console.log(result);
-		document.getElementById("signatureData").value = result.signatureData;
-		document.getElementById("clientData").value = result.clientData;
-		document.forms["piLoginForm"].submit();
+		if (result.errorMessage === "InvalidStateError: A request is already pending.") {
+			document.getElementById("u2fTryAgain").style.display = "block";
+		} else {
+			document.getElementById("signatureData").value = result.signatureData;
+			document.getElementById("clientData").value = result.clientData;
+			document.forms["piLoginForm"].submit();
+		}
 	})
 }
 

@@ -34,5 +34,11 @@
 	},
 	"enroll_u2f": {
 		"en": "Please use your u2f device to finish the enrollment process"
+	},
+	"u2fNotWorking": {
+		"en": "U2F is currently not working."
+	},
+	"tryAgain": {
+		"en": "Try Again"
 	}
 }
