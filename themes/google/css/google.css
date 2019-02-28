@@ -119,6 +119,8 @@ html, body {
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
+.btn,
+.btn:visited,
 .rc-button,
 .rc-button:visited {
     display: inline-block;
@@ -150,11 +152,14 @@ html, body {
     user-select: none;
     cursor: default;
 }
+.btn,
 .card .rc-button {
     width: 100%;
     padding: 0;
 }
 
+.btn,
+.btn:visited,
 .rc-button-submit,
 .rc-button-submit:visited {
     border: 1px solid #3079ed;
@@ -167,6 +172,7 @@ html, body {
     background-image: -o-linear-gradient(top,#4d90fe,#4787ed);
     background-image: linear-gradient(top,#4d90fe,#4787ed);
 }
+.btn:hover,
 .rc-button-submit:hover {
     border: 1px solid #2f5bb7;
     color: #fff;
@@ -178,6 +184,7 @@ html, body {
     background-image: -o-linear-gradient(top,#4d90fe,#357ae8);
     background-image: linear-gradient(top,#4d90fe,#357ae8);
 }
+.btn:active,
 .rc-button-submit:active {
     background-color: #357ae8;
     background-image: -webkit-linear-gradient(top,#4d90fe,#357ae8);
