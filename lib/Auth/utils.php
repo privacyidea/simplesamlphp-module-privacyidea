@@ -73,7 +73,7 @@ class sspmod_privacyidea_Auth_utils {
 	/**
 	 * With this function you can get the authorization token with a service account.
 	 *
-	 * @param $serverconfig
+	 * @param array $serverconfig
 	 * The keys serviceAccount and servicePass must be set.
 	 * It can be done in the config or in the metadata.
 	 * The service account must have the correct rights. You can edit them in the policies in privacyIDEA
@@ -100,13 +100,12 @@ class sspmod_privacyidea_Auth_utils {
 
 	/**
 	 * This function can edit the state to enter the needed token types for a user.
-	 * If the user needs u2f, the u2f sign request will be triggered.
-	 * If the user needs an otp, the otp input will appear in the login form.
+	 * The booleans 'use_u2f' and 'use_otp' will be added.
 	 *
-	 * @param $state
+	 * @param array $state
 	 * The state is needed to be changed in this function
 	 *
-	 * @param $body
+	 * @param JSON $body
 	 * The body contains the multi_challenge which will be used to check which token types are used.
 	 *
 	 * @return mixed
