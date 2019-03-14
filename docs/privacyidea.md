@@ -127,11 +127,11 @@ Method 2
 ========
 
 
-If you want to use privacyIDEA as an auth proc filter, you have to change the config.php or the metadata.
+If you want to use privacyIDEA as an auth proc filter, change the metadata.
 Use the following example:
 
 ```PHP
-'authproc.idp' => array(
+'authproc' => array(
 
     /**
      *  The first authproc filter conatins the configuration for the privacyIDEA server.
