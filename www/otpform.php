@@ -69,7 +69,7 @@
 	$doChallengeResponse = false;
 	if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
 		$triggerChallenge = $state['privacyidea:privacyidea:checkTokenType'];
-		if ($triggerChallenge['use_u2f']) {
+		if ($triggerChallenge['use_u2f'] || $triggerChallenge['use_push']) {
 			$doChallengeResponse = true;
 		}
 		if ($triggerChallenge['use_otp']) {
