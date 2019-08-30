@@ -67,6 +67,7 @@
 		}
 	}
 	$doChallengeResponse = false;
+	$doPolling = false;
 	if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
 		$triggerChallenge = $state['privacyidea:privacyidea:checkTokenType'];
 		if ($triggerChallenge['use_u2f'] || $triggerChallenge['use_push']) {
@@ -75,6 +76,9 @@
 		if ($triggerChallenge['use_otp']) {
 			$use_otp = true;
 		}
+		if ($triggerChallenge['use_push']) {
+		    $doPolling = true;
+        }
 		$transaction_id = $triggerChallenge['transaction_id'];
 		$message = '';
 		$multi_challenge = $triggerChallenge['multi_challenge'];
@@ -157,6 +161,7 @@
 	}
 
 	$tpl->data['doChallengeResponse'] = $doChallengeResponse;
+	$tpl->data['doPolling'] = $doPolling;
 	$tpl->data['errorcode'] = $errorCode;
 	$tpl->data['errorparams'] = $errorParams;
 	if (isset($use_otp)){
