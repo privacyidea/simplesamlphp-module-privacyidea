@@ -77,6 +77,7 @@
 			$use_otp = true;
 		}
 		if ($triggerChallenge['use_push']) {
+		    $use_push = true;
 		    $doPolling = true;
         }
 		$transaction_id = $triggerChallenge['transaction_id'];
@@ -169,6 +170,11 @@
 	} else {
 		$tpl->data['use_otp'] = false;
 	}
+	if (isset($use_push)){
+	    $tpl->data['use_push'] = true;
+    } else {
+	    $tpl->data['use_push'] = false;
+    }
 	if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
 		$tpl->data['transaction_id'] = $transaction_id;
 		$tpl->data['chal_resp_message'] = $message;
