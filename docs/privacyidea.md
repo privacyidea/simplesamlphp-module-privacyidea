@@ -15,15 +15,11 @@ and authenticates the user according to the token assigned to the user.
 
 The response can also contain some attributes.
 
-To enable this module, create a file 'enable' in the
-directorpy 'modules/privacyidea/'.
-
-
 You can use this plugin in two different ways
 Method 1) authenticate against privacyIDEA only
 Method 2) authenticate the 1st factor against your authsource and the 2nd factor against privacyIDEA
 
-
+NOTE: This plugin is enabled by default, you do not need to enable it manually.
 
 Method 1
 ========
