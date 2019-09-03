@@ -236,7 +236,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                     <div class="identifier-captcha">
                         <?php
                             $text = $this->t('{login:login_button}');
-                            if ($u2fSignRequest === NULL || $this->data['use_otp'] || $this->data['use_push']) {
+                            if ($u2fSignRequest === NULL || $this->data['use_otp']) {
                                 printf('<input class="rc-button rc-button-submit" type="submit" tabindex="4" id="regularsubmit" value="%s" />', htmlspecialchars($text));
                             }
                             ?>
