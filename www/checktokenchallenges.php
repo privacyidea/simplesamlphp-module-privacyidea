@@ -17,7 +17,7 @@
             array(),
             array("authorization:" . $authToken),
             $serverconfig,
-            "/token/challenges/" . $pushToken,
+            "/token/challenges/" . urlencode($pushToken),
             "GET")
             ->result
             ->value
