@@ -306,7 +306,7 @@ if ($this->data['doPolling']) {
     echo '<script type="text/javascript">';
     foreach ($this->data['pollTokens'] as $i => $e) {
         SimpleSAML_Logger::debug("Asking client to poll challenges for " . $e . ".");
-        echo 'poll_token_challenges("' . $e . '");';
+        echo 'poll_token_challenges(' . json_encode($e) . ');';
     }
     echo '</script>';
 }
