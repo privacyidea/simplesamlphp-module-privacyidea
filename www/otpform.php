@@ -89,7 +89,7 @@
 		for ($i = 0; $i < count($multi_challenge); $i++) {
 			SimpleSAML_Logger::debug("Token serial " . $i . ": " . print_r($multi_challenge[$i]->serial, TRUE));
 			$message = $message . ' ' . $multi_challenge[$i]->serial;
-			if ($multi_challenge[$i]->type = "push") {
+			if ($multi_challenge[$i]->type === "push") {
 			    SimpleSAML_Logger::debug("Enabling polling for token " . $i . "!");
 			    $pollTokens[] = $multi_challenge[$i]->serial;
             }
