@@ -24,7 +24,7 @@
             ->challenges
         as $i => $e
     ) {
-        if (strtotime($e->expiration) - time() > 0 && $e->otp_valid) {
+        if ($e->otp_valid) {
             $result = true;
         }
     }
