@@ -13,6 +13,9 @@
     $result = false;
 
     foreach (
+        // The $pushToken is sanitized using urlencode() here. Any legal token ID should not be altered by this, as of
+        // PrivacyIDEA 3.2. If the token ID does however contain any characters that would need to be urlencoded, this
+        // will hang indefinitely, since the server will not decode the token ID and the ID checked will thus be wrong.
         sspmod_privacyidea_Auth_utils::curl(
             array(),
             array("authorization:" . $authToken),
