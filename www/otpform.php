@@ -67,14 +67,20 @@
 		}
 	}
 	$doChallengeResponse = false;
+	$doPolling = false;
+	$pollTokens = array();
 	if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
 		$triggerChallenge = $state['privacyidea:privacyidea:checkTokenType'];
-		if ($triggerChallenge['use_u2f']) {
+		if ($triggerChallenge['use_u2f'] || $triggerChallenge['use_push']) {
 			$doChallengeResponse = true;
 		}
 		if ($triggerChallenge['use_otp']) {
 			$use_otp = true;
 		}
+		if ($triggerChallenge['use_push']) {
+		    $use_push = true;
+		    $doPolling = true;
+        }
 		$transaction_id = $triggerChallenge['transaction_id'];
 		$message = '';
 		$multi_challenge = $triggerChallenge['multi_challenge'];
@@ -83,6 +89,10 @@
 		for ($i = 0; $i < count($multi_challenge); $i++) {
 			SimpleSAML_Logger::debug("Token serial " . $i . ": " . print_r($multi_challenge[$i]->serial, TRUE));
 			$message = $message . ' ' . $multi_challenge[$i]->serial;
+			if ($multi_challenge[$i]->type === "push") {
+			    SimpleSAML_Logger::debug("Enabling polling for token " . $i . "!");
+			    $pollTokens[] = $multi_challenge[$i]->serial;
+            }
 		}
 	}
 
@@ -157,6 +167,7 @@
 	}
 
 	$tpl->data['doChallengeResponse'] = $doChallengeResponse;
+	$tpl->data['doPolling'] = $doPolling;
 	$tpl->data['errorcode'] = $errorCode;
 	$tpl->data['errorparams'] = $errorParams;
 	if (isset($use_otp)){
@@ -164,11 +175,19 @@
 	} else {
 		$tpl->data['use_otp'] = false;
 	}
+	if (isset($use_push)){
+	    $tpl->data['use_push'] = true;
+    } else {
+	    $tpl->data['use_push'] = false;
+    }
 	if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
 		$tpl->data['transaction_id'] = $transaction_id;
 		$tpl->data['chal_resp_message'] = $message;
 		$tpl->data['multi_challenge'] = $multi_challenge;
 	}
+	if ($doPolling) {
+	    $tpl->data['pollTokens'] = $pollTokens;
+    }
 
 	$tpl->show();
 	

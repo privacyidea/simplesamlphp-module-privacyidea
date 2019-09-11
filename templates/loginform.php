@@ -50,10 +50,15 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE" || $this->data['doChallenge
     }
 }
 
+$this->data['head'] = '';
 if ($u2fSignRequest) {
     // Add javascript for U2F support before including the header.
-    $this->data['head'] = '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>';
+    $this->data['head'] .= '<script type="text/javascript" src="'. htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>';
     $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js')) . '"></script>';
+}
+if ($this->data['doPolling']) {
+    // Add JavaScript for polling /token/challenges before including the header.
+    $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/poll.js')) . '"></script>';
 }
 
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
@@ -294,6 +299,14 @@ if ($u2fSignRequest) {
 	    echo 'sign_u2f_request(';
         echo json_encode($signRequests);
         echo ');';
+    }
+    echo '</script>';
+}
+if ($this->data['doPolling']) {
+    echo '<script type="text/javascript">';
+    foreach ($this->data['pollTokens'] as $i => $e) {
+        SimpleSAML_Logger::debug("Asking client to poll challenges for " . $e . ".");
+        echo 'poll_token_challenges(' . json_encode($e) . ');';
     }
     echo '</script>';
 }
