@@ -3,6 +3,7 @@
     try{
         $authStateId = $_REQUEST['StateId'];
         $state = SimpleSAML_Auth_State::loadState($authStateId, 'privacyidea:privacyidea:init');
+        SimpleSAML_Logger::debug("Loaded state privacyidea:privacyidea:init from checktokenchallenges.php");
     } catch (Exception $e){
     }
 

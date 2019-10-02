@@ -201,6 +201,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 					$state['privacyidea:privacyidea']['username'] = $username;
 					$state['forcedUsername'] = true;
 					$id  = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+                    SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Source/privacyidea.php");
 					$url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
 					SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
 					return true;
@@ -314,6 +315,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         SimpleSAML_Logger::debug("privacyIDEA authId: " . $this->authId);
 
         $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+        SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Source/privacyidea.php");
 
         $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
         SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
@@ -356,6 +358,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         /* Here we retrieve the state array we saved in the authenticate-function. */
         $state = SimpleSAML_Auth_State::loadState($authStateId, "privacyidea:privacyidea:init");
+        SimpleSAML_Logger::debug("Loaded state privacyidea:privacyidea:init from Source/privacyidea.php");
 
         /* Retrieve the authentication source we are executing. */
         assert('array_key_exists(self::AUTHID, $state)');

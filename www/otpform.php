@@ -2,6 +2,7 @@
 	try{
 		$authStateId = $_REQUEST['StateId'];
 		$state = SimpleSAML_Auth_State::loadState($authStateId, 'privacyidea:privacyidea:init');
+		SimpleSAML_Logger::debug("Loaded state privacyidea:privacyidea:init from otpform.php");
 	} catch (Exception $e){
 	}
 
@@ -22,11 +23,13 @@
 	}
 
 	if(isset($_REQUEST['password']) || isset($_REQUEST['username'])) {
-		if (array_key_exists('transaction_id', $_REQUEST)) {
-            $transaction_id = (string)$_REQUEST['transaction_id'];
-		} else {
-            $transaction_id = '';
-		}
+	    if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
+	        $transaction_id = $state['privacyidea:privacyidea:checkTokenType']['transaction_id'];
+	        SimpleSAML_Logger::debug("Read transaction ID: " . $transaction_id);
+        } else {
+	        $transaction_id = '';
+	        SimpleSAML_Logger::debug("Read no transaction ID.");
+        }
 		$signatureData = '';
 		if (array_key_exists('signatureData', $_REQUEST)){
             $signatureData = (string)$_REQUEST['signatureData'];
@@ -52,6 +55,7 @@
 			if($state['privacyidea:privacyidea:authenticationMethod'] === "authprocess") {
 				if (sspmod_privacyidea_Auth_Process_privacyidea::authenticate($state, $password, $transaction_id, $signatureData, $clientData, $registrationData)) {
 					SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+                    SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from otpform.php");
 					SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
 				} else {
 					SimpleSAML_Logger::debug("privacyIDEA: User entered wrong OTP");
@@ -181,7 +185,6 @@
 	    $tpl->data['use_push'] = false;
     }
 	if (isset($state['privacyidea:privacyidea:checkTokenType'])) {
-		$tpl->data['transaction_id'] = $transaction_id;
 		$tpl->data['chal_resp_message'] = $message;
 		$tpl->data['multi_challenge'] = $multi_challenge;
 	}
