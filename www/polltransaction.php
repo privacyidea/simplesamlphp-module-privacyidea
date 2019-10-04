@@ -10,14 +10,26 @@
 try{
     $authStateId = $_REQUEST['StateId'];
     $state = SimpleSAML_Auth_State::loadState($authStateId, 'privacyidea:privacyidea:init');
-    SimpleSAML_Logger::debug("Loaded state privacyidea:privacyidea:init from checktokenchallenges.php");
+    SimpleSAML_Logger::debug("Loaded state privacyidea:privacyidea:init from polltransaction.php");
 } catch (Exception $e){
 }
 
-$serverconfig = $state['privacyidea:serverconfig'];
-$authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($serverconfig);
+if (isset($state)) {
+    $serverconfig = $state['privacyidea:serverconfig'];
+    $authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($serverconfig);
+    $transaction_id = strval($state['privacyidea:privacyidea:checkTokenType']['transaction_id']);
+    SimpleSAML_Logger::debug("Polling for transaction_id: " . $transaction_id);
 
-// Stub.
-echo "false";
+    $result = sspmod_privacyidea_Auth_utils::curl(
+        array(),
+        array("authorization:" . $authToken),
+        $serverconfig,
+        "/validate/polltransaction/" . $transaction_id,
+        "GET")
+        ->result
+        ->value;
+}
+
+echo isset($result) && $result ? "true" : "false";
 
 ?>
