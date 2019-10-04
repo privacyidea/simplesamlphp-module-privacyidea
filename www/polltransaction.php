@@ -17,7 +17,7 @@ try{
 if (isset($state)) {
     $serverconfig = $state['privacyidea:serverconfig'];
     $authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($serverconfig);
-    $transaction_id = strval($state['privacyidea:privacyidea:checkTokenType']['transaction_id']);
+    $transaction_id = $state['privacyidea:privacyidea:checkTokenType']['transaction_id'];
     SimpleSAML_Logger::debug("Polling for transaction_id: " . $transaction_id);
 
     $result = sspmod_privacyidea_Auth_utils::curl(
