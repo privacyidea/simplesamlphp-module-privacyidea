@@ -3,6 +3,7 @@ function poll_token_challenges(token) {
 
     setInterval(
         function() {
+            var stateId = new URLSearchParams(new URL(window.location).search).get('StateId');
             var xmlHttpRequest = new XMLHttpRequest();
             xmlHttpRequest.onreadystatechange = function() {
                 if (xmlHttpRequest.readyState === XMLHttpRequest.DONE) {
@@ -15,12 +16,7 @@ function poll_token_challenges(token) {
                     }
                 }
             };
-            xmlHttpRequest.open(
-                'GET',
-                "checktokenchallenges.php?token="
-                    + token
-                    + "&StateId="
-                    + new URLSearchParams(new URL(window.location).search).get('StateId'));
+            xmlHttpRequest.open('GET', "polltransaction.php?StateId=" + stateId);
             xmlHttpRequest.send();
         },
         2000

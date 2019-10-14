@@ -3,9 +3,6 @@ if(isset($this->data['auth_proc_filter_scenario'])) {
 	if (!isset($this->data['username'])) {
 		$this->data['username'] = null;
 	}
-	if (!isset($this->data['transaction_id'])) {
-	    $this->data['transaction_id'] = null;
-    }
 	$this->data['otp_extra'] = NULL;
 } else {
     $this->data['auth_proc_filter_scenario'] = 0;
@@ -120,7 +117,6 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             if ($this->data['forceUsername']) {
                                 echo '<strong style="font-size: medium">' . htmlspecialchars($this->data['username']) . '</strong>';
                                 echo '<input type="hidden" id="username" name="username" value="' . htmlspecialchars($this->data['username']) . '" />';
-                                echo '<input type="hidden" id="transaction_id" name="transaction_id" value="' . htmlspecialchars($this->data['transaction_id']) . '" />';
                                 echo '<input type="hidden" id="clientData" name="clientData" value="" />';
                                 echo '<input type="hidden" id="signatureData" name="signatureData" value="" />';
                                 echo '<input type="hidden" id="registrationData" name="registrationData" value="" />';

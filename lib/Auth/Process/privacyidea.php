@@ -128,7 +128,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 			SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
 			$state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
 			$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
-			$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
+            SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Process/privacyidea.php");
+            $url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
 			SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
 		} else {
 			SimpleSAML_Logger::debug("privacyIDEA: " . $this->serverconfig['enabledPath'] . " -> " . $this->serverconfig['enabledKey'] . " is not set to true -> privacyIDEA is disabled");
@@ -210,6 +211,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 
 					SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
 					$id  = SimpleSAML_Auth_State::saveState( $state, 'privacyidea:privacyidea:init' );
+                    SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Process/privacyidea.php");
 					$url = SimpleSAML_Module::getModuleURL( 'privacyidea/otpform.php' );
 					SimpleSAML_Utilities::redirectTrustedURL( $url, array( 'StateId' => $id ) );
 					return true;
