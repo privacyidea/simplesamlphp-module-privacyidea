@@ -2,9 +2,9 @@
 /**
  * The functions, which are needed in more than one class, are listed below.
  * @author Micha Preußer <micha.preusser@netknights.it>
+ * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
  */
 class sspmod_privacyidea_Auth_utils {
-
 
 	/**
 	 * @param $params
@@ -40,7 +40,7 @@ class sspmod_privacyidea_Auth_utils {
 		curl_setopt($curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp");
 
 		if ($http_method === "POST") {
-			curl_setopt($curl_instance, CURLOPT_POST, 3);
+			curl_setopt($curl_instance, CURLOPT_POST, true);
 			curl_setopt($curl_instance, CURLOPT_POSTFIELDS, $params);
 		} elseif ($http_method === "GET") {
 			$params_str = '?';
@@ -49,17 +49,11 @@ class sspmod_privacyidea_Auth_utils {
 			}
 			curl_setopt($curl_instance, CURLOPT_URL, $url . $params_str);
 		}
-		if ($serverconfig['sslverifyhost']) {
-			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 2);
-		} else {
+		if (! $serverconfig['sslverifyhost']) {
 			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYHOST, 0);
 		}
 
-		if ($serverconfig['sslverifypeer']) {
-			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 2);
-		} else {
-			curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 0);
-		}
+        curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, $serverconfig['sslverifypeer']);
 
 		if (!$response = curl_exec($curl_instance)) {
 			throw new SimpleSAML_Error_BadRequest("privacyIDEA: Bad request to PI server: " . curl_error($curl_instance));
