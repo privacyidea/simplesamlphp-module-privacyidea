@@ -1,7 +1,7 @@
 <?php
 
 define(USERAGENT, "simpleSAMLphp");
-        curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, 2);
+
 /**
  * The functions, which are needed in more than one class, are listed below.
  * @author Micha Preußer <micha.preusser@netknights.it>
