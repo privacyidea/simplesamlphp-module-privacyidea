@@ -69,6 +69,23 @@ class sspmod_privacyidea_Auth_utils
     }
 
     /**
+     * Null check.
+     *
+     * This function will null-check a value and throw a BadRequest error with a generic response if necessary.
+     *
+     * @param mixed $x Variable to perform the null-check on.
+     * @return mixed The input.
+     * @throws SimpleSAML_Error_BadRequest
+     */
+    public function nullCheck($x) {
+        if (gettype($x) === "NULL") {
+            throw new SimpleSAML_Error_BadRequest(
+                "privacyIDEA: We were not able to read the response from the PI server");
+        }
+        return $x;
+    }
+
+    /**
      * With this function you can get the authorization token with a service account.
      *
      * @param array $serverconfig
