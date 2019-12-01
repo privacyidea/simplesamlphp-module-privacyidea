@@ -1,4 +1,7 @@
 <?php
+
+define(USERAGENT, "simpleSAMLphp");
+
 /**
  * The functions, which are needed in more than one class, are listed below.
  * @author Micha Preußer <micha.preusser@netknights.it>
@@ -37,7 +40,7 @@ class sspmod_privacyidea_Auth_utils {
 			curl_setopt($curl_instance, CURLOPT_HTTPHEADER, $headers);
 		}
 		curl_setopt($curl_instance, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curl_instance, CURLOPT_USERAGENT, "simpleSAMLphp");
+		curl_setopt($curl_instance, CURLOPT_USERAGENT, USERAGENT);
 
 		if ($http_method === "POST") {
 			curl_setopt($curl_instance, CURLOPT_POST, true);
