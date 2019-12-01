@@ -24,6 +24,11 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
         $this->excludeClientIPs = $cfg->getArray('excludeClientIPs', null);
     }
 
+    /**
+     * Check the clients IP against the whitelist.
+     *
+     * @param array &$state The global state of simpleSAMLphp
+     */
     public function process(&$state)
     {
         $clientIP = ip2long($this->getClientIP());
@@ -45,6 +50,11 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
         $state['privacyIDEA']['enabled'][0] = $piEnabled;
     }
 
+    /**
+     * Determine the clients IP-Address.
+     *
+     * @return string The IP-Address of the client, or the empty string.
+     */
     public function getClientIP()
     {
         if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {

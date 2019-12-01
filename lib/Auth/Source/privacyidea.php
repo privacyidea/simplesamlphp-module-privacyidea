@@ -59,6 +59,11 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     private $concatenationmap = array();
 
+    /**
+     * Getter for $otp_extra.
+     *
+     * @return 0|1 Whether the OTP is in an extra field.
+     */
     public function getOtpExtra()
     {
         return $this->otp_extra;

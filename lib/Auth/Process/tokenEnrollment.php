@@ -38,6 +38,11 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
         $this->serverconfig['tokenType'] = $cfg->getString('tokenType', 'totp');
     }
 
+    /**
+     * Perform token enrollment, if necessary.
+     *
+     * @param array &$state The global state of simpleSAMLphp
+     */
     public function process(&$state)
     {
 
@@ -91,6 +96,12 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
         }
     }
 
+    /**
+     * Perform an api-request to enroll the actual token.
+     *
+     * @param array &$state The global state of simpleSAMLphp
+     * @return array The response from the privacyIDEA-server.
+     */
     public function enrollToken(&$state)
     {
         $params = array(
@@ -106,6 +117,12 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
         return sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/init", "POST");
     }
 
+    /**
+     * Check whether the user already has a token.
+     *
+     * @param array &$state The global state of simpleSAMLphp
+     * @return bool Whether the user already has a token enrolled.
+     */
     public function userHasToken(&$state)
     {
 

@@ -37,6 +37,14 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 
     }
 
+    /**
+     * Load the server configuration.
+     *
+     * This will take the server configuration passed to the class in the constructor, and put it in the state, for the
+     * other filters to use as a global configuration (which can be overridden on an individual basis).
+     *
+     * @param array &$state The global state of simpleSAMLphp
+     */
     public function process(&$state)
     {
         foreach ($this->serverconfig['uidKey'] as $uidKey) {
