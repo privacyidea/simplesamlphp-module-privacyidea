@@ -75,13 +75,10 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 
         if ($piEnabled) {
             if ($this->serverconfig['tryFirstAuthentication']) {
-                try {
-                    if ($this->authenticate($state, $this->serverconfig['tryFirstAuthPass'], null, null, null, null)) {
-                        return;
-                    }
-                } catch (SimpleSAML_Error_Error $e) {
-                    SimpleSAML_Logger::debug("privacyIDEA: user has token");
+                if ($this->authenticate($state, $this->serverconfig['tryFirstAuthPass'], null, null, null, null)) {
+                    return;
                 }
+                SimpleSAML_Logger::debug("privacyIDEA: user has token");
             }
             if ($this->serverconfig['doTriggerChallenge']) {
                 $authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
@@ -92,12 +89,6 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
                     "authorization:" . $authToken,
                 );
                 $body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/validate/triggerchallenge", "POST");
-                try {
-                    $detail = $body->detail;
-                    $multi_challenge = $detail->multi_challenge;
-                } catch (Exception $e) {
-                    throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-                }
                 $state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
             }
             SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
@@ -178,7 +169,6 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             throw new SimpleSAML_Error_BadRequest("privacyIDEA: Valid JSON response, but some internal error occured in PI server");
         }
         if ($auth !== true) {
-            SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
             if (property_exists($body, "detail")) {
                 $detail = $body->detail;
                 if (property_exists($detail, "multi_challenge")) {
@@ -193,10 +183,10 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
                     return true;
                 } else {
                     SimpleSAML_Logger::error("privacyIDEA WRONG USER PASSWORD");
-                    throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+                    return false;
                 }
             } else {
-                throw new SimpleSAML_Error_Error("WRONGUSERPASS");
+                return false;
             }
         }
 
