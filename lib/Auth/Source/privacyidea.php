@@ -129,20 +129,13 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         $body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/validate/samlcheck", "POST");
 
-        $status = True;
-        $value = False;
         $multi_challenge = NULL;
         $transaction_id = NULL;
-
-        try {
-            $result = $body->result;
-            $detailAttributes = $body->detail;
-            SimpleSAML_Logger::debug("privacyidea result:" . print_r($result, True));
-            $status = $result->status;
-            $value = $result->value->auth;
-        } catch (Exception $e) {
-            throw new SimpleSAML_Error_BadRequest("We were not able to read the response from the privacyidea server.");
-        }
+        $result = sspmod_privacyidea_Auth_utils::nullCheck(@$body->result);
+        $detailAttributes = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail);
+        $status = sspmod_privacyidea_Auth_utils::nullCheck(@$result->status);
+        $value = sspmod_privacyidea_Auth_utils::nullCheck(@$result->value->auth);
+        SimpleSAML_Logger::debug("privacyidea result:" . print_r($result, True));
 
         if ($status !== True) {
             /* We got a valid JSON response, but the STATUS is false */

@@ -74,24 +74,13 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
             if (!$this->userHasToken($state)) {
                 $body = $this->enrollToken($state);
                 if ($this->serverconfig['tokenType'] === "u2f") {
-                    try {
-                        $detail = $body->detail;
-                        $serial = $detail->serial;
-                        $state['privacyidea:tokenEnrollment']['enrollU2F'] = true;
-                        $state['privacyidea:tokenEnrollment']['serial'] = $serial;
-                        $state['privacyidea:tokenEnrollment']['authToken'] = $this->auth_token;
-                    } catch (Exception $e) {
-                        throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-                    }
+                    $state['privacyidea:tokenEnrollment']['enrollU2F'] = true;
+                    $state['privacyidea:tokenEnrollment']['authToken'] = $this->auth_token;
+                    $state['privacyidea:tokenEnrollment']['serial']
+                        = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail->serial);
                 } else {
-                    try {
-                        $detail = $body->detail;
-                        $googleurl = $detail->googleurl;
-                        $img = $googleurl->img;
-                        $state['privacyidea:tokenEnrollment']['tokenQR'] = $img;
-                    } catch (Exception $e) {
-                        throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-                    }
+                    $state['privacyidea:tokenEnrollment']['tokenQR']
+                        = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail->googleurl->img);
                 }
             }
         }
@@ -130,25 +119,14 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
     {
         assert('array' === gettype($state));
 
-        $params = array(
-            "user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
+        return !!sspmod_privacyidea_Auth_utils::nullCheck(
+            @sspmod_privacyidea_Auth_utils::curl(
+                array("user" => $state["Attributes"][$this->serverconfig['uidKey']][0]),
+                array("authorization: " . $this->auth_token),
+                $this->serverconfig,
+                "/token/",
+                "GET"
+            )->result->value->count
         );
-        $headers = array(
-            "authorization: " . $this->auth_token,
-        );
-
-        $body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/token/", "GET");
-        try {
-            $result = $body->result;
-            $value = $result->value;
-            $count = $value->count;
-        } catch (Exception $e) {
-            throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-        }
-        if ($count == 0) {
-            return false;
-        } else {
-            return true;
-        }
     }
 }

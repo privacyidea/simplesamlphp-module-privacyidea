@@ -94,20 +94,18 @@ class sspmod_privacyidea_Auth_utils
     {
         assert('array' === gettype($serverconfig));
 
-        $params = array(
-            "username" => $serverconfig['serviceAccount'],
-            "password" => $serverconfig['servicePass'],
+        return self::nullCheck(
+            @self::curl(
+                array(
+                    "username" => $serverconfig['serviceAccount'],
+                    "password" => $serverconfig['servicePass'],
+                ),
+                null,
+                $serverconfig,
+                "/auth",
+                "POST"
+            )->result->value->token
         );
-
-        $body = self::curl($params, null, $serverconfig, "/auth", "POST");
-        try {
-            $result = $body->result;
-            $value = $result->value;
-            $token = $value->token;
-        } catch (Exception $e) {
-            throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-        }
-        return $token;
     }
 
     /**

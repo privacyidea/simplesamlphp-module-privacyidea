@@ -151,19 +151,12 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             $headers = array(
                 "authorization: " . $authToken,
             );
-            $body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $cfg, "/token/init", "POST");
+            sspmod_privacyidea_Auth_utils::curl($params, $headers, $cfg, "/token/init", "POST");
             return true;
         }
         $body = sspmod_privacyidea_Auth_utils::curl($params, null, $cfg, "/validate/samlcheck", "POST");
-
-        try {
-            $result = $body->result;
-            $status = $result->status;
-            $value = $result->value;
-            $auth = $value->auth;
-        } catch (Exception $e) {
-            throw new SimpleSAML_Error_BadRequest("privacyIDEA: We were not able to read the response from the PI server");
-        }
+        $auth = sspmod_privacyidea_Auth_utils::nullCheck(@$body->result->value->auth);
+        $status = @$body->result->status;
 
         if ($status !== true) {
             throw new SimpleSAML_Error_BadRequest("privacyIDEA: Valid JSON response, but some internal error occured in PI server");
