@@ -2,6 +2,8 @@
 
 /**
  * privacyidea authentication module.
+ * 2019-11-30 Jean-Pierre Hömann <jean-pierre.hoehmann@netknights.it>
+ *            Major refactor.
  * 2018-03-16 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Replace [] with array()
  * 2017-08-17 Cornelius Kölbel <cornelius.koelbel@netknights.it>
@@ -40,33 +42,13 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
     private $serverconfig;
 
     /**
-     * the otp_extra, default to 0
-     */
-    private $otp_extra = 0;
-
-    /**
-     * The attribute map. It is an array
-     */
-    private $attributemap = array();
-
-    /**
-     * The detail map. It is an array
-     */
-    private $detailmap = array();
-
-    /**
-     * The concatenation map. It is an array
-     */
-    private $concatenationmap = array();
-
-    /**
-     * Getter for $otp_extra.
+     * Check whether the OTP should be in its own field.
      *
      * @return 0|1 Whether the OTP is in an extra field.
      */
     public function getOtpExtra()
     {
-        return $this->otp_extra;
+        return $this->serverconfig['otpextra'] ?: 0;
     }
 
     /**
@@ -80,36 +62,10 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         assert('is_array($info)');
         assert('is_array($config)');
 
-        /* Call the parent constructor first, as required by the interface. */
         parent::__construct($info, $config);
-
-        if (array_key_exists('privacyideaserver', $config)) {
-            $this->serverconfig['privacyideaserver'] = $config['privacyideaserver'];
-        }
-        if (array_key_exists('realm', $config)) {
-            $this->serverconfig['realm'] = $config['realm'];
-        }
-        if (array_key_exists('sslverifyhost', $config)) {
-            $this->serverconfig['sslverifyhost'] = $config['sslverifyhost'];
-        }
-        if (array_key_exists('sslverifypeer', $config)) {
-            $this->serverconfig['sslverifypeer'] = $config['sslverifypeer'];
-        }
-        if (array_key_exists('attributemap', $config)) {
-            $this->attributemap = $config['attributemap'];
-        }
-        if (array_key_exists('detailmap', $config)) {
-            $this->detailmap = $config['detailmap'];
-        }
-        if (array_key_exists('concatenationmap', $config)) {
-            $this->concatenationmap = $config['concatenationmap'];
-        }
-        if (array_key_exists('otpextra', $config)) {
-            $this->otp_extra = $config['otpextra'];
-        }
-
+        foreach (array('attributemap', 'detailmap', 'concatenationmap') as $i) {$config[$i] = $config[$i] ?: array();}
+        $this->serverconfig = $config;
     }
-
 
     /**
      * Attempt to log in using the given username and password.
@@ -227,13 +183,13 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         $attributes = array();
         $arr = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
         // Add all additional attributes defined in the array map to the search array
-        $arr = array_merge(array_keys($this->attributemap), $arr);
+        $arr = array_merge(array_keys($this->serverconfig['attributemap']), $arr);
         reset($arr);
         foreach ($arr as $key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . $key);
-            if (array_key_exists($key, $this->attributemap)) {
+            if (array_key_exists($key, $this->serverconfig['attributemap'])) {
                 // We have a key mapping
-                $mapped_key = $this->attributemap[$key];
+                $mapped_key = $this->serverconfig['attributemap'][$key];
                 SimpleSAML_Logger::debug("privacyidea mapped key: " . $mapped_key);
                 $attribute_value = $user_attributes->$key;
                 if ($attribute_value) {
@@ -260,11 +216,11 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
                 }
             }
         }
-        $detailarr = array_keys($this->detailmap);
+        $detailarr = array_keys($this->serverconfig['detailmap']);
         reset($detailarr);
         foreach ($detailarr as $key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
-            $mapped_key = $this->detailmap[$key];
+            $mapped_key = $this->serverconfig['detailmap'][$key];
             SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
             $attribute_value = $detailAttributes->$key;
             if (is_array($attribute_value)) {
@@ -276,11 +232,11 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         }
 
-        $concatenation = array_keys($this->concatenationmap);
+        $concatenation = array_keys($this->serverconfig['concatenationmap']);
         reset($concatenation);
         foreach ($concatenation as $key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
-            $mapped_key = $this->concatenationmap[$key];
+            $mapped_key = $this->serverconfig['concatenationmap'][$key];
             SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
             $concatenationArr = explode(",", $key);
             $concatenationValues = array();

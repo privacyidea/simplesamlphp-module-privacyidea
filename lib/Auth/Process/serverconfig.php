@@ -15,26 +15,8 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 
     public function __construct(array $config, $reserved)
     {
-
         parent::__construct($config, $reserved);
-        $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:serverconfig');
-        $this->serverconfig['privacyideaserver'] = $cfg->getString('privacyideaserver', '');
-        $this->serverconfig['sslverifyhost'] = $cfg->getBoolean('sslverifyhost', true);
-        $this->serverconfig['sslverifypeer'] = $cfg->getBoolean('sslverifypeer', true);
-        $this->serverconfig['realm'] = $cfg->getString('realm', '');
-        try {
-            $this->serverconfig['uidKey'] = $cfg->getArray('uidKey');
-        } catch (Exception $e) {
-            $this->serverconfig['uidKey'] = array($cfg->getString('uidKey', 'uid'));
-        }
-        $this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', 'privacyIDEA');
-        $this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', 'enabled');
-        $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', '');
-        $this->serverconfig['servicePass'] = $cfg->getString('servicePass', '');
-        $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', false);
-        $this->serverconfig['tryFirstAuthentication'] = $cfg->getBoolean('tryFirstAuthentication', false);
-        $this->serverconfig['tryFirstAuthPass'] = $cfg->getString('tryFirstAuthPass', 'simpleSAMLphp');
-
+        $this->serverconfig = $config;
     }
 
     /**
@@ -47,13 +29,6 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
      */
     public function process(&$state)
     {
-        foreach ($this->serverconfig['uidKey'] as $uidKey) {
-            if (isset($state['Attributes'][$uidKey][0])) {
-                $this->serverconfig['uidKey'] = $uidKey;
-                break;
-            }
-        }
-
         foreach ($this->serverconfig as $key => $value) {
             $state['privacyidea:serverconfig'][$key] = $value;
         }

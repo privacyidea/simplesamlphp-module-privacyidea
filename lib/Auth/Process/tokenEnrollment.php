@@ -25,17 +25,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
     public function __construct(array $config, $reserved)
     {
         parent::__construct($config, $reserved);
-        $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:tokenEnrollment');
-        $this->serverconfig['privacyideaserver'] = $cfg->getString('privacyideaserver', null);
-        $this->serverconfig['sslverifyhost'] = $cfg->getBoolean('sslverifyhost', null);
-        $this->serverconfig['sslverifypeer'] = $cfg->getBoolean('sslverifypeer', null);
-        $this->serverconfig['realm'] = $cfg->getString('realm', null);
-        $this->serverconfig['uidKey'] = $cfg->getString('uidKey', null);
-        $this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', null);
-        $this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', null);
-        $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', null);
-        $this->serverconfig['servicePass'] = $cfg->getString('servicePass', null);
-        $this->serverconfig['tokenType'] = $cfg->getString('tokenType', 'totp');
+        $this->serverconfig = $config;
     }
 
     /**
@@ -45,10 +35,17 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
      */
     public function process(&$state)
     {
+        foreach ($state['privacyidea:serverconfig'] as $key => $value) {
+            if (!isset($this->serverconfig[$key])) {$this->serverconfig[$key] = $value;}
+        }
 
-        foreach ($this->serverconfig as $key => $value) {
-            if ($value === null) {
-                $this->serverconfig[$key] = $state['privacyidea:serverconfig'][$key];
+        // Find the first usable uidKey.
+        if (gettype($this->serverconfig['uidKey']) === "array" && !empty($this->serverconfig['uidKey'])) {
+            foreach ($this->serverconfig['uidKey'] as $uidKey) {
+                if (isset($state['Attributes'][$uidKey][0])) {
+                    $this->serverconfig['uidKey'] = $uidKey;
+                    break;
+                }
             }
         }
 

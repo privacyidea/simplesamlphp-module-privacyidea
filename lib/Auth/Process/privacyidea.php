@@ -28,23 +28,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     {
         SimpleSAML_Logger::info("Create the Auth Proc Filter privacyidea");
         parent::__construct($config, $reserved);
-        $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:privacyidea');
-        $this->serverconfig['privacyideaserver'] = $cfg->getString('privacyideaserver', null);
-        $this->serverconfig['sslverifyhost'] = $cfg->getBoolean('sslverifyhost', null);
-        $this->serverconfig['sslverifypeer'] = $cfg->getBoolean('sslverifypeer', null);
-        $this->serverconfig['realm'] = $cfg->getString('realm', null);
-        try {
-            $this->serverconfig['uidKey'] = array($cfg->getString('uidKey'));
-        } catch (Exception $e) {
-            $this->serverconfig['uidKey'] = $cfg->getArray('uidKey', null);
-        }
-        $this->serverconfig['enabledPath'] = $cfg->getString('enabledPath', null);
-        $this->serverconfig['enabledKey'] = $cfg->getString('enabledKey', null);
-        $this->serverconfig['serviceAccount'] = $cfg->getString('serviceAccount', null);
-        $this->serverconfig['servicePass'] = $cfg->getString('servicePass', null);
-        $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', null);
-        $this->serverconfig['tryFirstAuthentication'] = $cfg->getBoolean('tryFirstAuthentication', null);
-        $this->serverconfig['tryFirstAuthPass'] = $cfg->getString('tryFirstAuthPass', null);
+        $this->serverconfig = $config;
     }
 
     /**
@@ -58,12 +42,12 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     {
         SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: Entering process function");
 
-        /**
-         * If a configuration is not set in privacyidea:tokenEnrollment,
-         * We are using the config from privacyidea:serverconfig.
-         */
+        foreach ($state['privacyidea:serverconfig'] as $key => $value) {
+            if (!isset($this->serverconfig[$key])) {$this->serverconfig[$key] = $value;}
+        }
 
-        if (!empty($this->serverconfig['uidKey'])) {
+        // Find the first usable uidKey.
+        if (gettype($this->serverconfig['uidKey']) === "array" && !empty($this->serverconfig['uidKey'])) {
             foreach ($this->serverconfig['uidKey'] as $uidKey) {
                 if (isset($state['Attributes'][$uidKey][0])) {
                     $this->serverconfig['uidKey'] = $uidKey;
@@ -72,19 +56,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             }
         }
 
-        foreach ($this->serverconfig as $key => $value) {
-            if ($value === null) {
-                $this->serverconfig[$key] = $state['privacyidea:serverconfig'][$key];
-            }
-        }
-
-        $state['privacyidea:privacyidea'] = array(
-            'privacyideaserver' => $this->serverconfig['privacyideaserver'],
-            'sslverifyhost' => $this->serverconfig['sslverifyhost'],
-            'sslverifypeer' => $this->serverconfig['sslverifypeer'],
-            'realm' => $this->serverconfig['realm'],
-            'uidKey' => $this->serverconfig['uidKey'],
-        );
+        $state['privacyidea:privacyidea'] = $this->serverconfig;
 
         if (isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
             $piEnabled = $state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0];
