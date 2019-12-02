@@ -21,7 +21,7 @@ class sspmod_privacyidea_Auth_utils
      * @return object We will return the JSON decoded body, because all the requests need different data.
      * @throws SimpleSAML_Error_BadRequest
      */
-    public function curl($params, $headers, $serverconfig, $api_endpoint, $http_method)
+    public static function curl($params, $headers, $serverconfig, $api_endpoint, $http_method)
     {
         assert('array' === gettype($params));
         assert('array' === gettype($headers));
@@ -73,7 +73,7 @@ class sspmod_privacyidea_Auth_utils
      * @return mixed The input.
      * @throws SimpleSAML_Error_BadRequest
      */
-    public function nullCheck($x) {
+    public static function nullCheck($x) {
         if (gettype($x) === "NULL") {
             throw new SimpleSAML_Error_BadRequest(
                 "privacyIDEA: We were not able to read the response from the PI server");
@@ -90,7 +90,7 @@ class sspmod_privacyidea_Auth_utils
      * @param array $serverconfig The whole configuation for the server.
      * @return String This is the authorization header, which is needed for some API requests.
      */
-    public function fetchAuthToken($serverconfig)
+    public static function fetchAuthToken($serverconfig)
     {
         assert('array' === gettype($serverconfig));
 
@@ -117,7 +117,7 @@ class sspmod_privacyidea_Auth_utils
      * @param object $body The body contains the multi_challenge which will be used to check which token types are used.
      * @return mixed The modified state will be returned. It now contains the token types for the user.
      */
-    public function checkTokenType($state, $body)
+    public static function checkTokenType($state, $body)
     {
         assert('array' === gettype($state));
         assert('object' === gettype($body));
