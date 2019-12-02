@@ -26,6 +26,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
      */
     public function __construct(array $config, $reserved)
     {
+        assert('array' === gettype($config));
+
         SimpleSAML_Logger::info("Create the Auth Proc Filter privacyidea");
         parent::__construct($config, $reserved);
         $this->serverconfig = $config;
@@ -40,6 +42,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
      */
     public function process(&$state)
     {
+        assert('array' === gettype($state));
+
         SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: Entering process function");
 
         foreach ($state['privacyidea:serverconfig'] as $key => $value) {
@@ -120,6 +124,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
      */
     public static function authenticate(array &$state, $otp, $transaction_id, $signaturedata, $clientdata, $registrationdata)
     {
+        assert('array' === gettype($state));
+        assert('string' === gettype($otp));
 
         $cfg = $state['privacyidea:privacyidea'];
 

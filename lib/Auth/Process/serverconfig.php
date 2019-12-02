@@ -15,6 +15,8 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 
     public function __construct(array $config, $reserved)
     {
+        assert('array' === gettype($config));
+
         parent::__construct($config, $reserved);
         $this->serverconfig = $config;
     }
@@ -29,6 +31,8 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
      */
     public function process(&$state)
     {
+        assert('array' === gettype($state));
+
         foreach ($this->serverconfig as $key => $value) {
             $state['privacyidea:serverconfig'][$key] = $value;
         }

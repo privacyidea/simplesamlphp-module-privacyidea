@@ -59,8 +59,8 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     public function __construct($info, $config)
     {
-        assert('is_array($info)');
-        assert('is_array($config)');
+        assert('array' === gettype($info));
+        assert('array' === gettype($config));
 
         parent::__construct($info, $config);
         foreach (array('attributemap', 'detailmap', 'concatenationmap') as $i) {$config[$i] = $config[$i] ?: array();}
@@ -85,9 +85,9 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
     protected function login_chal_resp($state, $username, $password, $transaction_id, $signaturedata, $clientdata)
     {
-        assert('is_string($username)');
-        assert('is_string($password)');
-        assert('is_string($transaction_id)');
+        assert('string' === gettype($username));
+        assert('string' === gettype($password));
+        assert('string' === gettype($transaction_id));
 
         // The parameters in an array do get get urlencoded!
         // But we encode the log data to avoid log execution
@@ -261,7 +261,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     public function authenticate(&$state)
     {
-        assert('is_array($state)');
+        assert('array' === gettype($state));
 
         /* We are going to need the authId in order to retrieve this authentication source later. */
         $state[self::AUTHID] = $this->authId;
@@ -292,10 +292,10 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     public static function handleLogin($authStateId, $username, $password, $transaction_id = NULL, $signaturedata = NULL, $clientdata = NULL)
     {
-        assert('is_string($authStateId)');
-        assert('is_string($username)');
-        assert('is_string($password)');
-        assert('is_string($transaction_id)');
+        assert('string' === gettype($authStateId));
+        assert('string' === gettype($username));
+        assert('string' === gettype($password));
+        assert('string' === gettype($transaction_id));
 
         SimpleSAML_Logger::debug("calling privacyIDEA handleLogin with authState: " . $authStateId . " for user " . $username);
         if (array_key_exists("OTP", $_REQUEST)) {
@@ -315,7 +315,6 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         SimpleSAML_Logger::debug("Loaded state privacyidea:privacyidea:init from Source/privacyidea.php");
 
         /* Retrieve the authentication source we are executing. */
-        assert('array_key_exists(self::AUTHID, $state)');
         $source = SimpleSAML_Auth_Source::getById($state[self::AUTHID]);
         if ($source === NULL) {
             throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
@@ -337,7 +336,6 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         SimpleSAML_Logger::stats('User \'' . $username . '\' has been successfully authenticated.');
 
         /* Save the attributes we received from the login-function in the $state-array. */
-        assert('is_array($attributes)');
         $state['Attributes'] = $attributes;
 
         /* Return control to simpleSAMLphp after successful authentication. */

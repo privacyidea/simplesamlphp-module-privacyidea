@@ -11,28 +11,24 @@ class sspmod_privacyidea_Auth_utils
 {
 
     /**
-     * @param $params
-     * All params, which are needed for the http request (e.g. user, pass, realm, etc.)
+     * Perform a request against privacyIDEA.
      *
-     * @param $headers
-     * The headers for the http request (e.g. authentication token)
-     *
-     * @param $serverconfig
-     * The whole configuation for the server (e.g. url, verify host, verify peer)
-     *
-     * @param $api_endpoint
-     * This is the path for the request (e.g. /validate/samlcheck)
-     *
-     * @param $http_method
-     * Some requests need POST or GET method. This can be entered here.
-     *
-     * @return array
-     * We will return the JSON decoded body, because all the requests need different data.
-     *
+     * @param array $params All params, which are needed for the http request (e.g. user, pass, realm, etc.)
+     * @param array $headers The headers for the http request (e.g. authentication token)
+     * @param array $serverconfig The whole configuation for the server (e.g. url, verify host, verify peer)
+     * @param string $api_endpoint This is the path for the request (e.g. /validate/samlcheck)
+     * @param string $http_method Some requests need POST or GET method. This can be entered here.
+     * @return object We will return the JSON decoded body, because all the requests need different data.
      * @throws SimpleSAML_Error_BadRequest
      */
     public function curl($params, $headers, $serverconfig, $api_endpoint, $http_method)
     {
+        assert('array' === gettype($params));
+        assert('array' === gettype($headers));
+        assert('array' === gettype($serverconfig));
+        assert('string' === gettype($api_endpoint));
+        assert('string' === gettype($http_method));
+
         $curl_instance = curl_init();
         $url = $serverconfig['privacyideaserver'] . $api_endpoint;
 
@@ -88,16 +84,16 @@ class sspmod_privacyidea_Auth_utils
     /**
      * With this function you can get the authorization token with a service account.
      *
-     * @param array $serverconfig
-     * The keys serviceAccount and servicePass must be set.
-     * It can be done in the config or in the metadata.
-     * The service account must have the correct rights. You can edit them in the policies in privacyIDEA
+     * The keys serviceAccount and servicePass must be set in the $serverconfig. It can be done in the config or in the
+     * metadata. The service account must have the correct rights. You can edit them in the policies in privacyIDEA
      *
-     * @return String
-     * This is the authorization header, which is needed for some API requests.
+     * @param array $serverconfig The whole configuation for the server.
+     * @return String This is the authorization header, which is needed for some API requests.
      */
     public function fetchAuthToken($serverconfig)
     {
+        assert('array' === gettype($serverconfig));
+
         $params = array(
             "username" => $serverconfig['serviceAccount'],
             "password" => $serverconfig['servicePass'],
@@ -116,19 +112,18 @@ class sspmod_privacyidea_Auth_utils
 
     /**
      * This function can edit the state to enter the needed token types for a user.
-     * The booleans 'use_u2f' and 'use_otp' will be added.
      *
-     * @param array $state
-     * The state is needed to be changed in this function
+     * The booleans 'use_u2f', 'use_otp' and 'use_push' will be added.
      *
-     * @param JSON $body
-     * The body contains the multi_challenge which will be used to check which token types are used.
-     *
-     * @return mixed
-     * The modified state will be returned. It now contains the token types for the user.
+     * @param array $state The state is needed to be changed in this function
+     * @param object $body The body contains the multi_challenge which will be used to check which token types are used.
+     * @return mixed The modified state will be returned. It now contains the token types for the user.
      */
     public function checkTokenType($state, $body)
     {
+        assert('array' === gettype($state));
+        assert('object' === gettype($body));
+
         $detail = $body->detail;
         $multi_challenge = $detail->multi_challenge;
         $use_u2f = false;

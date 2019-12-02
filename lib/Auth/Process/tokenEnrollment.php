@@ -24,6 +24,8 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
 
     public function __construct(array $config, $reserved)
     {
+        assert('array' === gettype($config));
+
         parent::__construct($config, $reserved);
         $this->serverconfig = $config;
     }
@@ -35,6 +37,8 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
      */
     public function process(&$state)
     {
+        assert('array' === gettype($state));
+
         foreach ($state['privacyidea:serverconfig'] as $key => $value) {
             if (!isset($this->serverconfig[$key])) {$this->serverconfig[$key] = $value;}
         }
@@ -101,6 +105,8 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
      */
     public function enrollToken(&$state)
     {
+        assert('array' === gettype($state));
+
         $params = array(
             "user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
             "genkey" => 1,
@@ -122,6 +128,7 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
      */
     public function userHasToken(&$state)
     {
+        assert('array' === gettype($state));
 
         $params = array(
             "user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
