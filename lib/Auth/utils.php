@@ -1,6 +1,6 @@
 <?php
 
-define(USERAGENT, "simpleSAMLphp");
+const USERAGENT =  "simpleSAMLphp";
 
 /**
  * The functions, which are needed in more than one class, are listed below.
@@ -56,6 +56,7 @@ class sspmod_privacyidea_Auth_utils
 
         curl_setopt($curl_instance, CURLOPT_SSL_VERIFYPEER, $serverconfig['sslverifypeer']);
 
+        SimpleSAML_Logger::debug("privacyIDEA: " . $http_method . " " . $url);
         if (!$response = curl_exec($curl_instance)) {
             throw new SimpleSAML_Error_BadRequest("privacyIDEA: Bad request to PI server: " . curl_error($curl_instance));
         }
@@ -157,6 +158,126 @@ class sspmod_privacyidea_Auth_utils
         $state['privacyidea:privacyidea:checkTokenType']['use_otp'] = $use_otp;
 
         return $state;
+    }
+
+    /**
+     * Determine the clients IP-Address.
+     *
+     * @return string|null The IP-Address of the client.
+     */
+    public static function getClientIP()
+    {
+        return $_SERVER['HTTP_X_FORWARDED_FOR'] ?: $_SERVER['REMOTE_ADDR'] ?: $_SERVER['HTTP_CLIENT_IP'];
+    }
+
+    /**
+     * Find the first usable uid key.
+     *
+     * If the administrator has configured multiple uidKeys, this will find the first one the exists as an Attribute in
+     * the $state and update the $config to use that key.
+     *
+     * @param array $config The serverconfig to use
+     * @param array $state The global state to check the keys against
+     * @return array The updated config
+     */
+    public static function determineUidKey($config, $state) {
+        assert('array' === gettype($config));
+        assert('array' === gettype($state));
+
+        if (gettype($config['uidKey']) === "array" && !empty($config['uidKey'])) {
+            foreach ($config['uidKey'] as $i) {
+                if (isset($state['Attributes'][$i][0])) {$config['uidKey'] = $i;}
+            }
+        }
+        return $config;
+    }
+
+    /**
+     * Build the serverconfig.
+     *
+     * This will take a serverconfig, merge in overrides and determine the uidKey if necessary.
+     *
+     * @param array $config The serverconfig
+     * @param array $overrides THe config overrides
+     * @param array $state The global state of simpleSAMLphp
+     * @return array The new serverconfig.
+     */
+    public static function buildServerconfig($config, $overrides, $state) {
+        return self::determineUidKey(array_merge($config, $overrides), $state);
+    }
+
+    /**
+     * Perform 2FA authentication given the current state and an OTP from a token managed by privacyIDEA
+     * The otp is sent to the privacyidea_url.
+     *
+     * @param array $state The state array in the "privacyidea:privacyidea:init" stage.
+     * @param array $params An array containing: user, realm, pass, transaction_id, signaturedata, clientdata, regdata
+     * @param array $serverconfig The configuration for the PrivacyIDEA-server. Optional, if contained in $state.
+     * @return array|null An array containing attributes and detail, or NULL.
+     * @throws \InvalidArgumentException if the state array is not in a valid stage or the OTP has incorrect length.
+     */
+    public static function authenticate($state, $params, $serverconfig = NULL)
+    {
+        assert('array' === gettype($state));
+        assert('array' === gettype($params));
+        assert('array' === gettype($serverconfig) || NULL === $serverconfig);
+        $serverconfig = $serverconfig ?: $state['privacyidea:privacyidea'];
+
+        $params['user'] = @$params['user'] ?: $state["Attributes"][$serverconfig['uidKey']][0];
+        $params['realm'] = @$params['realm'] ?: $serverconfig['realm'];
+        $params['client'] = self::getClientIP();
+
+        $multi_challenge = NULL;
+        if (@$state['privacyidea:tokenEnrollment']['enrollU2F'] && @$params['transaction_id']) {
+            $params['type'] = "u2f";
+            $params['description'] = "Enrolled with simpleSAMLphp";
+            $params['serial'] = $state['privacyidea:tokenEnrollment']['serial'];
+            $authToken = $state['privacyidea:tokenEnrollment']['authToken'];
+            $headers = array("authorization: " . $authToken);
+            sspmod_privacyidea_Auth_utils::curl($params, $headers, $serverconfig, "/token/init", "POST");
+            return true;
+        }
+        $body = sspmod_privacyidea_Auth_utils::curl($params, null, $serverconfig, "/validate/samlcheck", "POST");
+        $auth = sspmod_privacyidea_Auth_utils::nullCheck(@$body->result->value->auth);
+        $status = @$body->result->status;
+        $detail = @$body->detail;
+
+        // Fallback for legacy compatibility.
+        $attributes = @$body->result->value->attributes ?: @$body->result->value;
+
+        if ($status !== true) {
+            throw new SimpleSAML_Error_BadRequest("privacyIDEA: Valid JSON response, but some internal error occured in PI server");
+        }
+        if ($auth !== true) {
+            if (property_exists($body, "detail")) {
+                if (property_exists($detail, "multi_challenge")) {
+
+                    $state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
+                    $serverconfig['username'] = $params['user'];
+
+                    SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
+                    $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+                    SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Process/privacyidea.php");
+                    $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
+                    SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
+                    return array(
+                        "detail" => $detail,
+                        "attributes" => $attributes
+                    );
+                } else {
+                    SimpleSAML_Logger::error("privacyIDEA WRONG USER PASSWORD");
+                    return NULL;
+                }
+            } else {
+                return NULL;
+            }
+        }
+
+        SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully");
+        return array(
+            "detail" => $detail,
+            "attributes" => $attributes
+        );
     }
 
 }

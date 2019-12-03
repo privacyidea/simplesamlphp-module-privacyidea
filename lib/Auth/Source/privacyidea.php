@@ -89,90 +89,22 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         assert('string' === gettype($password));
         assert('string' === gettype($transaction_id));
 
-        // The parameters in an array do get get urlencoded!
-        // But we encode the log data to avoid log execution
-        $params = array(
-            "user" => $username,
-            "pass" => $password,
-        );
-        if (strlen($this->serverconfig['realm']) > 0) {
-            $params["realm"] = $this->serverconfig['realm'];
-        }
-
-        if ($transaction_id) {
-            SimpleSAML_Logger::debug("Authenticating with transaction_id: " . $transaction_id);
-            $params["transaction_id"] = $transaction_id;
-        }
-        if ($signaturedata) {
-            SimpleSAML_Logger::debug("Authenticating with signaturedata: " . urlencode($signaturedata));
-            $params["signaturedata"] = $signaturedata;
-        }
-        if ($clientdata) {
-            SimpleSAML_Logger::debug("Authenticating with clientdata: " . urlencode($clientdata));
-            $params["clientdata"] = $clientdata;
-        }
-        // determine the client IP
-        $headers = $_SERVER;
-        foreach (array("X-Forwarded-For", "HTTP_X_FORWARDED_FOR", "REMOTE_ADDR") as $clientkey) {
-            if (array_key_exists($clientkey, $headers)) {
-                $client_ip = $headers[$clientkey];
-                SimpleSAML_Logger::debug("Using IP from " . $clientkey . ": " . $client_ip);
-                $params["client"] = $client_ip;
-                break;
-            }
-        }
-
-        // Add some debug so we know what we are doing.
-        SimpleSAML_Logger::debug("privacyidea URL:" . $this->serverconfig['privacyideaserver']);
-        SimpleSAML_Logger::debug("user          : " . urlencode($username));
-        SimpleSAML_Logger::debug("transaction_id: " . $transaction_id);
-
-        $body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/validate/samlcheck", "POST");
-
-        $multi_challenge = NULL;
-        $transaction_id = NULL;
-        $result = sspmod_privacyidea_Auth_utils::nullCheck(@$body->result);
-        $detailAttributes = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail);
-        $status = sspmod_privacyidea_Auth_utils::nullCheck(@$result->status);
-        $value = sspmod_privacyidea_Auth_utils::nullCheck(@$result->value->auth);
-        SimpleSAML_Logger::debug("privacyidea result:" . print_r($result, True));
-
-        if ($status !== True) {
-            /* We got a valid JSON response, but the STATUS is false */
-            throw new SimpleSAML_Error_BadRequest("Valid JSON response, but some internal error occured in privacyidea server.");
-        } else {
-            /* The STATUS is true, so we need to check the value */
-            if ($value !== True) {
-                SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
-                $detail = $body->detail;
-
-                if (property_exists($detail, "multi_challenge")) {
-
-                    $state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
-                    $state['privacyidea:privacyidea']['username'] = $username;
-                    $state['forcedUsername'] = true;
-                    $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
-                    SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Source/privacyidea.php");
-                    $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
-                    SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
-                    return true;
-                } else {
-                    throw new SimpleSAML_Error_Error("WRONGUSERPASS");
-                }
-            }
-        }
-
-        $user_attributes = $result->value->attributes;
-        if (!array_key_exists("username", $user_attributes)) {
-            // We have the old response, where the attributes are located directly in the value
-            $user_attributes = $result->value;
-        }
-        SimpleSAML_Logger::debug("privacyidea returned user attributes: " . print_r($user_attributes, True));
-        /* status and value are true
-         * We can go on and fill attributes
-         */
+        if (!$auth = sspmod_privacyidea_Auth_utils::authenticate(
+            $state,
+            array(
+                "user" => $username,
+                "pass" => $password,
+                "realm" => @$this->serverconfig['realm'],
+                "transaction_id" => $transaction_id,
+                "signaturedata" => $signaturedata,
+                "clientdata" => $clientdata
+            ),
+            $this->serverconfig
+        )) {throw new SimpleSAML_Error_Error("WRONGUSERPASS");}
 
         /* If we get this far, we have a valid login. */
+        $user_attributes = $auth['attributes'];
+        $detailAttributes = $auth['detail'];
         $attributes = array();
         $arr = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
         // Add all additional attributes defined in the array map to the search array

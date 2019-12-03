@@ -39,19 +39,11 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
     {
         assert('array' === gettype($state));
 
-        foreach ($state['privacyidea:serverconfig'] as $key => $value) {
-            if (!isset($this->serverconfig[$key])) {$this->serverconfig[$key] = $value;}
-        }
-
-        // Find the first usable uidKey.
-        if (gettype($this->serverconfig['uidKey']) === "array" && !empty($this->serverconfig['uidKey'])) {
-            foreach ($this->serverconfig['uidKey'] as $uidKey) {
-                if (isset($state['Attributes'][$uidKey][0])) {
-                    $this->serverconfig['uidKey'] = $uidKey;
-                    break;
-                }
-            }
-        }
+        $this->serverconfig = sspmod_privacyidea_Auth_utils::buildServerconfig(
+            $state['privacyidea:serverconfig'],
+            $this->serverconfig,
+            $state
+        );
 
         if (isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
             $piEnabled = $state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0];
