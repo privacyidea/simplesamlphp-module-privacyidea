@@ -20,7 +20,6 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
     {
         assert('array' === gettype($config));
 
-        SimpleSAML_Logger::info("Checking client ip for privacyIDEA");
         parent::__construct($config, $reserved);
         $this->excludeClientIPs = $config['excludeClientIPs'];
     }

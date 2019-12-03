@@ -28,7 +28,6 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     {
         assert('array' === gettype($config));
 
-        SimpleSAML_Logger::info("Create the Auth Proc Filter privacyidea");
         parent::__construct($config, $reserved);
         $this->serverconfig = $config;
     }
