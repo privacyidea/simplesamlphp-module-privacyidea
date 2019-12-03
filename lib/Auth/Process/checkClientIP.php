@@ -37,7 +37,7 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
         $clientIP = ip2long(sspmod_privacyidea_Auth_utils::getClientIP());
         $piEnabled = true;
         foreach ($this->excludeClientIPs as $ipAddress) {
-            if (strpos($ipAddress, '-') !== false) {
+            if (strpos($ipAddress, '-')) {
                 $range = explode('-', $ipAddress);
                 $startIP = ip2long($range[0]);
                 $endIP = ip2long($range[1]);

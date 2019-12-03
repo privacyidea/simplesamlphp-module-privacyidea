@@ -35,8 +35,6 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
     {
         assert('array' === gettype($state));
 
-        foreach ($this->serverconfig as $key => $value) {
-            $state['privacyidea:serverconfig'][$key] = $value;
-        }
+        foreach ($this->serverconfig as $key => $value) {$state['privacyidea:serverconfig'][$key] = $value;}
     }
 }

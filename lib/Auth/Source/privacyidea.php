@@ -95,7 +95,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         assert('string' === gettype($password));
         assert('string' === gettype($transaction_id));
 
-        if (!$auth = sspmod_privacyidea_Auth_utils::authenticate(
+        $auth = sspmod_privacyidea_Auth_utils::authenticate(
             $state,
             array(
                 "user" => $username,
@@ -106,7 +106,8 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
                 "clientdata" => $clientdata
             ),
             $this->serverconfig
-        )) {throw new SimpleSAML_Error_Error("WRONGUSERPASS");}
+        );
+        if (!$auth) {throw new SimpleSAML_Error_Error("WRONGUSERPASS");}
 
         /* If we get this far, we have a valid login. */
         $user_attributes = $auth['attributes'];
@@ -209,7 +210,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
 
         /* Retrieve the authentication source we are executing. */
         $source = SimpleSAML_Auth_Source::getById($state[self::AUTHID]);
-        if ($source === NULL) {
+        if (!$source) {
             throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
         }
 

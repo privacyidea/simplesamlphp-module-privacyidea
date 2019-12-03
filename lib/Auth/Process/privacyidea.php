@@ -53,7 +53,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         );
         $state['privacyidea:privacyidea'] = $this->serverconfig;
 
-        if (!isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
+        if (sspmod_privacyidea_Auth_utils::privacyIdeaIsDisabled($state, $this->serverconfig)) {
             SimpleSAML_Logger::debug(
                 "privacyIDEA: "
                 . $this->serverconfig['enabledPath']
@@ -63,18 +63,8 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             );
             return;
         }
-        if ($this->serverconfig['privacyideaserver'] === '') {
-            $piEnabled = False;
-            SimpleSAML_Logger::error("privacyIDEA url is not set!");
-        }
-
-        if (
-            $this->serverconfig['tryFirstAuthentication']
-            && sspmod_privacyidea_Auth_utils::authenticate(
-                $state,
-                array('pass' => $this->serverconfig['tryFirstAuthPass'])
-            )
-        ) {return;}
+        if (!$this->serverconfig['privacyideaserver']) {SimpleSAML_Logger::error("privacyIDEA url is not set!");}
+        if ($this->maybeTryFirstAuthentication($state)) {return;}
         if ($this->serverconfig['doTriggerChallenge']) {
             $authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
             $params = array(
@@ -92,6 +82,14 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Process/privacyidea.php");
         $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
         SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
+    }
+
+    private function maybeTryFirstAuthentication($state) {
+        return $this->serverconfig['tryFirstAuthentication']
+            && sspmod_privacyidea_Auth_utils::authenticate(
+                $state,
+                array('pass' => $this->serverconfig['tryFirstAuthPass'])
+            );
     }
 
 }

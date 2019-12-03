@@ -45,16 +45,12 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
             $state
         );
 
-        if (!isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
-            return;
-        }
-
-        if ($this->serverconfig['serviceAccount'] === null or $this->serverconfig['servicePass'] === null) {
+        if (sspmod_privacyidea_Auth_utils::privacyIdeaIsDisabled($state, $this->serverconfig)) {return;}
+        if ($this->doesNotHaveServiceAccount()) {
             SimpleSAML_Logger::error("privacyIDEA service account for token enrollment is not set!");
             return;
         }
-
-        if ($this->serverconfig['privacyideaserver'] === null) {
+        if (!$this->serverconfig['privacyideaserver']) {
             SimpleSAML_Logger::error("privacyIDEA url is not set!");
             return;
         }
@@ -116,5 +112,9 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
                 "GET"
             )->result->value->count
         );
+    }
+
+    private function doesNotHaveServiceAccount() {
+        return !$this->serverconfig['serviceAccount'] || !$this->serverconfig['servicePass'];
     }
 }
