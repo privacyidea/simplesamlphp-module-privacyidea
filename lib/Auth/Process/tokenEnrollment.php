@@ -45,35 +45,31 @@ class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_Pr
             $state
         );
 
-        if (isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
-            $piEnabled = $state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0];
-        } else {
-            $piEnabled = True;
+        if (!isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
+            return;
         }
 
         if ($this->serverconfig['serviceAccount'] === null or $this->serverconfig['servicePass'] === null) {
-            $piEnabled = False;
             SimpleSAML_Logger::error("privacyIDEA service account for token enrollment is not set!");
+            return;
         }
 
         if ($this->serverconfig['privacyideaserver'] === null) {
-            $piEnabled = False;
             SimpleSAML_Logger::error("privacyIDEA url is not set!");
+            return;
         }
 
-        if ($piEnabled) {
-            $this->auth_token = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
-            if (!$this->userHasToken($state)) {
-                $body = $this->enrollToken($state);
-                if ($this->serverconfig['tokenType'] === "u2f") {
-                    $state['privacyidea:tokenEnrollment']['enrollU2F'] = true;
-                    $state['privacyidea:tokenEnrollment']['authToken'] = $this->auth_token;
-                    $state['privacyidea:tokenEnrollment']['serial']
-                        = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail->serial);
-                } else {
-                    $state['privacyidea:tokenEnrollment']['tokenQR']
-                        = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail->googleurl->img);
-                }
+        $this->auth_token = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
+        if (!$this->userHasToken($state)) {
+            $body = $this->enrollToken($state);
+            if ($this->serverconfig['tokenType'] === "u2f") {
+                $state['privacyidea:tokenEnrollment']['enrollU2F'] = true;
+                $state['privacyidea:tokenEnrollment']['authToken'] = $this->auth_token;
+                $state['privacyidea:tokenEnrollment']['serial']
+                    = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail->serial);
+            } else {
+                $state['privacyidea:tokenEnrollment']['tokenQR']
+                    = sspmod_privacyidea_Auth_utils::nullCheck(@$body->detail->googleurl->img);
             }
         }
     }

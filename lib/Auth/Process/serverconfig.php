@@ -1,7 +1,9 @@
 <?php
 /**
  * This authproc filter reads the configuration for the privacyidea server.
+ *
  * @author Micha Preußer <micha.preusser@netknights.it>
+ * @author Jean_pierre Höhmann <jean-pierre.hoehmann@netknight.it>
  */
 
 class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_ProcessingFilter

@@ -53,45 +53,45 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         );
         $state['privacyidea:privacyidea'] = $this->serverconfig;
 
-        if (isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
-            $piEnabled = $state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0];
-        } else {
-            $piEnabled = True;
+        if (!isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
+            SimpleSAML_Logger::debug(
+                "privacyIDEA: "
+                . $this->serverconfig['enabledPath']
+                . " -> "
+                . $this->serverconfig['enabledKey']
+                . " is not set to true -> privacyIDEA is disabled"
+            );
+            return;
         }
-
         if ($this->serverconfig['privacyideaserver'] === '') {
             $piEnabled = False;
             SimpleSAML_Logger::error("privacyIDEA url is not set!");
         }
 
-        if ($piEnabled) {
-            if ($this->serverconfig['tryFirstAuthentication']) {
-                if (sspmod_privacyidea_Auth_utils::authenticate(
-                    $state,
-                    array('pass' => $this->serverconfig['tryFirstAuthPass'])
-                )) {return;}
-                SimpleSAML_Logger::debug("privacyIDEA: user has token");
-            }
-            if ($this->serverconfig['doTriggerChallenge']) {
-                $authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
-                $params = array(
-                    "user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
-                );
-                $headers = array(
-                    "authorization:" . $authToken,
-                );
-                $body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/validate/triggerchallenge", "POST");
-                $state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
-            }
-            SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
-            $state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
-            $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
-            SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Process/privacyidea.php");
-            $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
-            SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
-        } else {
-            SimpleSAML_Logger::debug("privacyIDEA: " . $this->serverconfig['enabledPath'] . " -> " . $this->serverconfig['enabledKey'] . " is not set to true -> privacyIDEA is disabled");
+        if (
+            $this->serverconfig['tryFirstAuthentication']
+            && sspmod_privacyidea_Auth_utils::authenticate(
+                $state,
+                array('pass' => $this->serverconfig['tryFirstAuthPass'])
+            )
+        ) {return;}
+        if ($this->serverconfig['doTriggerChallenge']) {
+            $authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
+            $params = array(
+                "user" => $state["Attributes"][$this->serverconfig['uidKey']][0],
+            );
+            $headers = array(
+                "authorization:" . $authToken,
+            );
+            $body = sspmod_privacyidea_Auth_utils::curl($params, $headers, $this->serverconfig, "/validate/triggerchallenge", "POST");
+            $state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
         }
+        SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
+        $state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
+        $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
+        SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Process/privacyidea.php");
+        $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
+        SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
     }
 
 }

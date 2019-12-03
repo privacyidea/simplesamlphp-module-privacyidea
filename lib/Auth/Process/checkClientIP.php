@@ -41,14 +41,11 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
                 $range = explode('-', $ipAddress);
                 $startIP = ip2long($range[0]);
                 $endIP = ip2long($range[1]);
-                if ($clientIP >= $startIP && $clientIP <= $endIP) {
-                    $piEnabled = false;
-                }
+                $piEnabled = $clientIP >= $startIP && $clientIP <= $endIP;
             } else {
-                if ($clientIP == ip2long($ipAddress)) {
-                    $piEnabled = false;
-                }
+                $piEnabled = $clientIP === ip2long($ipAddress);
             }
+            if (!$piEnabled) {break;}
         }
         $state['privacyIDEA']['enabled'][0] = $piEnabled;
     }

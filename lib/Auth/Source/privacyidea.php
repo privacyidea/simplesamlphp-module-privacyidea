@@ -1,5 +1,7 @@
 <?php
 
+const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
+
 /**
  * privacyidea authentication module.
  * 2019-11-30 Jean-Pierre Hömann <jean-pierre.hoehmann@netknights.it>
@@ -63,7 +65,9 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         assert('array' === gettype($config));
 
         parent::__construct($info, $config);
-        foreach (array('attributemap', 'detailmap', 'concatenationmap') as $i) {$config[$i] = $config[$i] ?: array();}
+        foreach (array('attributemap', 'detailmap', 'concatenationmap') as $i) {
+            $config[$i] = $config[$i] ?: array();
+        }
         $this->serverconfig = $config;
     }
 
@@ -81,6 +85,8 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     protected function login($username, $password)
     {
+        // Stub.
+        return;
     }
 
     protected function login_chal_resp($state, $username, $password, $transaction_id, $signaturedata, $clientdata)
@@ -106,62 +112,25 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         $user_attributes = $auth['attributes'];
         $detailAttributes = $auth['detail'];
         $attributes = array();
-        $arr = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
-        // Add all additional attributes defined in the array map to the search array
-        $arr = array_merge(array_keys($this->serverconfig['attributemap']), $arr);
-        reset($arr);
-        foreach ($arr as $key) {
+        $keys = array_merge(array_keys($this->serverconfig['attributemap']), DEFAULT_UID_KEYS);
+        foreach ($keys as $key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . $key);
-            if (array_key_exists($key, $this->serverconfig['attributemap'])) {
-                // We have a key mapping
-                $mapped_key = $this->serverconfig['attributemap'][$key];
-                SimpleSAML_Logger::debug("privacyidea mapped key: " . $mapped_key);
-                $attribute_value = $user_attributes->$key;
-                if ($attribute_value) {
-                    SimpleSAML_Logger::debug("privacyidea Mapped key in response");
-                    if (is_array($attribute_value)) {
-                        $attributes[$mapped_key] = $attribute_value;
-                    } else {
-                        // If attribute is a string, we create an array
-                        $attributes[$mapped_key] = array($attribute_value);
-                    }
-                    SimpleSAML_Logger::debug("privacyidea      value: " . print_r($attributes[$mapped_key], TRUE));
-                }
-            } else {
-                // We have no keymapping and just transfer the attribute
-                SimpleSAML_Logger::debug("privacyidea unmapped key: " . $key);
-                if ($user_attributes->$key) {
-                    $attribute_value = $user_attributes->$key;
-                    if (is_array($attribute_value)) {
-                        $attributes[$key] = $attribute_value;
-                    } else {
-                        $attributes[$key] = array($attribute_value);
-                    }
-                    SimpleSAML_Logger::debug("privacyidea        value: " . print_r($attributes[$key], TRUE));
-                }
+            $attribute_value = $user_attributes->$key;
+            if ($attribute_value) {
+                $attribute_key = @$this->serverconfig['attributemap'][$key] ?: $key;
+                $attributes[$attribute_key] = is_array($attribute_value) ? $attribute_value : array($attribute_value);
+                SimpleSAML_Logger::debug("privacyidea key: " . $attribute_key);
+                SimpleSAML_Logger::debug("privacyidea value: " . print_r($attribute_value, TRUE));
             }
         }
-        $detailarr = array_keys($this->serverconfig['detailmap']);
-        reset($detailarr);
-        foreach ($detailarr as $key) {
+        foreach ($this->serverconfig['detailmap'] as $key => $mapped_key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
-            $mapped_key = $this->serverconfig['detailmap'][$key];
             SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
             $attribute_value = $detailAttributes->$key;
-            if (is_array($attribute_value)) {
-                $attributes[$mapped_key] = $attribute_value;
-            } else {
-                // If attribute is a string, we create an array
-                $attributes[$mapped_key] = array($attribute_value);
-            }
-
+            $attributes[$mapped_key] = is_array($attribute_value) ? $attribute_value : array($attribute_value);
         }
-
-        $concatenation = array_keys($this->serverconfig['concatenationmap']);
-        reset($concatenation);
-        foreach ($concatenation as $key) {
+        foreach ($this->serverconfig['concatenationmap'] as $key => $mapped_key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
-            $mapped_key = $this->serverconfig['concatenationmap'][$key];
             SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
             $concatenationArr = explode(",", $key);
             $concatenationValues = array();
@@ -171,7 +140,6 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
             $concatenationString = implode(" ", $concatenationValues);
             $attributes[$mapped_key] = array($concatenationString);
         }
-
         SimpleSAML_Logger::debug("privacyidea Array returned: " . print_r($attributes, True));
         return $attributes;
     }
