@@ -65,9 +65,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         assert('array' === gettype($config));
 
         parent::__construct($info, $config);
-        foreach (array('attributemap', 'detailmap', 'concatenationmap') as $i) {
-            $config[$i] = $config[$i] ?: array();
-        }
+        foreach (array('attributemap', 'detailmap', 'concatenationmap') as $i) {$config[$i] = $config[$i] ?: array();}
         $this->serverconfig = $config;
     }
 
@@ -192,17 +190,8 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         assert('string' === gettype($transaction_id));
 
         SimpleSAML_Logger::debug("calling privacyIDEA handleLogin with authState: " . $authStateId . " for user " . $username);
-        if (array_key_exists("OTP", $_REQUEST)) {
-            $otp = $_REQUEST["OTP"];
-            $password = $password . $otp;
-            SimpleSAML_Logger::stats('Found OTP in Auth request. Concatenating passwords.');
-        }
-
-        // sanitize the input
-        $sid = SimpleSAML_Utilities::parseStateID($authStateId);
-        if (!is_null($sid['url'])) {
-            SimpleSAML_Utilities::checkURLAllowed($sid['url']);
-        }
+        $password = self::fetchOtpPass($password, $_REQUEST);
+        self::checkIdLegality($authStateId);
 
         /* Here we retrieve the state array we saved in the authenticate-function. */
         $state = SimpleSAML_Auth_State::loadState($authStateId, "privacyidea:privacyidea:init");
@@ -236,4 +225,20 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         SimpleSAML_Auth_Source::completeAuth($state);
     }
 
+    private static function fetchOtpPass($password, $request) {
+        assert('string' === gettype($password));
+        assert('array' === gettype($request));
+
+        if (array_key_exists("OTP", $request)) {
+            $otp = $request["OTP"];
+            SimpleSAML_Logger::stats('Found OTP in Auth request. Concatenating passwords.');
+            return $password . $otp;
+        }
+        return $password;
+    }
+
+    private static function checkIdLegality($id) {
+        $sid = SimpleSAML_Utilities::parseStateID($id);
+        if (!is_null($sid['url'])) {SimpleSAML_Utilities::checkURLAllowed($sid['url']);}
+    }
 }

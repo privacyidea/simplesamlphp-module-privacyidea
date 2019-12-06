@@ -33,20 +33,25 @@ class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_Proc
     {
         assert('array' === gettype($state));
 
-        $clientIP = ip2long(sspmod_privacyidea_Auth_utils::getClientIP());
-        $piEnabled = true;
+        $state['privacyIDEA']['enabled'][0] = $this->matchIP(sspmod_privacyidea_Auth_utils::getClientIP());
+    }
+
+    private function matchIP($clientIP) {
+        assert('string' === gettype($clientIP));
+        $clientIP = ip2long($clientIP);
+
+        $match = false;
         foreach ($this->excludeClientIPs as $ipAddress) {
             if (strpos($ipAddress, '-')) {
                 $range = explode('-', $ipAddress);
                 $startIP = ip2long($range[0]);
                 $endIP = ip2long($range[1]);
-                $piEnabled = $clientIP >= $startIP && $clientIP <= $endIP;
+                $match = $clientIP >= $startIP && $clientIP <= $endIP;
             } else {
-                $piEnabled = $clientIP === ip2long($ipAddress);
+                $match = $clientIP === ip2long($ipAddress);
             }
-            if (!$piEnabled) {break;}
+            if ($match) {break;}
         }
-        $state['privacyIDEA']['enabled'][0] = $piEnabled;
+        return $match;
     }
-
 }
