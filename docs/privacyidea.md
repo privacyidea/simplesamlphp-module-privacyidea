@@ -130,7 +130,7 @@ Use the following example:
 'authproc' => array(
 
     /**
-     *  The first authproc filter conatins the configuration for the privacyIDEA server.
+     *  The first authproc filter contains the configuration for the privacyIDEA server.
      */
     20 => array(
         'class'             => 'privacyidea:serverconfig',
@@ -176,11 +176,16 @@ Use the following example:
          *  You can enable or disable trigger challenge
          */
         'doTriggerChallenge' => true,
-        
+
+        /**
+         *  You can enable the ability for privacyidea to be disabled if the user has already passed 2FA on another related site and their session hasn't expired.
+         */
+        'skipforothersites' => 'yes',
+                
         /**
          *  Other authproc filters can disable 2FA if you want to.
          *  If privacyIDEA should listen to the setting, you have to enter the state's path and key.
-         *  The value of this key will be set by a previous auth proc filger.
+         *  The value of this key will be set by a previous auth proc filter.
          *  privacyIDEA will only be disabled, if the value of the key is set to false,
          *  in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
          */

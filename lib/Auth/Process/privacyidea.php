@@ -46,6 +46,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	    $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', null);
 	    $this->serverconfig['tryFirstAuthentication'] = $cfg->getBoolean('tryFirstAuthentication', null);
 	    $this->serverconfig['tryFirstAuthPass'] = $cfg->getString('tryFirstAuthPass', null);
+	    $this->serverconfig['skipforothersites'] = $cfg->getString('skipforothersites', null);
      }
 
     /**
@@ -85,6 +86,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    'sslverifypeer' => $this->serverconfig['sslverifypeer'],
 		    'realm' => $this->serverconfig['realm'],
 		    'uidKey' => $this->serverconfig['uidKey'],
+		    'skipforothersites' => $this->serverconfig['skipforothersites'],
 	    );
 
     	if(isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
@@ -97,7 +99,9 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 			$piEnabled = False;
 			SimpleSAML_Logger::error("privacyIDEA url is not set!");
 		}
-
+    if ($this->serverconfig['skipforothersites'] === 'yes' && $state["Expire"] > time()) {
+        $piEnabled = False;
+    }
 		if($piEnabled) {
 			if ($this->serverconfig['tryFirstAuthentication']) {
 				try {
