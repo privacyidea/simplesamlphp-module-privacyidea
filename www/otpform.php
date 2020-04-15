@@ -58,7 +58,7 @@
                     array(
                         "pass" => $password,
                         "transaction_id" => $transaction_id,
-                        "singaturedata" => $signatureData,
+                        "signaturedata" => $signatureData,
                         "clientdata" => $clientData,
                         "regdata" => $registrationData
                     )
