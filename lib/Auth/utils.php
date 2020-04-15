@@ -221,7 +221,9 @@ class sspmod_privacyidea_Auth_utils
         assert('array' === gettype($serverconfig) || NULL === $serverconfig);
         $serverconfig = $serverconfig ?: $state['privacyidea:privacyidea'];
 
+        $params = array_filter($params);
         $params['user'] = @$params['user'] ?: $state["Attributes"][$serverconfig['uidKey']][0];
+        $params['pass'] = @$params['pass'] ?: '';
         $params['realm'] = @$params['realm'] ?: $serverconfig['realm'];
         $params['client'] = self::getClientIP();
 
