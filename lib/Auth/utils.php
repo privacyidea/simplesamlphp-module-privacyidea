@@ -254,7 +254,7 @@ class sspmod_privacyidea_Auth_utils
                 SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
             } else {
                 SimpleSAML_Logger::error("privacyIDEA WRONG USER PASSWORD");
-                return NULL;
+                throw new SimpleSAML_Error_Error("WRONGUSERPASS");
             }
         }
 
