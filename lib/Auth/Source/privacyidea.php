@@ -98,7 +98,6 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
             array(
                 "user" => $username,
                 "pass" => $password,
-                "realm" => @$this->serverconfig['realm'],
                 "transaction_id" => $transaction_id,
                 "signaturedata" => $signaturedata,
                 "clientdata" => $clientdata
