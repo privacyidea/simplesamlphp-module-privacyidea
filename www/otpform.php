@@ -53,7 +53,16 @@
 
 	    try {
 			if($state['privacyidea:privacyidea:authenticationMethod'] === "authprocess") {
-				if (sspmod_privacyidea_Auth_Process_privacyidea::authenticate($state, $password, $transaction_id, $signatureData, $clientData, $registrationData)) {
+				if (sspmod_privacyidea_Auth_utils::authenticate(
+				    $state,
+                    array(
+                        "pass" => $password,
+                        "transaction_id" => $transaction_id,
+                        "signaturedata" => $signatureData,
+                        "clientdata" => $clientData,
+                        "regdata" => $registrationData
+                    )
+                )) {
 					SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
                     SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from otpform.php");
 					SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);

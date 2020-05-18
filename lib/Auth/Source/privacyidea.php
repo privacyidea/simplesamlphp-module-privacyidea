@@ -1,7 +1,11 @@
 <?php
 
+const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
+
 /**
  * privacyidea authentication module.
+ * 2019-11-30 Jean-Pierre Hömann <jean-pierre.hoehmann@netknights.it>
+ *            Major refactor.
  * 2018-03-16 Cornelius Kölbel <cornelius.koelbel@netknights.it>
  *            Replace [] with array()
  * 2017-08-17 Cornelius Kölbel <cornelius.koelbel@netknights.it>
@@ -33,38 +37,20 @@
  */
 class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPassBase
 {
-	/**
-	 * The serverconfig is listed in this array
-	 * @var array
-	 */
-	private $serverconfig;
+    /**
+     * The serverconfig is listed in this array
+     * @var array
+     */
+    private $serverconfig;
 
     /**
-     * the otp_extra, default to 0
+     * Check whether the OTP should be in its own field.
+     *
+     * @return 0|1 Whether the OTP is in an extra field.
      */
-    private $otp_extra = 0;
-
-    /**
-     * The attribute map. It is an array
-     */
-
-    private $attributemap = array();
-
-	/**
-	 * The detail map. It is an array
-	 */
-
-	private $detailmap = array();
-
-	/**
-	 * The concatenation map. It is an array
-	 */
-
-	private $concatenationmap = array();
-
     public function getOtpExtra()
     {
-        return $this->otp_extra;
+        return $this->serverconfig['otpextra'] ?: 0;
     }
 
     /**
@@ -75,39 +61,13 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     public function __construct($info, $config)
     {
-        assert('is_array($info)');
-        assert('is_array($config)');
+        assert('array' === gettype($info));
+        assert('array' === gettype($config));
 
-        /* Call the parent constructor first, as required by the interface. */
         parent::__construct($info, $config);
-
-        if (array_key_exists('privacyideaserver', $config)) {
-            $this->serverconfig['privacyideaserver'] = $config['privacyideaserver'];
-        }
-        if (array_key_exists('realm', $config)) {
-            $this->serverconfig['realm'] = $config['realm'];
-        }
-        if (array_key_exists('sslverifyhost', $config)) {
-            $this->serverconfig['sslverifyhost'] = $config['sslverifyhost'];
-        }
-        if (array_key_exists('sslverifypeer', $config)) {
-            $this->serverconfig['sslverifypeer'] = $config['sslverifypeer'];
-        }
-        if (array_key_exists('attributemap', $config)) {
-            $this->attributemap = $config['attributemap'];
-        }
-	    if (array_key_exists('detailmap', $config)) {
-		    $this->detailmap = $config['detailmap'];
-	    }
-	    if (array_key_exists('concatenationmap', $config)) {
-	    	$this->concatenationmap = $config['concatenationmap'];
-	    }
-        if (array_key_exists('otpextra', $config)) {
-            $this->otp_extra= $config['otpextra'];
-        }
-
+        foreach (array('attributemap', 'detailmap', 'concatenationmap') as $i) {$config[$i] = $config[$i] ?: array();}
+        $this->serverconfig = $config;
     }
-
 
     /**
      * Attempt to log in using the given username and password.
@@ -123,179 +83,64 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     protected function login($username, $password)
     {
+        // Stub.
+        return;
     }
 
     protected function login_chal_resp($state, $username, $password, $transaction_id, $signaturedata, $clientdata)
     {
-        assert('is_string($username)');
-        assert('is_string($password)');
-        assert('is_string($transaction_id)');
+        assert('string' === gettype($username));
+        assert('string' === gettype($password));
+        assert('string' === gettype($transaction_id));
 
-        // The parameters in an array do get get urlencoded!
-        // But we encode the log data to avoid log execution
-        $params = array(
-            "user" => $username,
-            "pass" => $password,
-            );
-        if (strlen($this->serverconfig['realm']) > 0) {
-            $params["realm"] = $this->serverconfig['realm'];
-        }
-
-        if ($transaction_id) {
-            SimpleSAML_Logger::debug("Authenticating with transaction_id: " . $transaction_id);
-            $params["transaction_id"] = $transaction_id;
-        }
-        if ($signaturedata) {
-            SimpleSAML_Logger::debug("Authenticating with signaturedata: " . urlencode($signaturedata));
-            $params["signaturedata"] = $signaturedata;
-        }
-        if ($clientdata) {
-            SimpleSAML_Logger::debug("Authenticating with clientdata: " . urlencode($clientdata));
-            $params["clientdata"] = $clientdata;
-        }
-        // determine the client IP
-        $headers = $_SERVER;
-        foreach(array("X-Forwarded-For", "HTTP_X_FORWARDED_FOR", "REMOTE_ADDR") as $clientkey) {
-            if (array_key_exists($clientkey, $headers)) {
-                $client_ip = $headers[$clientkey];
-                SimpleSAML_Logger::debug("Using IP from " . $clientkey . ": " . $client_ip);
-                $params["client"] = $client_ip;
-                break;
-            }
-        }
-
-        // Add some debug so we know what we are doing.
-        SimpleSAML_Logger::debug("privacyidea URL:" . $this->serverconfig['privacyideaserver']);
-        SimpleSAML_Logger::debug("user          : " . urlencode($username));
-        SimpleSAML_Logger::debug("transaction_id: " . $transaction_id);
-
-        $body = sspmod_privacyidea_Auth_utils::curl($params, null, $this->serverconfig, "/validate/samlcheck", "POST");
-
-        $status = True;
-        $value = False;
-        $multi_challenge = NULL;
-        $transaction_id = NULL;
-
-        try {
-            $result = $body->result;
-            $detailAttributes = $body->detail;
-            SimpleSAML_Logger::debug("privacyidea result:" . print_r($result, True));
-            $status = $result->status;
-            $value = $result->value->auth;
-        } catch (Exception $e) {
-            throw new SimpleSAML_Error_BadRequest("We were not able to read the response from the privacyidea server.");
-        }
-
-        if ($status !== True) {
-            /* We got a valid JSON response, but the STATUS is false */
-            throw new SimpleSAML_Error_BadRequest("Valid JSON response, but some internal error occured in privacyidea server.");
-        } else {
-            /* The STATUS is true, so we need to check the value */
-            if ($value !== True) {
-                SimpleSAML_Logger::debug("Throwing WRONGUSERPASS");
-                $detail = $body->detail;
-
-                if (property_exists($detail, "multi_challenge")) {
-
-                	$state = sspmod_privacyidea_Auth_utils::checkTokenType($state, $body);
-					$state['privacyidea:privacyidea']['username'] = $username;
-					$state['forcedUsername'] = true;
-					$id  = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
-                    SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from Source/privacyidea.php");
-					$url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
-					SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
-					return true;
-                } else {
-					throw new SimpleSAML_Error_Error("WRONGUSERPASS");
-				}
-            }
-        }
-
-        $user_attributes = $result->value->attributes;
-        if (!array_key_exists("username", $user_attributes)) {
-            // We have the old response, where the attributes are located directly in the value
-            $user_attributes = $result->value;
-        }
-        SimpleSAML_Logger::debug("privacyidea returned user attributes: " . print_r($user_attributes, True));
-        /* status and value are true
-         * We can go on and fill attributes
-         */
+        $auth = sspmod_privacyidea_Auth_utils::authenticate(
+            $state,
+            array(
+                "user" => $username,
+                "pass" => $password,
+                "transaction_id" => $transaction_id,
+                "signaturedata" => $signaturedata,
+                "clientdata" => $clientdata
+            ),
+            $this->serverconfig
+        );
+        if (!$auth) {throw new SimpleSAML_Error_Error("WRONGUSERPASS");}
 
         /* If we get this far, we have a valid login. */
+        $user_attributes = $auth['attributes'];
+        $detailAttributes = $auth['detail'];
         $attributes = array();
-        $arr = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
-        // Add all additional attributes defined in the array map to the search array
-        $arr = array_merge(array_keys($this->attributemap), $arr);
-        reset($arr);
-        foreach ($arr as $key) {
+        $keys = array_merge(array_keys($this->serverconfig['attributemap']), DEFAULT_UID_KEYS);
+        foreach ($keys as $key) {
             SimpleSAML_Logger::debug("privacyidea        key: " . $key);
-            if (array_key_exists($key, $this->attributemap)) {
-                // We have a key mapping
-                $mapped_key = $this->attributemap[$key];
-                SimpleSAML_Logger::debug("privacyidea mapped key: " . $mapped_key);
-                $attribute_value = $user_attributes->$key;                
-                if ($attribute_value) {
-                    SimpleSAML_Logger::debug("privacyidea Mapped key in response");
-                    if(is_array($attribute_value)){
-                        $attributes[$mapped_key] = $attribute_value;
-                    }
-                    else{
-                        // If attribute is a string, we create an array
-                        $attributes[$mapped_key] = array($attribute_value);
-                    }
-                    SimpleSAML_Logger::debug("privacyidea      value: " . print_r($attributes[$mapped_key], TRUE));
-                }
-            } else {
-                // We have no keymapping and just transfer the attribute
-                SimpleSAML_Logger::debug("privacyidea unmapped key: " . $key);
-                if ($user_attributes->$key) {
-                    $attribute_value = $user_attributes->$key;
-                    if(is_array($attribute_value)){
-                        $attributes[$key] = $attribute_value;
-                    }
-                    else{
-                        $attributes[$key] = array($attribute_value);
-                    }
-                    SimpleSAML_Logger::debug("privacyidea        value: " . print_r($attributes[$key], TRUE));
-                }
+            $attribute_value = $user_attributes->$key;
+            if ($attribute_value) {
+                $attribute_key = @$this->serverconfig['attributemap'][$key] ?: $key;
+                $attributes[$attribute_key] = is_array($attribute_value) ? $attribute_value : array($attribute_value);
+                SimpleSAML_Logger::debug("privacyidea key: " . $attribute_key);
+                SimpleSAML_Logger::debug("privacyidea value: " . print_r($attribute_value, TRUE));
             }
         }
-        $detailarr = array_keys($this->detailmap);
-        reset($detailarr);
-        foreach ($detailarr as $key) {
-	        SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
-        	$mapped_key = $this->detailmap[$key];
-	        SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
-        	$attribute_value = $detailAttributes->$key;
-	        if(is_array($attribute_value)){
-		        $attributes[$mapped_key] = $attribute_value;
-	        }
-	        else{
-		        // If attribute is a string, we create an array
-		        $attributes[$mapped_key] = array($attribute_value);
-	        }
-
+        foreach ($this->serverconfig['detailmap'] as $key => $mapped_key) {
+            SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
+            SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
+            $attribute_value = $detailAttributes->$key;
+            $attributes[$mapped_key] = is_array($attribute_value) ? $attribute_value : array($attribute_value);
         }
-
-        $concatenation = array_keys($this->concatenationmap);
-        reset($concatenation);
-        foreach ($concatenation as $key) {
-        	SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
-        	$mapped_key = $this->concatenationmap[$key];
-        	SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
-        	$concatenationArr = explode(",", $key);
-        	$concatenationValues = array();
-        	foreach ($concatenationArr as $item) {
-        		$concatenationValues[] = $user_attributes->$item;
-	        }
-			$concatenationString = implode(" ", $concatenationValues);
-			$attributes[$mapped_key] = array($concatenationString);
+        foreach ($this->serverconfig['concatenationmap'] as $key => $mapped_key) {
+            SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
+            SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mapped_key, TRUE));
+            $concatenationArr = explode(",", $key);
+            $concatenationValues = array();
+            foreach ($concatenationArr as $item) {
+                $concatenationValues[] = $user_attributes->$item;
+            }
+            $concatenationString = implode(" ", $concatenationValues);
+            $attributes[$mapped_key] = array($concatenationString);
         }
-
         SimpleSAML_Logger::debug("privacyidea Array returned: " . print_r($attributes, True));
         return $attributes;
     }
-
 
     /**
      * Initialize login.
@@ -307,7 +152,7 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     public function authenticate(&$state)
     {
-        assert('is_array($state)');
+        assert('array' === gettype($state));
 
         /* We are going to need the authId in order to retrieve this authentication source later. */
         $state[self::AUTHID] = $this->authId;
@@ -338,32 +183,22 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
      */
     public static function handleLogin($authStateId, $username, $password, $transaction_id = NULL, $signaturedata = NULL, $clientdata = NULL)
     {
-        assert('is_string($authStateId)');
-        assert('is_string($username)');
-        assert('is_string($password)');
-        assert('is_string($transaction_id)');
+        assert('string' === gettype($authStateId));
+        assert('string' === gettype($username));
+        assert('string' === gettype($password));
+        assert('string' === gettype($transaction_id));
 
         SimpleSAML_Logger::debug("calling privacyIDEA handleLogin with authState: " . $authStateId . " for user " . $username);
-        if (array_key_exists("OTP", $_REQUEST)) {
-            $otp = $_REQUEST["OTP"];
-            $password = $password . $otp;
-            SimpleSAML_Logger::stats('Found OTP in Auth request. Concatenating passwords.');
-        }
-
-        // sanitize the input
-        $sid = SimpleSAML_Utilities::parseStateID($authStateId);
-        if (!is_null($sid['url'])) {
-            SimpleSAML_Utilities::checkURLAllowed($sid['url']);
-        }
+        $password = self::fetchOtpPass($password, $_REQUEST);
+        self::checkIdLegality($authStateId);
 
         /* Here we retrieve the state array we saved in the authenticate-function. */
         $state = SimpleSAML_Auth_State::loadState($authStateId, "privacyidea:privacyidea:init");
         SimpleSAML_Logger::debug("Loaded state privacyidea:privacyidea:init from Source/privacyidea.php");
 
         /* Retrieve the authentication source we are executing. */
-        assert('array_key_exists(self::AUTHID, $state)');
         $source = SimpleSAML_Auth_Source::getById($state[self::AUTHID]);
-        if ($source === NULL) {
+        if (!$source) {
             throw new Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
         }
 
@@ -383,12 +218,26 @@ class sspmod_privacyidea_Auth_Source_privacyidea extends sspmod_core_Auth_UserPa
         SimpleSAML_Logger::stats('User \'' . $username . '\' has been successfully authenticated.');
 
         /* Save the attributes we received from the login-function in the $state-array. */
-        assert('is_array($attributes)');
         $state['Attributes'] = $attributes;
 
         /* Return control to simpleSAMLphp after successful authentication. */
         SimpleSAML_Auth_Source::completeAuth($state);
     }
 
+    private static function fetchOtpPass($password, $request) {
+        assert('string' === gettype($password));
+        assert('array' === gettype($request));
 
+        if (array_key_exists("OTP", $request)) {
+            $otp = $request["OTP"];
+            SimpleSAML_Logger::stats('Found OTP in Auth request. Concatenating passwords.');
+            return $password . $otp;
+        }
+        return $password;
+    }
+
+    private static function checkIdLegality($id) {
+        $sid = SimpleSAML_Utilities::parseStateID($id);
+        if (!is_null($sid['url'])) {SimpleSAML_Utilities::checkURLAllowed($sid['url']);}
+    }
 }
