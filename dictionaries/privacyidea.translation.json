@@ -5,11 +5,11 @@
 	},
 	"login_title": {
 		"de": "Bitte geben Sie Ihren Nutzernamen und Passwort ein",
-		"nl": "Vul uw inlognaam en wachtwoord in."
+		"nl": "Vul uw gebruikersnaam en wachtwoord in."
 	},
 	"login_text": {
 		"de": "Bitte beachten Sie, dass Sie im Passwort-Feld Ihr geheimes Passwort und den OTP Wert eingeben müssen.",
-		"nl": "Let op vul je wachtwoord en je eenmalige wachtwoord in het wachtwoordveld."
+		"nl": "Let op: vul je wachtwoord en je eenmalige wachtwoord (OTP) in het wachtwoordveld."
 	},
 	"password_otp": {
 		"de": "Password + OTP",
@@ -29,24 +29,30 @@
 	},
 	"otp_extra_text": {
 		"de": "Bitte geben Sie Ihr Password und Ihr Einmalpasswort ein",
-		"nl": "Vul je wachtwoord en eenmalige wachtwoord in."
+		"nl": "Vul je wachtwoord en eenmalige wachtwoord (OTP) in."
 	},
 	"login_text_challenge": {
-		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch Ihren zweiten Faktor nutzen."
+		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch Ihren zweiten Faktor nutzen.",
+		"nl": "U heeft het de juiste PIN of wachtwoord ingegegeven. Geef nu ook uw tweede factor in."
 	},
 	"scanTokenQR": {
-		"de": "Scannen Sie den QR-Code mit einer App, wie dem Google Authenticator oder privacyIDEA Authenticator und geben Sie den angezeigten Code unten ein."
+		"de": "Scannen Sie den QR-Code mit einer App, wie dem Google Authenticator oder privacyIDEA Authenticator und geben Sie den angezeigten Code unten ein.",
+		"nl": "Scan deze QR-code met een app zoals Google Authenticator of privacyIDEA Authenticator en geef de getoonde code in."
 	},
 	"chal_resp_message": {
-		"de": "Bitte bestätigen Sie mit einem der folgenden Token: "
+		"de": "Bitte bestätigen Sie mit einem der folgenden Token: ",
+		"nl": "Bevestig met één van deze tokens: "
 	},
 	"enroll_u2f": {
-		"de": "Bitte nutzen Sie Ihr U2F-Gerät, um das Ausrollen fertigzustellen."
+		"de": "Bitte nutzen Sie Ihr U2F-Gerät, um das Ausrollen fertigzustellen.",
+		"nl": "Gebruik uw u2f-toestel om de aanmelding verder te zetten."
 	},
 	"u2fNotWorking": {
-		"de": "U2F funktioniert momentan nicht."
+		"de": "U2F funktioniert momentan nicht.",
+		"nl": "U2F werkt momenteel niet."
 	},
 	"tryAgain": {
-		"de": "Nochmal versuchen"
+		"de": "Nochmal versuchen",
+		"nl": "Probeer opnieuw"
 	}
 }
