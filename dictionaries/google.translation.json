@@ -1,10 +1,10 @@
 {
   "pagetitle": {
     "de": "Sichere Anmeldung",
-    "nl": "Zeker Aameldding"
+    "nl": "Veilig aanmelden"
   },
   "pageheader": {
     "de": "Zwei-Faktor Anmeldung",
-    "nl": "Twee Factor Aanmelding"
+    "nl": "Twee-factorauthenticatie"
   }
 }
