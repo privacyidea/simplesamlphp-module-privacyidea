@@ -217,6 +217,41 @@ Use the following example:
     ),
 
     /**
+     *  This filter is optional, if you want to disable clients by entityID, you should enable it.
+     */
+    22 => array(
+        'class'                => 'privacyidea:checkEntityID',
+
+        /**
+         *  Specify setPath and setKey to equal enabledPath and enabledKey
+         */
+        'setPath'              => 'privacyIDEA',
+        'setKey'               => 'enabled',
+
+        /**
+         *  For a match, the variable $state[$setPath][$setPath] will be set to this value.
+         */
+        'onmatch'              => false,
+
+        /**
+         *  The requesting SAML provider entityID will be tested against this list
+         */
+        'entityids'            => array('http://mySAMLprovider/saml/metadata/'),
+
+        /**
+         *  You may specify additional attribute values as conditions
+         */
+        'attributeconditions'  => array(
+                                      'http://mySAMLprovider/saml/metadata/' => array(
+                                          'memberOf' => array(
+                                              'cn=nofa,cn=groups,dc=privacyidea,dc=org'
+                                          )
+                                      )
+                                  )
+        ),
+
+
+    /**
      *  This filter is optional. You can enable it, if you want to enroll tokens for users, who do not have one yet.
      */
     24 => array(
@@ -249,5 +284,6 @@ Use the following example:
          *  'serviceAccount' => 'service',
          *  'servicePass' => 'service',
          */
+    )
 ),
 ```
