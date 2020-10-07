@@ -217,39 +217,40 @@ Use the following example:
     ),
 
     /**
-     *  This filter is optional, if you want to disable clients by entityID, you should enable it.
+     *  This filter is optional. If you want to selectively enable or disable the privacyIDEA authentication by
+     *  by the entityID of the requesting service provider, you may enable it.
      */
     22 => array(
         'class'                => 'privacyidea:checkEntityID',
 
         /**
-         *  Specify setPath and setKey to equal enabledPath and enabledKey
-         */
-        'setPath'              => 'privacyIDEA',
-        'setKey'               => 'enabled',
-
-        /**
-         *  For a match, the variable $state[$setPath][$setPath] will be set to this value.
-         */
-        'onmatch'              => false,
-
-        /**
-         *  The requesting SAML provider entityID will be tested against this list
+         *  The requesting SAML provider's entityID will be tested against this list for exact matches.
          */
         'entityids'            => array('http://mySAMLprovider/saml/metadata/'),
 
         /**
-         *  You may specify additional attribute values as conditions
+         *  You may specify additional attribute values as conditions per entityID. If such a condition is present,
+         *  the checkEntityID filter will only take action if at least one of the given conditions is met. 
          */
         'attributeconditions'  => array(
                                       'http://mySAMLprovider/saml/metadata/' => array(
                                           'memberOf' => array(
-                                              'cn=nofa,cn=groups,dc=privacyidea,dc=org'
-                                          )
+                                              'cn=nofa,cn=groups,dc=privacyidea,dc=org',
+                                              'cn=nofa-group,ou=section,dc=privacyidea,dc=org'
+                                          ),
+                                          'authorizedService' => array('no2fa')
                                       )
                                   )
         ),
 
+        /**
+         *  If entityid and attributeconditions match, the filter will set $state[$setPath][$setPath] to the value of 
+         *  onmatch. To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
+         *  that they equal enabledPath and enabledKey from privacyidea:serverconfig or privacyidea:privacyidea.
+         */
+        'setPath'              => 'privacyIDEA',
+        'setKey'               => 'enabled',
+        'onmatch'              => false,
 
     /**
      *  This filter is optional. You can enable it, if you want to enroll tokens for users, who do not have one yet.
