@@ -221,6 +221,48 @@ Use the following example:
     ),
 
     /**
+     *  This filter is optional. If you want to selectively disable the privacyIDEA authentication using the
+     *  the entityID and/or SAML attributes, you may enable this filter
+     */
+    22 => array(
+        'class'                => 'privacyidea:checkEntityID',
+        /**
+         *  Depending on entityids and excludeattributes the filter will set the state variable 
+         *  $state[$setPath][$setPath] to true or false.
+         *  To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
+         *  that they equal enabledPath and enabledKey from privacyidea:serverconfig or privacyidea:privacyidea.
+         */
+        'setPath'              => 'privacyIDEA',
+        'setKey'               => 'enabled',
+        /**
+         *  The requesting SAML provider's entityID will be tested against this list of regular expressions.
+         *  If there is a match, the filter will set the specified state variable to false. The first matching 
+         *  expression will take precedence.
+         */
+        'entityids'            => array(
+                                      '/http(s)\/\/conditional-no2fa-provider.de\/(.*)/',
+                                      '/http(.*)no2fa-provider.de/'
+                                  ),
+        /**
+         *  Per value in entityids, you may specify another set of regular expressions to match the 
+         *  attributes in the SAML request. If there is a match in any attribute value, this filter will 
+         *  set the state variable to true.
+         *  The key in excludeattributes must be identical to a value in entityids to have an effect!
+         */
+        'excludeattributes'    => array(
+                                      '/http(s)\/\/conditional-no2fa-provider.de\/(.*)/' => array(
+                                          'memberOf' => array(
+                                              '/cn=2fa-required([-_])regexmatch(.*),cn=groups,(.*)/',
+                                              'cn=2fa-required-exactmatch,ou=section,dc=privacyidea,dc=org'
+                                          ),
+                                          'myAttribute' => array(
+                                              '/(.*)2fa-required/', '2fa-required',
+                                          )
+                                      )
+                                  )
+        ),
+
+    /**
      *  This filter is optional. You can enable it, if you want to enroll tokens for users, who do not have one yet.
      */
     24 => array(
