@@ -227,7 +227,7 @@ Use the following example:
     22 => array(
         'class'                => 'privacyidea:checkEntityID',
         /**
-         *  Depending on entityids and excludeattributes the filter will set the state variable 
+         *  Depending on entityids and excludeattributes the filter will set the state variable
          *  $state[$setPath][$setPath] to true or false.
          *  To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
          *  that they equal enabledPath and enabledKey from privacyidea:serverconfig or privacyidea:privacyidea.
@@ -236,7 +236,7 @@ Use the following example:
         'setKey'               => 'enabled',
         /**
          *  The requesting SAML provider's entityID will be tested against this list of regular expressions.
-         *  If there is a match, the filter will set the specified state variable to false. The first matching 
+         *  If there is a match, the filter will set the specified state variable to false. The first matching
          *  expression will take precedence.
          */
         'entityids'            => array(
@@ -244,8 +244,8 @@ Use the following example:
                                       '/http(.*)no2fa-provider.de/'
                                   ),
         /**
-         *  Per value in entityids, you may specify another set of regular expressions to match the 
-         *  attributes in the SAML request. If there is a match in any attribute value, this filter will 
+         *  Per value in entityids, you may specify another set of regular expressions to match the
+         *  attributes in the SAML request. If there is a match in any attribute value, this filter will
          *  set the state variable to true.
          *  The key in excludeattributes must be identical to a value in entityids to have an effect!
          */
