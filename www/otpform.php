@@ -63,6 +63,8 @@
                         "regdata" => $registrationData
                     )
                 )) {
+					$session = SimpleSAML_Session::getSessionFromRequest();
+					$session->setData('privacyidea:privacyidea', 'authenticated', true);
 					SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
                     SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from otpform.php");
 					SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
@@ -70,7 +72,7 @@
 					SimpleSAML_Logger::debug("privacyIDEA: User entered wrong OTP");
 				}
 			} elseif ($state['privacyidea:privacyidea:authenticationMethod'] === "authsource") {
-				if (sspmod_privacyidea_Auth_Source_privacyidea::handleLogin($authStateId, $username, $password, $transaction_id, $signatureData, $clientData));
+				sspmod_privacyidea_Auth_Source_privacyidea::handleLogin($authStateId, $username, $password, $transaction_id, $signatureData, $clientData);
 			}
         } catch (SimpleSAML_Error_Error $e) {
             /* Login failed. Extract error code and parameters, to display the error. */
