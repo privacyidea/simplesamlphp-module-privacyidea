@@ -201,6 +201,10 @@
 	    $tpl->data['pollTokens'] = $pollTokens;
     }
 
+	if ($state['privacyidea:privacyidea:authenticationMethod'] === "authprocess") {
+		$tpl->data['LogoutURL'] = \SimpleSAML\Module::getModuleURL('core/authenticate.php', array('as' => $state['Source']['auth']))."&logout";
+	}
+
 	$tpl->show();
 	
 	?>

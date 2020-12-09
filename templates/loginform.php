@@ -249,7 +249,9 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
             }
             ?>
         </form>
-
+<?php if (isset($this->data['LogoutURL'])) { ?>
+        <p><a href="<?php echo htmlspecialchars($this->data['LogoutURL']); ?>"><?php echo $this->t('{status:logout}'); ?></a></p>
+<?php } ?>
     </div>  <!-- End of login -->
 </div>  <!-- End of container -->
 
