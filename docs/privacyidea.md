@@ -223,7 +223,7 @@ Use the following example:
     22 => array(
         'class'                => 'privacyidea:checkEntityID',
         /**
-         *  Depending on setFalseEntityIDs and setTrueAttributes the filter will set the state variable 
+         *  Depending on excludeEntityIDs and includeAttributes the filter will set the state variable 
          *  $state[$setPath][$setPath] to true or false.
          *  To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
          *  that they equal enabledPath and enabledKey from privacyidea:serverconfig or privacyidea:privacyidea.
@@ -235,19 +235,19 @@ Use the following example:
          *  If there is a match, the filter will set the specified state variable to false and thereby disables 
          *  privacyIDEA for this entityID The first matching expression will take precedence.
          */
-        'setFalseEntityIDs' => array(
+        'excludeEntityIDs' => array(
             '/http(s)\/\/conditional-no2fa-provider.de\/(.*)/',
             '/http(.*)no2fa-provider.de/'
         ),
         /**
-         *  Per value in setFalseEntityIDs, you may specify another set of regular expressions to match the 
+         *  Per value in excludeEntityIDs, you may specify another set of regular expressions to match the 
          *  attributes in the SAML request. If there is a match in any attribute value, this filter will 
          *  set the state variable to true and thereby enable privacyIDEA where it would be normally disabled
          *  due to the matching entityID. This may be used to enable 2FA at this entityID only for privileged
          *  accounts.
-         *  The key in setTrueAttributes must be identical to a value in setFalseEntityIDs to have an effect!
+         *  The key in includeAttributes must be identical to a value in excludeEntityIDs to have an effect!
          */
-        'setTrueAttributes' => array(
+        'includeAttributes' => array(
             '/http(s)\/\/conditional-no2fa-provider.de\/(.*)/' => array(
                 'memberOf' => array(
                     '/cn=2fa-required([-_])regexmatch(.*),cn=groups,(.*)/',

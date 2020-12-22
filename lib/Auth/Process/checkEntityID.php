@@ -4,15 +4,15 @@
  * which match SAML service provider entityIDs.
  * The filter checks the entityid in the SAML request against a list of regular expressions and sets the state variable
  * $state[enabledPath][enabledKey][0] to false on match, which can be used to disable privacyIDEA.
- * For any value in setFalseEntityIDs, the config parameter setTrueAttributes may be used to enable privacyIDEA for a subset
+ * For any value in excludeEntityIDs, the config parameter includeAttributes may be used to enable privacyIDEA for a subset
  * of users which have these attribute values (e.g. memberOf).
  * @author Henning Hollermann <henning.hollermann@netknights.it>
  */
 
 class sspmod_privacyIDEA_Auth_Process_checkEntityID extends SimpleSAML_Auth_ProcessingFilter {
 
-    private $setFalseEntityIDs = array();
-    private $setTrueAttributes = array();
+    private $excludeEntityIDs = array();
+    private $includeAttributes = array();
     private $setPath = '';
     private $setKey = '';
 
@@ -40,8 +40,8 @@ class sspmod_privacyIDEA_Auth_Process_checkEntityID extends SimpleSAML_Auth_Proc
         SimpleSAML_Logger::info("Checking requesting entity ID for privacyIDEA");
         parent::__construct($config, $reserved);
         $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:checkEntityID');
-        $this->setFalseEntityIDs = $cfg->getArray('setFalseEntityIDs', null);
-        $this->setTrueAttributes = $cfg->getArray('setTrueAttributes', null);
+        $this->excludeEntityIDs = $cfg->getArray('excludeEntityIDs', null);
+        $this->includeAttributes = $cfg->getArray('includeAttributes', null);
         $this->setPath = $cfg->getString('setPath', null);
         $this->setKey = $cfg->getString('setKey', null);
 
@@ -53,15 +53,15 @@ class sspmod_privacyIDEA_Auth_Process_checkEntityID extends SimpleSAML_Auth_Proc
         $request_entityid = $state["Destination"]["entityid"];
         // if the requesting entityid matches the given list set the return parameter to false
         SimpleSAML_Logger::debug("privacyidea:checkEntityID: Requesting entityID is " . $request_entityid);
-        $matched_entityids = $this->str_matches_reg_arr($request_entityid, $this->setFalseEntityIDs);
+        $matched_entityids = $this->str_matches_reg_arr($request_entityid, $this->excludeEntityIDs);
         if ($matched_entityids) {
             $ret = false;
             $entityid_key = $matched_entityids[0];
             SimpleSAML_Logger::debug("privacyidea:checkEntityID: Matched entityID is " . $entityid_key);
-            // if there is also a match for any attribute value in the setTrueAttributes
+            // if there is also a match for any attribute value in the includeAttributes
             // fall back to the default return value: true
-            if (isset($this->setTrueAttributes[$entityid_key])) {
-                foreach ($this->setTrueAttributes[$entityid_key] as $attr_key => $attr_regexp_arr) {
+            if (isset($this->includeAttributes[$entityid_key])) {
+                foreach ($this->includeAttributes[$entityid_key] as $attr_key => $attr_regexp_arr) {
                     if (isset($state["Attributes"][$attr_key])) {
                         foreach($state["Attributes"][$attr_key] as $attr_val) {
                             $matched_attrs = $this->str_matches_reg_arr($attr_val, $attr_regexp_arr);
