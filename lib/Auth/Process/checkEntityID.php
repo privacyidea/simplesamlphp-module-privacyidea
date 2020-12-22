@@ -19,7 +19,7 @@ class sspmod_privacyIDEA_Auth_Process_checkEntityID extends SimpleSAML_Auth_Proc
     private function str_matches_reg_arr($str, $reg_arr) {
         /*
          * This function checks a given string against an array with regular expressions
-         * It will return true if a match is found.
+         * It will return an array with matches.
          */
         $ret_arr = array();
         foreach ($reg_arr as $reg) {
