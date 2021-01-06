@@ -30,8 +30,10 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 
         parent::__construct($config, $reserved);
         $this->serverconfig = $config;
+        // set defaults
         if (!isset($this->serverconfig['tryFirstAuthentication'])) { $this->serverconfig['tryFirstAuthentication'] = false; }
         if (!isset($this->serverconfig['doTriggerChallenge'])) { $this->serverconfig['doTriggerChallenge'] = false; }
+        if (!isset($this->serverconfig['SSO'])) { $this->serverconfig['SSO'] = true; }
     }
 
     /**
@@ -65,13 +67,20 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             return;
         }
 
+        // skip 2FA for authenticated users in passive requests and if SSO is enabled
         if (isset($state['isPassive']) && $state['isPassive'] === true) {
             if (SimpleSAML_Session::getSessionFromRequest()->getData('privacyidea:privacyidea', 'authenticated')) {
                 SimpleSAML_Logger::debug("privacyIDEA: ignore passive SAML request for already logged in user");
                 return;
             }
             throw new \SimpleSAML\Module\saml\Error\NoPassive('Passive authentication (OTP) not supported.');
+        } elseif ($this->serverconfig['SSO'] === true) {
+            if (SimpleSAML_Session::getSessionFromRequest()->getData('privacyidea:privacyidea', 'authenticated')) {
+                SimpleSAML_Logger::debug("privacyIDEA: SAML request for already logged in user. Disabling privacyIDEA, since SSO is enabled.");
+                return;
+            }
         }
+
         if (!$this->serverconfig['privacyideaserver']) {SimpleSAML_Logger::error("privacyIDEA url is not set!");}
         if ($this->maybeTryFirstAuthentication($state)) {return;}
         if ($this->serverconfig['doTriggerChallenge']) {$state = $this->triggerChallenge($state);}
