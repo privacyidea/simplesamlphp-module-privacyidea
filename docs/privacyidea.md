@@ -168,6 +168,13 @@ Use the following example:
         'serviceAccount'    => 'service',
 
         /**
+         *  Specify if you would like to enable SSO for privacyIDEA. If set to false, the user
+         *  will be prompted for the second factor at every new service provider he/she visits. 
+         *  Defaults to true.
+         */
+         'SSO'              => true,
+         
+        /**
          *  Enter here the password for your service account
          */
         'servicePass'       => 'service',
