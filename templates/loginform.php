@@ -52,8 +52,8 @@ if ($this->data['errorcode'] === "CHALLENGERESPONSE" || $this->data['doChallenge
 
 if ($u2fSignRequest) {
     // Add javascript for U2F support before including the header.
-    $this->data['head'] = '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js')) . '"></script>';
-    $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js')) . '"></script>';
+    $this->data['head'] .= '<script type="text/javascript" src="'. htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
+    $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js'), ENT_QUOTES) . '"></script>';
 }
 
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
@@ -72,7 +72,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
     ?>
 
     <div style="border-left: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; background: #f5f5f5">
-        <img src="/<?php echo htmlspecialchars($this->data['baseurlpath']); ?>resources/icons/experience/gtk-dialog-error.48x48.png"
+        <img src="/<?php echo htmlspecialchars($this->data['baseurlpath'], ENT_QUOTES); ?>resources/icons/experience/gtk-dialog-error.48x48.png"
              class="float-l erroricon" style="margin: 15px "/>
         <h2><?php echo $this->t('{login:error_header}'); ?></h2>
         <p>
@@ -115,13 +115,13 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                             if ($this->data['forceUsername']) {
                                 echo '<strong style="font-size: medium">' . htmlspecialchars($this->data['username']) . '</strong>';
                                 echo '<input type="hidden" id="username" name="username" value="' . htmlspecialchars($this->data['username']) . '" />';
-                                echo '<input type="hidden" id="transaction_id" name="transaction_id" value="' . htmlspecialchars($this->data['transaction_id']) . '" />';
+                                echo '<input type="hidden" id="transaction_id" name="transaction_id" value="' . htmlspecialchars($this->data['transaction_id'], ENT_QUOTES) . '" />';
                                 echo '<input type="hidden" id="clientData" name="clientData" value="" />';
                                 echo '<input type="hidden" id="signatureData" name="signatureData" value="" />';
                                 echo '<input type="hidden" id="registrationData" name="registrationData" value="" />';
                             } else {
                                 echo '<label for="username">';
-                                echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username']) . '"';
+                                echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username'], ENT_QUOTES) . '"';
                                 echo ' placeholder="' . htmlspecialchars($this->t('{login:username}')) . '" />';
                                 echo '</label>';
                             }
@@ -174,7 +174,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 		                            <?php
 	                            }
                                 echo '<td><label for="password">';
-                                echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . htmlspecialchars($password_text) . '" />';
+                                echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . htmlspecialchars($password_text, ENT_QUOTES) . '" />';
                                 echo '</label></td>';
                             }
                             echo '<p id="u2fTryAgain" name="u2fTryAgain" style="display: none">' . htmlspecialchars($this->t('{privacyidea:privacyidea:u2fNotWorking}'));
@@ -189,7 +189,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                 if ($this->data["otp_extra"] == 1) {
                                     echo '<label for="OTP">';
                                     echo '<input type="password" id="OTP" tabindex="2" name="OTP" ';
-                                    echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '" />';
+                                    echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}'), ENT_QUOTES) . '" />';
                                     echo '</label>';
                                 }
                             ?>
@@ -219,7 +219,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                                         $selected = '';
                                     }
 
-                                    echo '<option ' . $selected . 'value="' . htmlspecialchars($orgId) . '">' . htmlspecialchars($orgDesc) . '</option>';
+                                    echo '<option ' . $selected . 'value="' . htmlspecialchars($orgId, ENT_QUOTES) . '">' . htmlspecialchars($orgDesc) . '</option>';
                                 }
                                 ?>
                         </select>
@@ -232,7 +232,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
                         <?php
                             $text = $this->t('{login:login_button}');
                             if ($u2fSignRequest === NULL || $this->data['use_otp']) {
-                                printf('<input class="rc-button rc-button-submit" type="submit" tabindex="4" id="regularsubmit" value="%s" />', htmlspecialchars($text));
+                                printf('<input class="rc-button rc-button-submit" type="submit" tabindex="4" id="regularsubmit" value="%s" />', htmlspecialchars($text, ENT_QUOTES));
                             }
                             ?>
                     </div>
@@ -243,13 +243,13 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
             <?php
             if ($this->data['stateparams'] !== NULL) {
 	            foreach ($this->data['stateparams'] as $name => $value) {
-		            echo('<input type="hidden" name="' . htmlspecialchars($name) . '" value="' . htmlspecialchars($value) . '" />');
+		            echo('<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES) . '" value="' . htmlspecialchars($value, ENT_QUOTES) . '" />');
 	            }
             }
             ?>
         </form>
 <?php if (isset($this->data['LogoutURL'])) { ?>
-        <p><a href="<?php echo htmlspecialchars($this->data['LogoutURL']); ?>"><?php echo $this->t('{status:logout}'); ?></a></p>
+        <p><a href="<?php echo htmlspecialchars($this->data['LogoutURL'], ENT_QUOTES); ?>"><?php echo $this->t('{status:logout}'); ?></a></p>
 <?php } ?>
     </div>  <!-- End of login -->
 </div>  <!-- End of container -->
@@ -260,7 +260,7 @@ if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGE
 if (!empty($this->data['links'])) {
     echo '<ul class="links" style="margin-top: 2em">';
     foreach ($this->data['links'] AS $l) {
-        echo '<li><a href="' . htmlspecialchars($l['href']) . '">' . htmlspecialchars($this->t($l['text'])) . '</a></li>';
+        echo '<li><a href="' . htmlspecialchars($l['href'], ENT_QUOTES) . '">' . htmlspecialchars($this->t($l['text']), ENT_QUOTES) . '</a></li>';
     }
     echo '</ul>';
 }
