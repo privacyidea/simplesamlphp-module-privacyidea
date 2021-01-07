@@ -6,7 +6,7 @@
  * @author Micha Preußer <micha.preusser@netknights.it>
  */
 
-class sspmod_privacyIDEA_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_ProcessingFilter {
+class sspmod_privacyidea_Auth_Process_tokenEnrollment extends SimpleSAML_Auth_ProcessingFilter {
 
 	/**
 	 * This is the token, which will be fetched by the service account.
