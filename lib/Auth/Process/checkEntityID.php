@@ -9,7 +9,7 @@
  * @author Henning Hollermann <henning.hollermann@netknights.it>
  */
 
-class sspmod_privacyIDEA_Auth_Process_checkEntityID extends SimpleSAML_Auth_ProcessingFilter {
+class sspmod_privacyidea_Auth_Process_checkEntityID extends SimpleSAML_Auth_ProcessingFilter {
 
     private $excludeEntityIDs = array();
     private $includeAttributes = array();
@@ -37,7 +37,7 @@ class sspmod_privacyIDEA_Auth_Process_checkEntityID extends SimpleSAML_Auth_Proc
 
     public function __construct(array $config, $reserved)
     {
-        SimpleSAML_Logger::info("Checking requesting entity ID for privacyIDEA");
+        SimpleSAML_Logger::debug("Checking requesting entity ID for privacyIDEA");
         parent::__construct($config, $reserved);
         $cfg = SimpleSAML_Configuration::loadFromArray($config, 'privacyidea:checkEntityID');
         $this->excludeEntityIDs = $cfg->getArray('excludeEntityIDs', null);
@@ -67,7 +67,7 @@ class sspmod_privacyIDEA_Auth_Process_checkEntityID extends SimpleSAML_Auth_Proc
                             $matched_attrs = $this->str_matches_reg_arr($attr_val, $attr_regexp_arr);
                             if (!empty($matched_attrs)) {
                                 $ret = true;
-                                SimpleSAML_Logger::error("privacyidea:checkEntityID: Requesting entityID in " .
+                                SimpleSAML_Logger::debug("privacyidea:checkEntityID: Requesting entityID in " .
                                     "list, but excluded by at least one attribute regexp \"" .$attr_key.
                                     "\" = \"" . $matched_attrs[0]. "\".");
                                 break;
