@@ -170,6 +170,10 @@
 		$tpl->data['multi_challenge'] = $multi_challenge;
 	}
 
+    if ($state['privacyidea:privacyidea:authenticationMethod'] === "authprocess") {
+        $tpl->data['LogoutURL'] = \SimpleSAML\Module::getModuleURL('core/authenticate.php', array('as' => $state['Source']['auth']))."&logout";
+    }
+
 	$tpl->show();
-	
-	?>
+
+?>
