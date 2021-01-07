@@ -51,6 +51,8 @@
 	    try {
 			if($state['privacyidea:privacyidea:authenticationMethod'] === "authprocess") {
 				if (sspmod_privacyidea_Auth_Process_privacyidea::authenticate($state, $password, $transaction_id, $signatureData, $clientData, $registrationData)) {
+                    $session = SimpleSAML_Session::getSessionFromRequest();
+                    $session->setData('privacyidea:privacyidea', 'authenticated', true);
 					SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
 					SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
 				} else {
