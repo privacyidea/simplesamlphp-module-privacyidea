@@ -7,7 +7,7 @@
  * @author Micha Preußer <micha.preusser@netknights.it>
  */
 
-class sspmod_privacyIDEA_Auth_Process_checkClientIP extends SimpleSAML_Auth_ProcessingFilter {
+class sspmod_privacyidea_Auth_Process_checkClientIP extends SimpleSAML_Auth_ProcessingFilter {
 
 	/**
 	 * enter excluded ip addresses
