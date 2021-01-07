@@ -93,6 +93,14 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     		$piEnabled = True;
 	    }
 
+        if (isset($state['isPassive']) && $state['isPassive'] === true) {
+            if (SimpleSAML_Session::getSessionFromRequest()->getData('privacyidea:privacyidea', 'authenticated')) {
+                SimpleSAML_Logger::debug("privacyIDEA: ignore passive SAML request for already logged in user");
+                $piEnabled = False;
+            }
+            throw new \SimpleSAML\Module\saml\Error\NoPassive('Passive authentication (OTP) not supported.');
+        }
+
 		if ($this->serverconfig['privacyideaserver'] === '') {
 			$piEnabled = False;
 			SimpleSAML_Logger::error("privacyIDEA url is not set!");
