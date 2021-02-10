@@ -46,6 +46,7 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 	    $this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', null);
 	    $this->serverconfig['tryFirstAuthentication'] = $cfg->getBoolean('tryFirstAuthentication', null);
 	    $this->serverconfig['tryFirstAuthPass'] = $cfg->getString('tryFirstAuthPass', null);
+	    $this->serverconfig['SSO'] = $cfg->getBoolean('SSO', null);
      }
 
     /**
@@ -87,19 +88,30 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 		    'uidKey' => $this->serverconfig['uidKey'],
 	    );
 
+        /**
+         * skip privacyIDEA for authenticated users in passive requests and if SSO is enabled
+         * if $state["Expire"] is set, the user was already authenticated prior to the present
+         * request
+         */
+        if (isset($state['isPassive']) && $state['isPassive'] === true) {
+            if (isset($state["Expire"]) && $state["Expire"] > time()) {
+                SimpleSAML_Logger::error("privacyIDEA: ignoring passive SAML request for already logged in user");
+                return;
+            }
+            throw new \SimpleSAML\Module\saml\Error\NoPassive('Passive authentication (OTP) not supported.');
+        }
+        if (isset($this->serverconfig['SSO']) && $this->serverconfig['SSO'] === true) {
+            if (isset($state["Expire"]) && $state["Expire"] > time()) {
+                SimpleSAML_Logger::error("privacyIDEA: SSO is enabled. Ignoring SAML request for already logged in user.");
+                return;
+            }
+        }
+
     	if(isset($state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0])) {
     		$piEnabled = $state[$this->serverconfig['enabledPath']][$this->serverconfig['enabledKey']][0];
 	    } else {
     		$piEnabled = True;
 	    }
-
-        if (isset($state['isPassive']) && $state['isPassive'] === true) {
-            if (SimpleSAML_Session::getSessionFromRequest()->getData('privacyidea:privacyidea', 'authenticated')) {
-                SimpleSAML_Logger::debug("privacyIDEA: ignore passive SAML request for already logged in user");
-                $piEnabled = False;
-            }
-            throw new \SimpleSAML\Module\saml\Error\NoPassive('Passive authentication (OTP) not supported.');
-        }
 
 		if ($this->serverconfig['privacyideaserver'] === '') {
 			$piEnabled = False;
