@@ -95,14 +95,14 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
          */
         if (isset($state['isPassive']) && $state['isPassive'] === true) {
             if (isset($state["Expire"]) && $state["Expire"] > time()) {
-                SimpleSAML_Logger::error("privacyIDEA: ignoring passive SAML request for already logged in user");
+                SimpleSAML_Logger::debug("privacyIDEA: ignoring passive SAML request for already logged in user");
                 return;
             }
             throw new \SimpleSAML\Module\saml\Error\NoPassive('Passive authentication (OTP) not supported.');
         }
         if (isset($this->serverconfig['SSO']) && $this->serverconfig['SSO'] === true) {
             if (isset($state["Expire"]) && $state["Expire"] > time()) {
-                SimpleSAML_Logger::error("privacyIDEA: SSO is enabled. Ignoring SAML request for already logged in user.");
+                SimpleSAML_Logger::debug("privacyIDEA: SSO is enabled. Ignoring SAML request for already logged in user.");
                 return;
             }
         }
