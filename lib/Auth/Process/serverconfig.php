@@ -32,7 +32,7 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 		$this->serverconfig['doTriggerChallenge'] = $cfg->getBoolean('doTriggerChallenge', false);
 		$this->serverconfig['tryFirstAuthentication'] = $cfg->getBoolean('tryFirstAuthentication', false);
 		$this->serverconfig['tryFirstAuthPass'] = $cfg->getString('tryFirstAuthPass', 'simpleSAMLphp');
-        $this->serverconfig['SSO'] = $cfg->getBoolean('SSO', true);
+		$this->serverconfig['SSO'] = $cfg->getBoolean('SSO', true);
 
 	}
 
