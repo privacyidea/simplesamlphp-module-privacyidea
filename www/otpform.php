@@ -63,8 +63,6 @@
                         "regdata" => $registrationData
                     )
                 )) {
-					$session = SimpleSAML_Session::getSessionFromRequest();
-					$session->setData('privacyidea:privacyidea', 'authenticated', true);
 					SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
                     SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea:init from otpform.php");
 					SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
