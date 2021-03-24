@@ -1,3 +1,13 @@
+Version 1.9 2021-03-24
+
+  * Refactor Code
+  * Enhance HTML escaping
+  * Add logout button on privacyIDEA form to cancel the process
+  * Authproc Filter Mode
+    * Support SSO for different service providers
+    * Skip privacyIDEA for isPassive requests
+    * Add authproc filter to check entity IDs and user attributes
+
 Version 1.8 2019-02-xx
 
   * Add pass on no token
