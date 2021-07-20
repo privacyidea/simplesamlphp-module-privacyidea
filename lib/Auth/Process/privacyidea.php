@@ -67,9 +67,9 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 
 
         /**
-         * skip privacyIDEA for authenticated users in passive requests and if SSO is enabled
+         * skip privacyIDEA for authenticated users in passive requests
          * if $state["Expire"] is set, the user was already authenticated prior to the present
-         * request
+         * request by the IdP (maybe not with privacyIDEA)
          */
         if (isset($state['isPassive']) && $state['isPassive'] === true) {
             if (isset($state["Expire"]) && $state["Expire"] > time()) {
@@ -77,12 +77,6 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
                 return;
             }
             throw new \SimpleSAML\Module\saml\Error\NoPassive('Passive authentication (OTP) not supported.');
-        }
-        if (isset($this->serverconfig['SSO']) && $this->serverconfig['SSO'] === true) {
-            if (isset($state["Expire"]) && $state["Expire"] > time()) {
-                SimpleSAML_Logger::debug("privacyIDEA: SSO is enabled. Ignoring SAML request for already logged in user.");
-                return;
-            }
         }
 
         if (!$this->serverconfig['privacyideaserver']) {SimpleSAML_Logger::error("privacyIDEA url is not set!");}
