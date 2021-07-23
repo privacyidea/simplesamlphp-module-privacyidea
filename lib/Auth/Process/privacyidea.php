@@ -97,9 +97,16 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     private function triggerChallenge($state) {
         assert('array' === gettype($state));
 
+        $parameters = array("user" => $state["Attributes"][$this->serverconfig['uidKey']][0]);
+        if (isset($this->serverconfig['realm'])) {
+            $parameters["realm"] = $this->serverconfig['realm'];
+	} else {
+            SimpleSAML_Logger::debug("privacyIDEA: realm not set in config. Letting privacyIDEA server decide.");
+	}
+
         $authToken = sspmod_privacyidea_Auth_utils::fetchAuthToken($this->serverconfig);
         $body = sspmod_privacyidea_Auth_utils::curl(
-            array("user" => $state["Attributes"][$this->serverconfig['uidKey']][0]),
+            $parameters,
             array("authorization:" . $authToken),
             $this->serverconfig,
             "/validate/triggerchallenge",
