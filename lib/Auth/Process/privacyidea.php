@@ -87,11 +87,23 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
     }
 
     private function maybeTryFirstAuthentication($state) {
-        return $this->serverconfig['tryFirstAuthentication']
-            && sspmod_privacyidea_Auth_utils::authenticate(
+        if (!$this->serverconfig['tryFirstAuthentication']) {
+            return false;
+        }
+
+        $state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
+
+        try {
+            sspmod_privacyidea_Auth_utils::authenticate(
                 $state,
                 array('pass' => $this->serverconfig['tryFirstAuthPass'])
             );
+
+            return true;
+        } catch (SimpleSAML_Error_Error $error) {
+            SimpleSAML_Logger::debug("privacyIDEA: user has token");
+            return false;
+        }
     }
 
     private function triggerChallenge($state) {
