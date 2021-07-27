@@ -45,6 +45,9 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
 
         SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: Entering process function");
 
+        // set authenticationMethod
+        $state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
+
         $this->serverconfig = sspmod_privacyidea_Auth_utils::buildServerconfig(
             $state['privacyidea:serverconfig'],
             $this->serverconfig,
@@ -89,8 +92,6 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
             return false;
         }
 
-        $state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
-
         try {
             sspmod_privacyidea_Auth_utils::authenticate(
                 $state,
@@ -128,7 +129,6 @@ class sspmod_privacyidea_Auth_Process_privacyidea extends SimpleSAML_Auth_Proces
         assert('array' === gettype($state));
 
         SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is enabled, so we use 2FA");
-        $state['privacyidea:privacyidea:authenticationMethod'] = "authprocess";
         $id = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea:init');
         $url = SimpleSAML_Module::getModuleURL('privacyidea/otpform.php');
         SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $id));
