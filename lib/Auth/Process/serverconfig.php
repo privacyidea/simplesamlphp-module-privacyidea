@@ -21,6 +21,8 @@ class sspmod_privacyidea_Auth_Process_serverconfig extends SimpleSAML_Auth_Proce
 
         parent::__construct($config, $reserved);
         $this->serverconfig = $config;
+        if (!isset($this->serverconfig['tryFirstAuthentication'])) { $this->serverconfig['tryFirstAuthentication'] = false; }
+        if (!isset($this->serverconfig['doTriggerChallenge'])) { $this->serverconfig['doTriggerChallenge'] = false; }
     }
 
     /**
