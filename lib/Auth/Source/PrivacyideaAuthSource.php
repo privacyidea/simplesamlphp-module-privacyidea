@@ -56,19 +56,6 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         assert('array' === gettype($info));
         assert('array' === gettype($config));
 
-        if (empty($info)) {
-            SimpleSAML_Logger::error('INFO IS EMPTY');
-
-        } else {
-            SimpleSAML_Logger::error('INFO EXISSTS');
-        }
-
-        if (empty($config)) {
-            SimpleSAML_Logger::error("CONFIG IS EMPTY");
-        } else {
-            SimpleSAML_Logger::error('CONFIG EXISTS');
-        }
-
         parent::__construct($info, $config);
 
         if (!in_array('attributemap', $config)) {
