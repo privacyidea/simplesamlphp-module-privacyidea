@@ -1,311 +1,462 @@
 <?php
-if(isset($this->data['auth_proc_filter_scenario'])) {
-	if (!isset($this->data['username'])) {
-		$this->data['username'] = null;
-	}
-	$this->data['otp_extra'] = NULL;
-} else {
-    $this->data['auth_proc_filter_scenario'] = 0;
-}
-// First of all we determine how we were called
-$multi_challenge = NULL;
-if (isset($this->data['chal_resp_message'])) {
-	$chal_resp_message = $this->t('{privacyidea:privacyidea:chal_resp_message}') . $this->data['chal_resp_message'];
-} else {
-    $chal_resp_message = "";
-}
-$hideResponseInput = FALSE;
-$u2fSignRequest = NULL;
-if ($this->data['otp_extra'] == 1){
-    $password_text = $this->t('{privacyidea:privacyidea:password}');
-} elseif ($this->data['use_otp']) {
-    $password_text = $this->t('{privacyidea:privacyidea:otp}');
-} else {
-    $password_text = $this->t('{privacyidea:privacyidea:password_otp}');
-}
 
-if ($this->data['errorcode'] === "CHALLENGERESPONSE" || $this->data['doChallengeResponse']) {
-    $password_text = $this->t('{privacyidea:privacyidea:otp}');
-    SimpleSAML_Logger::debug("multi_challenge: " . print_r($this->data["multi_challenge"], TRUE));
-    $multi_challenge = $this->data['multi_challenge'];
-    // check if this is U2F
-    SimpleSAML_Logger::debug("u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
-    $hideResponseInput = true;
-    $u2fSignRequest = false;
-    for ($i = 0; $i < count($multi_challenge); $i++) {
-        if ($multi_challenge[$i]->type === "u2f") {
-	        SimpleSAML_Logger::debug( "multi_challenge " . $i . " hide: " . print_r( $multi_challenge[ $i ]->attributes->hideResponseInput, true ) );
-	        // not all challenges have hideResponseInput true
-	        if ( ! $multi_challenge[ $i ]->attributes->hideResponseInput ) {
-		        $hideResponseInput = false;
-	        }
-	        // we have at least one U2F token
-	        if ( $multi_challenge[ $i ]->attributes->u2fSignRequest ) {
-		        $u2fSignRequest = true;
-	        }
-        }
+// Set default scenario if isn't set
+if (!empty($this->data['authProcFilterScenario'])) {
+    if (empty($this->data['username'])) {
+        $this->data['username'] = null;
     }
+} else {
+    $this->data['authProcFilterScenario'] = 0;
 }
 
-$this->data['head'] = '';
-if ($u2fSignRequest) {
+// Set the right text shown in otp/pass field(s)
+if(!empty($this->data['otpFieldHint'])) {
+    $otpHint = $this->data['otpFieldHint'];
+} else {
+    $otpHint = $this->t('{privacyidea:privacyidea:otp}');
+}
+if(!empty($this->data['passFieldHint'])) {
+    $passHint = $this->data['passFieldHint'];
+} else {
+    $passHint = $this->t('{privacyidea:privacyidea:password}');
+}
+
+// Call u2f.js and u2f-api.js if u2f token is triggered
+/*$head = '';
+if ($this->data['u2fSignRequest']) {
     // Add javascript for U2F support before including the header.
-    $this->data['head'] .= '<script type="text/javascript" src="'. htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
-    $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f.js'), ENT_QUOTES) . '"></script>';
-}
-if ($this->data['doPolling']) {
-    // Add JavaScript for polling /token/challenges before including the header.
-    $this->data['head'] .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/poll.js'), ENT_QUOTES) . '"></script>';
-}
+    $head .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
+}*/
 
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
+
+// Prepare next settings
 if (strlen($this->data['username']) > 0) {
     $this->data['autofocus'] = 'password';
 } else {
     $this->data['autofocus'] = 'username';
 }
+
 $this->includeAtTemplateBase('includes/header.php');
 
-?>
-
-<?php
-// If there is an error, which is NOT the challenge response
-if ($this->data['errorcode'] !== NULL && $this->data['errorcode'] !== "CHALLENGERESPONSE") {
+// Prepare error case to show it in UI if needed
+if ($this->data['errorCode'] !== NULL) {
     ?>
 
     <div style="border-left: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; background: #f5f5f5">
         <img src="/<?php echo htmlspecialchars($this->data['baseurlpath'], ENT_QUOTES); ?>resources/icons/experience/gtk-dialog-error.48x48.png"
-             class="float-l erroricon" style="margin: 15px "/>
+             class="float-l erroricon" style="margin: 15px " alt="gtk-dialog-error"/>
         <h2><?php echo $this->t('{login:error_header}'); ?></h2>
         <p>
-            <b><?php echo htmlspecialchars($this->t('{errors:title_' . $this->data['errorcode'] . '}', $this->data['errorparams'])); ?></b>
+            <strong><?php echo htmlspecialchars("Error ". $this->data['errorCode']. ": " . $this->data['errorMessage']); ?></strong>
         </p>
-        <p><?php echo htmlspecialchars($this->t('{errors:descr_' . $this->data['errorcode'] . '}', $this->data['errorparams'])); ?></p>
     </div>
 
     <?php
 }  // end of errorcode
 ?>
 
-
 <div class="container">
     <div class="login">
         <div class="loginlogo"></div>
+
         <?php
-        if ($this->data['errorcode'] === "CHALLENGERESPONSE" ||
-            $this->data['auth_proc_filter_scenario']) {
+        if ($this->data['authProcFilterScenario']) {
             echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title_challenge}')) . '</h2>';
-            echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text_challenge}')) . '</p>';
-        } elseif ($this->data['otp_extra'] == 1) {
-            echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}')) . '</h2>';
-            echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp_extra_text}')) . '</p>';
         } else {
-            echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title}')) . '</h2>';
-            echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_text}')) . '</p>';
-        } // end of !CHALLENGERESPONSE
-        if (isset($this->data['enrollU2F'])) {
-			echo '<p class="logintext">' . htmlspecialchars($this->t('{privacyidea:privacyidea:enroll_u2f}')) . '</p>';
+            if ($this->data['step'] < 2) {
+                echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title}')) . '</h2>';
+            }
         }
         ?>
-        <form action="" method="post" id="piLoginForm" name="piLoginForm" class="loginform">
+
+        <form action="" method="POST" id="piLoginForm" name="piLoginForm" class="loginForm">
             <div class="form-panel first valid" id="gaia_firstform">
                 <div class="slide-out ">
                     <div class="input-wrapper focused">
-                        <!-- per line we have an identifier-shown -->
                         <div class="identifier-shown">
                             <?php
                             if ($this->data['forceUsername']) {
-                                echo '<strong style="font-size: medium">' . htmlspecialchars($this->data['username']) . '</strong>';
-                                echo '<input type="hidden" id="username" name="username" value="' . htmlspecialchars($this->data['username'], ENT_QUOTES) . '" />';
-                                echo '<input type="hidden" id="clientData" name="clientData" value="" />';
-                                echo '<input type="hidden" id="signatureData" name="signatureData" value="" />';
-                                echo '<input type="hidden" id="registrationData" name="registrationData" value="" />';
-                            } else {
-                                echo '<label for="username">';
-                                echo '<input type="text" id="username" tabindex="1" name="username" value="' . htmlspecialchars($this->data['username'], ENT_QUOTES) . '"';
-                                echo ' placeholder="' . htmlspecialchars($this->t('{login:username}'), ENT_QUOTES) . '" />';
-                                echo '</label>';
-                            }
-                            ?>
-                            <?php
-                            if(!$this->data['auth_proc_filter_scenario']) {
-	                            if ( $this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled'] ) {
-		                            $rowspan = 1;
-	                            } elseif ( array_key_exists( 'organizations', $this->data ) ) {
-		                            $rowspan = 3;
-	                            } else {
-		                            $rowspan = 2;
-	                            }
-	                            ?>
-
-	                            <?php
-	                            if ( $this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled'] ) {
-		                            if ( $this->data['rememberUsernameEnabled'] ) {
-			                            echo str_repeat( "\t", 4 );
-			                            echo '<input type="checkbox" id="remember_username" tabindex="4" name="remember_username" value="Yes" ';
-			                            echo $this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ';
-			                            echo htmlspecialchars( $this->t( '{login:remember_username}' ) );
-		                            }
-		                            if ( $this->data['rememberMeEnabled'] ) {
-			                            echo str_repeat( "\t", 4 );
-			                            echo '<input type="checkbox" id="remember_me" tabindex="4" name="remember_me" value="Yes" ';
-			                            echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
-			                            echo htmlspecialchars( $this->t( '{login:remember_me}' ) );
-		                            }
-	                            }
-                            }
-                            ?>
-
-
-                        </div>
-                        <div class="identifier-shown">
-                            <!--
-                            In case of challenge response with the U2F, we hide the password.
-                            -->
-                            <?php
-                            echo '<td style="padding: .3em;" colspan="2">' . htmlspecialchars($chal_resp_message) . '</td>';
-                            if (!$hideResponseInput || $this->data['use_otp']){
-                                // normal login
-	                            if (isset($this->data['tokenQR'])) {
-		                            echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
-		                            ?>
-                                    <div class="tokenQR">
-			                            <?php echo '<img src="' . $this->data['tokenQR'] . '" />';?>
-                                    </div>
-		                            <?php
-	                            }
-                                echo '<td><label for="password">';
-                                echo '<input id="password" type="password" tabindex="2" name="password" placeholder="' . htmlspecialchars($password_text, ENT_QUOTES) . '" />';
-                                echo '</label></td>';
-                            }
-                            echo '<p id="u2fTryAgain" name="u2fTryAgain" style="display: none">' . htmlspecialchars($this->t('{privacyidea:privacyidea:u2fNotWorking}'));
-                            echo '<input class="rc-button" type="button" id="u2fTryAgain" name="u2fTryAgain" value="' . $this->t('{privacyidea:privacyidea:tryAgain}') . '" onClick="window.location.reload()" />';
-                            echo '</p>'
-                            ?>
-
-                        </div>
-                        <div class="identifier-shown">
-                            <?php
-                                // otp_extra == 1
-                                if ($this->data["otp_extra"] == 1) {
-                                    echo '<label for="OTP">';
-                                    echo '<input type="password" id="OTP" tabindex="2" name="OTP" ';
-                                    echo ' placeholder="' . htmlspecialchars($this->t('{privacyidea:privacyidea:otp}'), ENT_QUOTES) . '" />';
-                                    echo '</label>';
-                                }
-                            ?>
-                        </div>
-
-                <?php
-                if (array_key_exists('organizations', $this->data)) {
-                    ?>
-                    <div class="identifier-shown">
-                        <?php echo htmlspecialchars($this->t('{login:organization}')); ?>
-                        <select name="organization" tabindex="3">
-                                <?php
-                                if (array_key_exists('selectedOrg', $this->data)) {
-                                    $selectedOrg = $this->data['selectedOrg'];
-                                } else {
-                                    $selectedOrg = NULL;
-                                }
-
-                                foreach ($this->data['organizations'] as $orgId => $orgDesc) {
-                                    if (is_array($orgDesc)) {
-                                        $orgDesc = $this->t($orgDesc);
-                                    }
-
-                                    if ($orgId === $selectedOrg) {
-                                        $selected = 'selected="selected" ';
-                                    } else {
-                                        $selected = '';
-                                    }
-
-                                    echo '<option ' . $selected . 'value="' . htmlspecialchars($orgId, ENT_QUOTES) . '">' . htmlspecialchars($orgDesc) . '</option>';
-                                }
                                 ?>
-                        </select>
-                    </div>
-                    <?php
-                        }
-                    ?>
+                                <strong style="font-size: medium"><?php echo htmlspecialchars($this->data['username']) ?></strong>
+                                <input type="hidden" id="username" name="username"
+                                       value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"/>
+                                <?php
+                            } else {
+                                ?>
+                                <label for="username"></label>
+                                <input type="text" id="username" tabindex="1" name="username"
+                                       style="width:322px; margin:25px 15px 15px"
+                                       value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"
+                                       placeholder="<?php echo htmlspecialchars($this->t('{login:username}'), ENT_QUOTES) ?>"
+                                />
+                                <br>
+                                <?php
+                            }
 
-                    <div class="identifier-captcha">
-                        <?php
-                            $text = $this->t('{login:login_button}');
-                            if ($u2fSignRequest === NULL || $this->data['use_otp']) {
-                                printf('<input class="rc-button rc-button-submit" type="submit" tabindex="4" id="regularsubmit" value="%s" />', htmlspecialchars($text, ENT_QUOTES));
+                            // Remember username in authproc
+                            if (!$this->data['authProcFilterScenario']) {
+                                if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
+                                    $rowspan = 1;
+                                } elseif (array_key_exists('organizations', $this->data)) {
+                                    $rowspan = 3;
+                                } else {
+                                    $rowspan = 2;
+                                }
+                                if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
+                                    if ($this->data['rememberUsernameEnabled']) {
+                                        echo str_repeat("\t", 4);
+                                        echo '<input type="checkbox" id="rememberUsername" tabindex="4" name="rememberUsername"
+                                         value="Yes" ';
+                                        echo $this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ';
+                                        echo htmlspecialchars($this->t('{login:remember_username}'));
+                                    }
+                                    if ($this->data['rememberMeEnabled']) {
+                                        echo str_repeat("\t", 4);
+                                        echo '<input type="checkbox" id="rememberMe" tabindex="4" name="rememberMe" value="Yes" ';
+                                        echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
+                                        echo htmlspecialchars($this->t('{login:remember_me}'));
+                                    }
+                                }
+                            } ?>
+
+                            <!-- Pass and OTP fields -->
+                            <label for="password"></label>
+                            <input id="password" name="password" tabindex="1" type="password" value="" class="text"
+                                   placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"
+                                   style="width:322px; margin:15px"/>
+
+                            <label for="otp" class="block"><strong
+                                        id="message"><?php echo $this->data['message'] ?></strong></label>
+                            <br>
+                            <input id="otp" name="otp" tabindex="1" type="password" value="" class="text"
+                                   placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"
+                                   style="width:322px; margin: 25px 15px 7px"/>
+                            <br>
+                            <input id="submitButton" tabindex="1" class="rc-button rc-button-submit" type="submit"
+                                   name="Submit" style="width:210px; margin:0 15px 7px"
+                                   value="<?php echo htmlspecialchars($this->t('{login:login_button}'), ENT_QUOTES) ?>"/>
+
+                            <!-- Hidden input which store the info about changes for future use in backend-->
+                            <input id="mode" type="hidden" name="mode" value="<?php echo $this->data['mode'] ?>"/>
+                            <input id="pushAvailable" type="hidden" name="pushAvailable"
+                                   value="<?php echo $this->data['pushAvailable'] ?>"/>
+                            <input id="otpAvailable" type="hidden" name="otpAvailable"
+                                   value="<?php echo $this->data['otpAvailable'] ?>"/>
+                            <input id="webAuthnSignRequest" type="hidden" name="webAuthnSignRequest"
+                                   value='<?php echo $this->data['webAuthnSignRequest'] ?>'/>
+                            <input id="u2fSignRequest" type="hidden" name="u2fSignRequest"
+                                   value='<?php echo $this->data['u2fSignRequest'] ?>'/>
+                            <input id="modeChanged" type="hidden" name="modeChanged" value="0"/>
+                            <input id="step" type="hidden" name="step"
+                                   value="<?php echo $this->data['step'] ?>"/>
+                            <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse" value=""/>
+                            <input id="u2fSignResponse" type="hidden" name="u2fSignResponse" value=""/>
+                            <input id="origin" type="hidden" name="origin" value=""/>
+                            <input id="loadCounter" type="hidden" name="loadCounter"
+                                   value="<?php echo $this->data['loadCounter'] ?>"/>
+
+                            <!-- Additional input to persist the message -->
+                            <input id="message" type="hidden" name="message"
+                                   value="<?php echo $this->data['message'] ?>"/>
+
+                            <script>
+                                // Helper functions
+                                function value(id) {
+                                    const element = document.getElementById(id);
+                                    if (element != null) {
+                                        return element.value;
+                                    } else {
+                                        console.log(id + " is null!");
+                                    }
+                                    return "";
+                                }
+
+                                function set(id, value) {
+                                    const element = document.getElementById(id);
+                                    if (element != null) {
+                                        element.value = value;
+                                    } else {
+                                        console.log(id + " is null!");
+                                    }
+                                }
+
+                                function disable(id) {
+                                    const element = document.getElementById(id);
+                                    if (element != null) {
+                                        element.style.display = "none";
+                                    } else {
+                                        console.log(id + " is null!");
+                                    }
+                                }
+
+                                function enable(id) {
+                                    const element = document.getElementById(id);
+                                    if (element != null) {
+                                        element.style.display = "initial";
+                                    } else {
+                                        console.log(id + " is null!");
+                                    }
+                                }
+
+                                function changeMode(newMode) {
+                                    document.getElementById("mode").value = newMode;
+                                    document.getElementById("modeChanged").value = "1";
+                                    document.forms["piLoginForm"].submit();
+                                }
+                            </script>
+
+                            <?php
+                            // If enrollToken load QR Code
+                            if (isset($this->data['tokenQR'])) {
+                                echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
+                                ?>
+                                <div class="tokenQR">
+                                    <?php echo '<img src="' . $this->data['tokenQR'] . '" />'; ?>
+                                </div>
+                                <?php
                             }
                             ?>
-                    </div>
+                        </div>
+
+                        <?php
+                        // Organizations
+                        if (array_key_exists('organizations', $this->data)) {
+                            ?>
+                            <div class="identifier-shown">
+                                <?php echo htmlspecialchars($this->t('{login:organization}')); ?>
+                                <label>
+                                    <select name="organization" tabindex="3">
+
+                                        <?php
+                                        if (array_key_exists('selectedOrg', $this->data)) {
+                                            $selectedOrg = $this->data['selectedOrg'];
+                                        } else {
+                                            $selectedOrg = NULL;
+                                        }
+
+                                        foreach ($this->data['organizations'] as $orgId => $orgDesc) {
+                                            if (is_array($orgDesc)) {
+                                                $orgDesc = $this->t($orgDesc);
+                                            }
+
+                                            if ($orgId === $selectedOrg) {
+                                                $selected = 'selected="selected" ';
+                                            } else {
+                                                $selected = '';
+                                            }
+
+                                            echo '<option ' . $selected . 'value="' . htmlspecialchars($orgId, ENT_QUOTES) . '">' . htmlspecialchars($orgDesc) . '</option>';
+                                        } ?>
+                                    </select>
+                                </label>
+                            </div>
+                        <?php } ?>
                     </div> <!-- focused -->
                 </div> <!-- slide-out-->
             </div> <!-- form-panel -->
 
-            <?php
-            if ($this->data['stateparams'] !== NULL) {
-	            foreach ($this->data['stateparams'] as $name => $value) {
-		            echo('<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES) . '" value="' . htmlspecialchars($value, ENT_QUOTES) . '" />');
-	            }
-            }
-            ?>
+            <div id="AlternateLoginOptions" style="margin-top:35px" class="groupMargin">
+                <label><strong>Alternate login options:</strong></label>
+                <br>
+                <!-- Alternate Login Options-->
+                <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"
+                       onclick="doWebAuthn()" style="width:140px; margin:15px 10px 7px"/>
+                <input id="usePushButton" name="usePushButton" type="button" value="Push"
+                       onclick="changeMode('push')" style="width:140px; margin:15px 10px 7px"/>
+                <input id="useOTPButton" name="useOTPButton" style="width:140px; margin:15px 15px 7px" type="button"
+                       value="OTP" onclick="changeMode('otp')"/>
+                <input id="useU2FButton" name="useU2FButton" type="button" value="U2F" onclick="doU2F()"
+                       style="width:140px; margin:15px 10px 7px"/>
+            </div>
         </form>
-<?php if (isset($this->data['LogoutURL'])) { ?>
-        <p><a href="<?php echo htmlspecialchars($this->data['LogoutURL']); ?>"><?php echo $this->t('{status:logout}'); ?></a></p>
-<?php } ?>
+
+        <?php
+        // Logout
+        if (isset($this->data['LogoutURL'])) { ?>
+            <p>
+                <a href="<?php echo htmlspecialchars($this->data['LogoutURL']); ?>"><?php echo $this->t('{status:logout}'); ?></a>
+            </p>
+        <?php } ?>
     </div>  <!-- End of login -->
 </div>  <!-- End of container -->
 
-
 <?php
-
 if (!empty($this->data['links'])) {
     echo '<ul class="links" style="margin-top: 2em">';
-    foreach ($this->data['links'] AS $l) {
+    foreach ($this->data['links'] as $l) {
         echo '<li><a href="' . htmlspecialchars($l['href'], ENT_QUOTES) . '">' . htmlspecialchars($this->t($l['text'])) . '</a></li>';
     }
     echo '</ul>';
 }
 
 $this->includeAtTemplateBase('includes/footer.php');
-
-if ($u2fSignRequest) {
-    // We call the U2F signing function
-    SimpleSAML_Logger::debug("Calling Javascript with u2fSignRequest: " . print_r($u2fSignRequest, TRUE));
-    SimpleSAML_Logger::debug("Calling Javascript with multi_challenge: " . print_r($multi_challenge, TRUE));
-    for ($i = 0; $i < count($multi_challenge); $i++) {
-        if ($multi_challenge[$i]->type === "u2f") {
-	        SimpleSAML_Logger::debug( "multi_challenge u2fSignRequest: " . print_r( $multi_challenge[ $i ]->attributes->u2fSignRequest, true ) );
-	        $signRequests[] = $multi_challenge[ $i ]->attributes->u2fSignRequest;
-        }
-    }
-    SimpleSAML_Logger::debug("signRequests: " . print_r($signRequests, TRUE));
-    SimpleSAML_Logger::debug("signRequests json: " . json_encode($signRequests, TRUE));
-    echo '<script type="text/javascript">';
-    if (isset($this->data['enrollU2F'])) {
-        for ($i = 0; $i < count($multi_challenge); $i++) {
-            if ($multi_challenge[$i]->serial = $this->data['serial']) {
-                $attributes = $multi_challenge[$i]->attributes;
-                $u2fSignRequest = $attributes->u2fSignRequest;
-            }
-        }
-        echo 'register_u2f_request(';
-        echo json_encode($u2fSignRequest->appId) . ", ";
-        echo json_encode($u2fSignRequest->challenge) . ", ";
-        echo json_encode($u2fSignRequest->keyHandle);
-	    echo ');';
-    } else {
-	    echo 'sign_u2f_request(';
-        echo json_encode($signRequests);
-        echo ');';
-    }
-    echo '</script>';
-}
-if ($this->data['doPolling']) {
-    echo '<script type="text/javascript">';
-    foreach ($this->data['pollTokens'] as $i => $e) {
-        SimpleSAML_Logger::debug("Asking client to poll challenges for " . $e . ".");
-        echo 'poll_token_challenges(' . json_encode($e) . ');';
-    }
-    echo '</script>';
-}
 ?>
+
+<script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/webauthn.js'), ENT_QUOTES) ?>">
+</script>
+
+<script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) ?>">
+</script>
+
+<!--We need to open a new script tag up here-->
+<script>
+    const step = '<?php echo $this->data['step'] ?>';
+
+    if (step > "1") {
+        disable("username");
+        disable("password");
+    } else {
+        disable("otp");
+        disable("message");
+        disable("AlternateLoginOptions");
+    }
+
+    // Set alternate token button visibility
+    if (value("webAuthnSignRequest") === "") {
+        disable("useWebAuthnButton");
+    }
+
+    if (value("u2fSignRequest") === "") {
+        disable("useU2FButton");
+    }
+
+    if (value("pushAvailable") !== "1") {
+        disable("usePushButton");
+    }
+
+    if (value("otpAvailable") !== "1") {
+        disable("useOTPButton");
+    }
+
+    if (value("pushAvailable") === "0" && value("webAuthnSignRequest") === "" && value("u2fSignRequest") === "") {
+        disable("alternateTokenDiv");
+    }
+
+    if (value("mode") === "otp") {
+        disable("useOTPButton");
+    }
+
+    if (value("mode") === "webauthn") {
+        doWebAuthn();
+    }
+
+    if (value("mode") === "u2f") {
+        doU2F();
+    }
+
+    if (value("mode") === "push") {
+        const pollingIntervals = [4, 3, 2, 1];
+
+        disable("otp");
+        disable("usePushButton");
+        disable("submitButton");
+
+        if (value("loadCounter") > (pollingIntervals.length - 1)) {
+            refreshTime = pollingIntervals[(pollingIntervals.length - 1)];
+        } else {
+            refreshTime = pollingIntervals[Number(value("loadCounter") - 1)];
+        }
+
+        refreshTime *= 1000;
+        setTimeout(() => {
+            document.forms["piLoginForm"].submit();
+        }, refreshTime);
+    }
+
+    function doWebAuthn() {
+        // If mode is push, we have to change it, otherwise the site will refresh while doing webauthn
+        if (value("mode") === "push") {
+            changeMode("webauthn");
+        }
+
+        if (!window.isSecureContext) {
+            alert("Unable to proceed with Web Authn because the context is insecure!");
+            console.log("Insecure context detected: Aborting Web Authn authentication!")
+            changeMode("otp");
+            return;
+        }
+
+        if (!window.pi_webauthn) {
+            alert("Could not load WebAuthn library. Please try again or use other token.");
+            changeMode("otp");
+            return;
+        }
+
+        const requestStr = value("webAuthnSignRequest");
+
+        // Set origin
+        if (!window.location.origin) {
+            window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+        }
+        set("origin", window.origin);
+
+        try {
+            const requestjson = JSON.parse(requestStr);
+
+            const webAuthnSignResponse = window.pi_webauthn.sign(requestjson);
+            webAuthnSignResponse.then((webauthnresponse) => {
+                const response = JSON.stringify(webauthnresponse);
+                set("webAuthnSignResponse", response);
+                set("mode", "webauthn");
+                document.forms["piLoginForm"].submit();
+            });
+
+        } catch (err) {
+            console.log("Error while signing WebAuthnSignRequest: " + err);
+            alert("Error while signing WebAuthnSignRequest: " + err);
+        }
+    }
+
+    function doU2F() {
+        // If mode is push, we have to change it, otherwise the site will refresh while doing webauthn
+        if (value("mode") === "push") {
+            changeMode("u2f");
+        }
+
+        if (!window.isSecureContext) {
+            alert("Unable to proceed with U2F because the context is insecure!");
+            console.log("Insecure context detected: Aborting U2F authentication!")
+            changeMode("otp");
+            return;
+        }
+
+        const requestStr = value("u2fSignRequest");
+
+        if (requestStr === null) {
+            alert("Could not load U2F library. Please try again or use other token.");
+            changeMode("otp");
+            return;
+        }
+
+        try {
+            const requestjson = JSON.parse(requestStr);
+            sign_u2f_request(requestjson);
+        } catch (err) {
+            console.log("Error while signing U2FSignRequest: " + err);
+            alert("Error while signing U2FSignRequest: " + err);
+        }
+    }
+
+    function sign_u2f_request(signRequest) {
+
+        let appId = signRequest["appId"];
+        let challenge = signRequest["challenge"];
+        let registeredKeys = [];
+
+        registeredKeys.push({
+            version: "U2F_V2",
+            keyHandle: signRequest["keyHandle"]
+        });
+
+        u2f.sign(appId, challenge, registeredKeys, function (result) {
+            const stringResult = JSON.stringify(result);
+            if(stringResult.includes("clientData") && stringResult.includes("signatureData")) {
+                set("u2fSignResponse", stringResult);
+                set("mode", "u2f");
+                document.forms["piLoginForm"].submit();
+            }
+        })
+
+    }
+</script>

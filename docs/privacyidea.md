@@ -1,27 +1,25 @@
 privacyidea module
 ==================
 
-This module provides an authentication module for simpleSAMLphp to talk
-to the privacyIDEA authentication server.
+This module provides an authentication module for simpleSAMLphp to talk to the privacyIDEA authentication server.
 
 `privacyidea:privacyidea`
 : Authenticate a user against a privacyidea server.
 
 The module contacts the privacyIDEA server via the API
 
-  https://privacyidea/validate/samlcheck
- 
+https://privacyidea/validate/samlcheck
+
 and authenticates the user according to the token assigned to the user.
 
 The response can also contain some attributes.
 
-You can use this plugin in two different ways
-Method 1) authenticate against privacyIDEA only
-Method 2) authenticate the 1st factor against your authsource and the 2nd factor against privacyIDEA
+You can use this plugin in two different ways Method 1) authenticate against privacyIDEA only Method 2) authenticate the
+1st factor against your authsource and the 2nd factor against privacyIDEA
 
 NOTE: This plugin is enabled by default, you do not need to enable it manually.
 
-Method 1
+Method 1 (authsource)
 ========
 
 
@@ -36,32 +34,54 @@ You need to add the authentication source 'privacyidea:privacyidea' to
      * The URI (including protocol and port) of the privacyidea server
      * Required.
      */
-    'privacyideaserver' => 'https://your.server.com',
+    'privacyideaServerURL' => 'https://your.server.com',
 
     /*
-     * Check if the hostname matches the name in the certificate
+     * Check if the hostname matches the name in the certificate.
+     * The value have to be a string.
      * Optional.
      */
-    'sslverifyhost' => False,
+    'sslVerifyHost' => 'false',
 
     /*
-     * Check if the certificate is valid, signed by a trusted CA
+     * Check if the certificate is valid, signed by a trusted CA.
+     * The value have to be a string.
      * Optional.
      */
-    'sslverifypeer' => False,
+    'sslVerifyPeer' => 'false',
         
     /*
      * The realm where the user is located in.
      * Optional.
      */
     'realm' => '',
-
-    /*
-     * OTP Extra
-     * 0: (default) one password field for PIN and OTP
-     * 1: Password field for password and extra field for OTP
+    
+    /**
+     *  Here you need to enter the username of your service account
      */
-    'otpextra' => 1,
+    'serviceAccount'    => 'service',
+
+    /**
+     *  Enter here the password for your service account
+     */
+    'servicePass'       => 'service',
+    
+    /**
+     *  Set this to 'true' to trigger challenges prior to the login 
+     *  using the configured service account. 
+     *  This setting takes precedence over 'doSendPassword'.
+     *  The value have to be a string.
+     */
+    'doTriggerChallenge' => 'true',
+    
+    /**
+     *  Set this to 'true' to send a request to validate/check with the username
+     *  and an empty pass prior to the login. 
+     *  This can be used to trigger challenges depending on the configuration in privacyIDEA 
+     *  and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
+     *  The value have to be a string.
+     */
+    'doSendPassword' => 'true',
         
     /*
      * This is the translation from privacyIDEA attribute names to 
@@ -99,46 +119,41 @@ You need to add the authentication source 'privacyidea:privacyidea' to
 ),
 ```
 
-
 User attributes
 ---------------
-At the moment privacyIDEA will know and return the following attributes by default, 
-that can be mapped to SAML attributes:
+At the moment privacyIDEA will know and return the following attributes by default, that can be mapped to SAML
+attributes:
 
-username:	The login name
-surname:	The real world name of the user as it is retrieved from the user source
-givenname:	The real world name of the user as it is retrieved from the user source
-mobile:		The mobile phone number of the user as it is retrieved from the user source
-phone:		The phone number of the user as it is retrieved from the user source
-email:		The email address of the user as it is retrieved from the user source                                
-                                
-The list can be extended by including custom attributes in the attributemap. If the 
-privacyIDEA server returns an attribute 'groups', you can map that to 'groups' if
-you include it in the attributemap. Otherwise, it is discarded.
+username:    The login name surname:    The real world name of the user as it is retrieved from the user source
+givenname:    The real world name of the user as it is retrieved from the user source mobile:        The mobile phone
+number of the user as it is retrieved from the user source phone:        The phone number of the user as it is retrieved
+from the user source email:        The email address of the user as it is retrieved from the user source
+
+The list can be extended by including custom attributes in the attributemap. If the privacyIDEA server returns an
+attribute 'groups', you can map that to 'groups' if you include it in the attributemap. Otherwise, it is discarded.
 
 
 
 
-Method 2
+Method 2 (authproc)
 ========
 
 
-If you want to use privacyIDEA as an auth proc filter, change the metadata.
-Use the following example:
+If you want to use privacyIDEA as an auth proc filter, change the metadata. Use the following example:
 
 ```PHP
 'authproc' => array(
 
     /**
-     *  The first authproc filter conatins the configuration for the privacyIDEA server.
+     *  Configuration for the privacyIDEA server.
      */
     20 => array(
-        'class'             => 'privacyidea:serverconfig',
+        'class'             => 'privacyidea:PrivacyideaAuthProc',
 
         /**
          *  Enter the URL to your privacyIDEA instance
          */
-        'privacyideaserver' => 'https://your.privacyidea.server',
+        'privacyideaServerURL' => 'https://your.privacyidea.server',
         
         /**
          *  Enter the realm, where your users are stored (remove it or set it to '' to use default)
@@ -153,14 +168,16 @@ Use the following example:
         //  'uidKey'        => array('uid', 'userName', 'uName'),
 
         /**
-         *  Check if the hostname matches the name in the certificate (set to true or false)
+         *  Check if the hostname matches the name in the certificate.
+         *  The value have to be a string.
          */
-        'sslverifyhost'     => true,
+        'sslVerifyHost'     => 'true',
 
         /**
          *  Check if the certificate is valid, signed by a trusted CA
+         *  The value have to be a string.
          */
-        'sslverifypeer'     => true,
+        'sslVerifyPeer'     => 'true',
 
         /**
          *  Here you need to enter the username of your service account
@@ -171,16 +188,28 @@ Use the following example:
          *  Enter here the password for your service account
          */
         'servicePass'       => 'service',
-
+        
         /**
-         *  You can enable or disable trigger challenge
+         *  You can add this option, if you want to enroll tokens for users, who do not have one yet.
+         *  The value have to be a string.
          */
-        'doTriggerChallenge' => true,
+        'doEnrollToken'     => 'true',
+        
+        /**
+         *  You can select a time based otp (totp), an event based otp (hotp) or an u2f (u2f)
+         */
+        'tokenType'         => 'totp',
+         
+        /**
+         *  You can enable or disable trigger challenge.
+         *  The value have to be a string.
+         */
+        'doTriggerChallenge' => 'true',
         
         /**
          *  Other authproc filters can disable 2FA if you want to.
          *  If privacyIDEA should listen to the setting, you have to enter the state's path and key.
-         *  The value of this key will be set by a previous auth proc filger.
+         *  The value of this key will be set by a previous auth proc filter.
          *  privacyIDEA will only be disabled, if the value of the key is set to false,
          *  in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
          */
@@ -192,36 +221,29 @@ Use the following example:
          *  privacyIDEA. If passOnNoToken is activated and the user does not have a token, he will be passed by privacyIDEA.
          *  NOTE: Do not use it with privacyidea:tokenEnrollment.
          */
-
-        'tryFirstAuthentication' => true,
+        'tryFirstAuthentication' => 'true',
 
         /**
          *  You can decide, which password should be used for tryFirstAuthentication
          */
-
-         'tryFirstAuthPass' => 'simpleSAMLphp',
-    ),
-
-    /**
-     *  This filter is optional, if you want to disable clients by ip, you should enable it.
-     */
-    21 => array(
-        'class'             => 'privacyidea:checkClientIP',
+        'tryFirstAuthPass' => 'simpleSAMLphp'
 
         /**
+         *  
          *  You can exclude clients with specified ip addresses.
          *  Enter a range like "10.0.0.0-10.2.0.0" or a single ip like "192.168.178.2"
          *  The selected ip addresses do not need 2FA
          */
         'excludeClientIPs'  => array("10.0.0.0-10.2.0.0", "192.168.178.2"),
-    ),
 
-    /**
-     *  This filter is optional. If you want to selectively disable the privacyIDEA authentication using the
-     *  the entityID and/or SAML attributes, you may enable this filter
-     */
-    22 => array(
-        'class'                => 'privacyidea:checkEntityID',
+
+        /**
+         *  Check Entity ID is optional. If you want to selectively disable the privacyIDEA authentication using
+         *  the entityID and/or SAML attributes, you may enable this filter.
+         *  Value have to be string.
+         */
+        'checkEntityID'        => 'true',
+     
         /**
          *  Depending on excludeEntityIDs and includeAttributes the filter will set the state variable 
          *  $state[$setPath][$setPath] to true or false.
@@ -257,42 +279,7 @@ Use the following example:
                     '/(.*)2fa-required/', '2fa-required',
                 )
             )
-        )
-    ),
-
-    /**
-     *  This filter is optional. You can enable it, if you want to enroll tokens for users, who do not have one yet.
-     */
-    24 => array(
-        'class'             => 'privacyidea:tokenEnrollment',
-
-        /**
-         *  You can select a time based otp (totp), an event based otp (hotp) or a u2f (u2f)
-         */
-        'tokenType'         => 'totp',
-
-        /**
-         *  If it is needed, you can overwrite the configuration here.
-         *  You have to use the same name as it is in privacyidea:serverconfig
-         *  For example:
-         *  'serviceAccount' => 'service',
-         *  'servicePass' => 'service',
-         */
-    ),
-
-    /**
-     *  This filter triggers the authentication against privacyIDEA. If this is not enabled, you will not be able to use 2FA
-     */
-    25 => array(
-        'class'             => 'privacyidea:privacyidea',
-        
-        /**
-         *  If it is needed, you can overwrite the configuration here.
-         *  You have to use the same name as it is in privacyidea:serverconfig
-         *  For example:
-         *  'serviceAccount' => 'service',
-         *  'servicePass' => 'service',
-         */
+        ),
     ),
 )
 ```
