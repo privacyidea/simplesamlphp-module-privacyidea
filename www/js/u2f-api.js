@@ -9,7 +9,6 @@
  */
 'use strict';
 
-
 /**
  * Namespace for the U2F api.
  * @type {Object}

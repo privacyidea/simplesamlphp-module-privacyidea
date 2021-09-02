@@ -6,7 +6,7 @@ to simplesSAMLphp.
 It enables simpleSAMLphp to do two factor authentication against 
 a [privacyIDEA server](https://github.com/privacyidea/privacyidea), 
 that runs in your network. Users can authenticate with normal OTP tokens, 
-Challenge Response tokens like EMail and SMS or with U2F devices.
+Challenge Response tokens like EMail and SMS or using WebAuthn and U2F devices.
 TiQR is currently not supported.
 
 ### Configuration

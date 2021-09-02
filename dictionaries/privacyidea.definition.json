@@ -6,7 +6,7 @@
 		"en": "Please enter your Username and your Password"
 	},
 	"login_text": {
-		"en": "Please note, that you need to enter both, your secret Password and the OTP value in the Password field."
+		"en": "Please give your username and password."
 	},
 	"password_otp": {
 		"en": "Password + OTP"

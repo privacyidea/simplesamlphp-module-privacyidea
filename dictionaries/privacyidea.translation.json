@@ -7,10 +7,6 @@
 		"de": "Bitte geben Sie Ihren Nutzernamen und Passwort ein",
 		"nl": "Vul uw gebruikersnaam en wachtwoord in."
 	},
-	"login_text": {
-		"de": "Bitte beachten Sie, dass Sie im Passwort-Feld Ihr geheimes Passwort und den OTP Wert eingeben müssen.",
-		"nl": "Let op: vul je wachtwoord en je eenmalige wachtwoord (OTP) in het wachtwoordveld."
-	},
 	"password_otp": {
 		"de": "Password + OTP",
 		"nl": "Wachtwoord + OTP"
