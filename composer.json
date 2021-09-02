@@ -2,6 +2,7 @@
     "name": "privacyidea/simplesamlphp-module-privacyidea",
     "description": "Add two factor authentication like OTP to simpleSAMLphp. The second factor is managed in privacyIDEA.",
     "type": "simplesamlphp-module",
+    "license": "AGPL-3.0",
     "require": {
         "simplesamlphp/composer-module-installer": "~1.0"
     }

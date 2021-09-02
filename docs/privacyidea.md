@@ -3,12 +3,9 @@ privacyidea module
 
 This module provides an authentication module for simpleSAMLphp to talk to the privacyIDEA authentication server.
 
-`privacyidea:privacyidea`
-: Authenticate a user against a privacyidea server.
-
 The module contacts the privacyIDEA server via the API
 
-https://privacyidea/validate/samlcheck
+https://privacyidea/validate/check
 
 and authenticates the user according to the token assigned to the user.
 
@@ -23,12 +20,12 @@ Method 1 (authsource)
 ========
 
 
-You need to add the authentication source 'privacyidea:privacyidea' to
+You need to add the authentication source 'privacyidea' to
 'config/authsources.php'. Do it like this:
 
 ```PHP
 'example-privacyidea' => array(
-    'privacyidea:privacyidea',
+    'privacyidea:PrivacyideaAuthSource',
 
     /* 
      * The URI (including protocol and port) of the privacyidea server
@@ -82,7 +79,13 @@ You need to add the authentication source 'privacyidea:privacyidea' to
      *  The value have to be a string.
      */
     'doSendPassword' => 'true',
-        
+    
+    /**
+     * Set custom hints for the OTP and password fields
+     */
+    'otpFieldHint' => 'OTP'
+    'passFieldHint' => 'Password'
+
     /*
      * This is the translation from privacyIDEA attribute names to 
      * SAML attribute names.
@@ -206,6 +209,12 @@ If you want to use privacyIDEA as an auth proc filter, change the metadata. Use 
          */
         'doTriggerChallenge' => 'true',
         
+        /**
+        * Set custom hints for the OTP and password fields
+        */
+        'otpFieldHint' => 'OTP'
+        'passFieldHint' => 'Password'
+
         /**
          *  Other authproc filters can disable 2FA if you want to.
          *  If privacyIDEA should listen to the setting, you have to enter the state's path and key.
