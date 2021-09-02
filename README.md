@@ -25,4 +25,4 @@ You can install this plugin into simpleSAMLphp like this:
 
     php composer.phar require privacyidea/simplesamlphp-module-privacyidea:v1.6
 
-Check for the latest version of the plugin. It might be higher than 1.6.
+Check for the latest version of the plugin.
