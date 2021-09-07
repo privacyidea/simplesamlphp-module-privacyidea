@@ -2,7 +2,7 @@ Version 2.0 2021-09-02
 
   * Support for WebAuthn token
   * Merged authproc filters into one, which requires only a single configuration file.
-    Check the docs for the updated template of the configuration!
+    !!! Check the docs for the updated template of the configuration - the old configuration file does not work with the new version !!!
   * Added configurable hints to the password and OTP field
   
 Version 1.9 2021-03-24
