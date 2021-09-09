@@ -87,16 +87,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             return;
         }
 
-        // Skip privacyIDEA for authenticated users in passive requests and if SSO is enabled.
-        // If $state["Expire"] is set, the user was already authenticated prior to the present request.
-        if (!empty($state['isPassive']) && $state['isPassive'] === true) {
-            if (!empty($state["Expire"]) && $state["Expire"] > time()) {
-                SimpleSAML_Logger::debug("privacyIDEA: ignoring passive SAML request for already logged in user");
-                return;
-            }
-            throw new \SimpleSAML\Module\saml\Error\NoPassive('Passive authentication (OTP) not supported.');
-        }
-
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
