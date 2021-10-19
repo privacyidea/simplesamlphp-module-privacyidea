@@ -11,7 +11,7 @@ SHORT_VERSION=3.0~dev1
 VERSION_JESSIE=${SHORT_VERSION}
 VERSION=${SHORT_VERSION}
 LOCAL_SERIES=`lsb_release -a | grep Codename | cut -f2`
-SRCDIRS=deploy dictionaries docs lib templates themes www
+SRCDIRS=deploy dictionaries docs lib templates themes www src
 SRCFILES=Changelog  composer.json  default-enable  LICENSE  Makefile  privacyidea.json  README.md 
 
 SIGNING_KEY=53E66E1D2CABEFCDB1D3B83E106164552E8D8149
