@@ -12,6 +12,9 @@ TiQR is currently not supported.
 ### Configuration
 Please check the [documentation](https://github.com/privacyidea/simplesamlphp-module-privacyidea/blob/master/docs/privacyidea.md)
 
+### Customization
+Please check the [readme](https://github.com/privacyidea/simplesamlphp-module-privacyidea/blob/master/themes/README.md)
+
 ### Packagist and Composer
 
 The package is listed at packagist.

@@ -17,49 +17,59 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         assert('array' === gettype($formParams));
 
         SimpleSAML_Logger::debug("auth source login..."
-            . "\nFormParams:\n"
-            . print_r($formParams, true));
+                                 . "\nFormParams:\n"
+                                 . print_r($formParams, true));
 
         $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
 
         $source = SimpleSAML_Auth_Source::getById($state['privacyidea:privacyidea']["AuthId"]);
-        if (!$source) {
+        if (!$source)
+        {
             throw new Exception('Could not find authentication source with ID ' . $state["AuthId"]);
         }
 
         // If it is the first step, trigger challenges or send the password if configured
         $username = $formParams['username'];
         $password = "";
-        if (!empty($formParams['pass'])) {
+        if (!empty($formParams['pass']))
+        {
             $password = $formParams['pass'];
         }
 
         $step = $state['privacyidea:privacyidea:ui']['step'];
         //SimpleSAML_Logger::debug("STEP: " . $step);
         $response = null;
-        if ($step == 1) {
+        if ($step == 1)
+        {
             $state['privacyidea:privacyidea']['username'] = $username;
             $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
             if (array_key_exists("doTriggerChallenge", $source->authSourceConfig)
-                && $source->authSourceConfig["doTriggerChallenge"] === 'true') {
-                if (!empty($username) && $source->pi->serviceAccountAvailable() === true) {
-                $response = $source->pi->triggerChallenge($username);
+                && $source->authSourceConfig["doTriggerChallenge"] === 'true')
+            {
+                if (!empty($username) && $source->pi->serviceAccountAvailable() === true)
+                {
+                    $response = $source->pi->triggerChallenge($username);
                 }
             } elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
-                && $source->authSourceConfig['doSendPassword'] === 'true') {
-                if (!empty($username)) {
+                && $source->authSourceConfig['doSendPassword'] === 'true')
+            {
+                if (!empty($username))
+                {
                     $response = $source->pi->validateCheck($username, $password);
                 }
             }
-        } elseif ($step > 1) {
+        } elseif ($step > 1)
+        {
             $response = sspmod_privacyidea_Auth_utils::authenticatePI($state, $formParams, $source->authSourceConfig);
             $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-        } else {
+        } else
+        {
             SimpleSAML_Logger::error("UNDEFINED STEP: " . $step);
         }
 
-        if ($response != null) {
+        if ($response != null)
+        {
             self::checkAuthenticationComplete($state, $response, $source->authSourceConfig);
             $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response);
         }
@@ -67,7 +77,8 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
 
         // Increase steps counter
-        if(empty($state['privacyidea:privacyidea']['errorMessage'])) {
+        if (empty($state['privacyidea:privacyidea']['errorMessage']))
+        {
             $state['privacyidea:privacyidea:ui']['step'] = $step + 1;
         }
 
@@ -82,10 +93,12 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
      * @param PIResponse $piResponse
      * @param $authSourceConfig
      */
-    protected static function checkAuthenticationComplete($state, PIResponse $piResponse, $authSourceConfig) {
+    protected static function checkAuthenticationComplete($state, PIResponse $piResponse, $authSourceConfig)
+    {
         $attributes = $piResponse->detailAndAttributes;
 
-        if (!empty($attributes)) {
+        if (!empty($attributes))
+        {
             $userAttributes = $attributes['attributes'];
             $detailAttributes = $attributes['detail'];
 
@@ -115,12 +128,14 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         $keys = array_unique($keys);
 
         // Keep all reservations from attributemap to translate PI attributes names to SAML attributes names.
-        foreach ($keys as $key) {
+        foreach ($keys as $key)
+        {
 
             SimpleSAML_Logger::debug("privacyidea        key: " . $key);
             $attributeValue = $userAttributes[$key];
 
-            if ($attributeValue) {
+            if ($attributeValue)
+            {
 
                 $attributeKey = @$authSourceConfig['attributemap'][$key] ?: $key;
                 $attributes[$attributeKey] = is_array($attributeValue) ? $attributeValue : array($attributeValue);
@@ -132,7 +147,8 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
 
         // Keep all reservations from detailmap to know which attributes are set to show in UI.
         // Detailmap was set in config/authsources.php
-        foreach ($authSourceConfig['detailmap'] as $key => $mappedKey) {
+        foreach ($authSourceConfig['detailmap'] as $key => $mappedKey)
+        {
 
             SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
             SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mappedKey, TRUE));
@@ -143,7 +159,8 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
 
         // Keep all reservations from concatenationmap to fuse some attributes together.
         // Concatenationmap was set in config/authsources.php
-        foreach ($authSourceConfig['concatenationmap'] as $key => $mappedKey) {
+        foreach ($authSourceConfig['concatenationmap'] as $key => $mappedKey)
+        {
 
             SimpleSAML_Logger::debug("privacyidea        key: " . print_r($key, TRUE));
             SimpleSAML_Logger::debug("privacyidea mapped key: " . print_r($mappedKey, TRUE));
@@ -151,7 +168,8 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
             $concatenationArr = explode(",", $key);
             $concatenationValues = array();
 
-            foreach ($concatenationArr as $item) {
+            foreach ($concatenationArr as $item)
+            {
                 $concatenationValues[] = $userAttributes->$item;
             }
 
@@ -170,7 +188,8 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
     private static function checkIdLegality($id)
     {
         $sid = SimpleSAML_Utilities::parseStateID($id);
-        if (!is_null($sid['url'])) {
+        if (!is_null($sid['url']))
+        {
             SimpleSAML_Utilities::checkURLAllowed($sid['url']);
         }
     }

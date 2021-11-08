@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__, 2) . '/src/privacyidea-php-sdk/SDK-Autoloader.php');
+require_once(dirname(__FILE__, 2) . '/lib/sdk-php/src/SDK-Autoloader.php');
 
 SimpleSAML_Logger::info("Calling formbuilder...");
 
@@ -8,16 +8,21 @@ $stateID = $_REQUEST['StateId'];
 $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
 
 // Find the username and set it to the variable
-if (isset($state['privacyidea:privacyidea']['uidKey'])) {
+if (isset($state['privacyidea:privacyidea']['uidKey']))
+{
     $uidKey = $state['privacyidea:privacyidea']['uidKey'];
     $username = $state['Attributes'][$uidKey][0];
-} elseif (isset($state['privacyidea:privacyidea']['username'])) {
+} elseif (isset($state['privacyidea:privacyidea']['username']))
+{
     $username = $state['privacyidea:privacyidea']['username'];
-} elseif (array_key_exists('username', $_REQUEST)) {
+} elseif (array_key_exists('username', $_REQUEST))
+{
     $username = (string)$_REQUEST['username'];
-} elseif (isset($state['core:username'])) {
+} elseif (isset($state['core:username']))
+{
     $username = (string)$state['core:username'];
-} else {
+} else
+{
     $username = '';
 }
 
@@ -26,7 +31,8 @@ if (!empty($_REQUEST['password']) || !empty($_REQUEST['username'])
     || !empty($_REQUEST['otp']) || !empty($_REQUEST['modeChanged'])
     || (!empty($_REQUEST['mode']) && $_REQUEST['mode'] == "push")
     || (!empty($_REQUEST['mode']) && $_REQUEST['mode'] == "u2f")
-    || (!empty($_REQUEST['mode']) && $_REQUEST['mode'] == "webauthn")) {
+    || (!empty($_REQUEST['mode']) && $_REQUEST['mode'] == "webauthn"))
+{
 
     // Collect the inputs from the form in an array
     $formParams = array(
@@ -43,7 +49,7 @@ if (!empty($_REQUEST['password']) || !empty($_REQUEST['username'])
         "u2fSignRequest" => array_key_exists('u2fSignRequest', $_REQUEST) ? $_REQUEST['u2fSignRequest'] : "",
         "u2fSignResponse" => array_key_exists('u2fSignResponse', $_REQUEST) ? $_REQUEST['u2fSignResponse'] : "",
         "message" => array_key_exists('message', $_REQUEST) ? $_REQUEST['message'] : "",
-    //    "loadCounter" => $_REQUEST['loadCounter'] ?: 1
+        //    "loadCounter" => $_REQUEST['loadCounter'] ?: 1
         "loadCounter" => $_REQUEST['loadCounter']
     );
 //    array_push($formParams, "loadCounter");
@@ -53,24 +59,31 @@ if (!empty($_REQUEST['password']) || !empty($_REQUEST['username'])
 //        $formParams['loadCounter'] = 1;
 //    }
 
-    if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess") {
-        try {
+    if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
+    {
+        try
+        {
             $response = sspmod_privacyidea_Auth_utils::authenticatePI($state, $formParams, $state['privacyidea:serverconfig']);
             $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
             // If the authentication is successful processPIResponse will not return!
-            if (!empty($response)) {
+            if (!empty($response))
+            {
                 $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response);
             }
             $url = SimpleSAML_Module::getModuleURL('privacyidea/formbuilder.php');
             SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $stateID));
-        } catch (Exception $e) {
+        } catch (Exception $e)
+        {
             SimpleSAML_Logger::error($e->getMessage());
         }
-    } else {
-        try {
+    } else
+    {
+        try
+        {
             sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler::authSourceLogin($stateID, $formParams);
-        } catch (Exception $e) {
+        } catch (Exception $e)
+        {
             SimpleSAML_Logger::error($e->getMessage());
             $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
             $state['privacyidea:privacyidea']['errorCode'] = $e->getCode();
@@ -91,11 +104,14 @@ $tpl = new SimpleSAML_XHTML_Template($cfg, 'privacyidea:loginform.php');
 $tpl->data['errorCode'] = null;
 $tpl->data['errorMessage'] = null;
 
-if (!empty($state['privacyidea:privacyidea']['errorCode']) || !empty($state['privacyidea:privacyidea']['errorMessage'])) {
-    if (!empty($state['privacyidea:privacyidea']['errorCode'])) {
+if (!empty($state['privacyidea:privacyidea']['errorCode']) || !empty($state['privacyidea:privacyidea']['errorMessage']))
+{
+    if (!empty($state['privacyidea:privacyidea']['errorCode']))
+    {
         $tpl->data['errorCode'] = $state['privacyidea:privacyidea']['errorCode'];
         $state['privacyidea:privacyidea']['errorCode'] = "";
-    } else {
+    } else
+    {
         $tpl->data['errorCode'] = "";
     }
     $tpl->data['errorMessage'] = $state['privacyidea:privacyidea']['errorMessage'];
@@ -104,7 +120,8 @@ if (!empty($state['privacyidea:privacyidea']['errorCode']) || !empty($state['pri
 }
 
 // Authprocess step 1
-if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess") {
+if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
+{
 
     $tpl->data['authProcFilterScenario'] = true;
     $tpl->data['rememberUsernameEnabled'] = true;
@@ -112,22 +129,27 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
     $tpl->data['forceUsername'] = true;
 
     // Enroll token's QR
-    if (isset($state['privacyidea:tokenEnrollment']['tokenQR'])) {
+    if (isset($state['privacyidea:tokenEnrollment']['tokenQR']))
+    {
         $tpl->data['tokenQR'] = $state['privacyidea:tokenEnrollment']['tokenQR'];
-    } else {
+    } else
+    {
         $tpl->data['tokenQR'] = null;
     }
 
 // Authsource step 1
-} elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource") {
+} elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
+{
     $authConfig = SimpleSAML_Configuration::getOptionalConfig("authsources.php");
 
     $privacyideaConfig = array();
     $keys = $authConfig->getOptions();
 
-    foreach ($keys as $key) {
+    foreach ($keys as $key)
+    {
         $config = $authConfig->getValue($key);
-        if ($config[0] == "privacyidea:privacyidea") {
+        if ($config[0] == "privacyidea:privacyidea")
+        {
             $privacyideaConfig = $config;
         }
     }
@@ -136,11 +158,13 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
 
     $source = SimpleSAML_Auth_Source::getById($state["privacyidea:privacyidea"]["AuthId"]);
 
-    if ($source == NULL) {
+    if ($source == NULL)
+    {
         SimpleSAML_Logger::error('Could not find authentication source with ID ' . $state[sspmod_core_Auth_UserPassBase::AUTHID]);
     }
 
-    if ($source->getRememberUsernameEnabled()) {
+    if ($source->getRememberUsernameEnabled())
+    {
 
         $sessionHandler = SimpleSAML_SessionHandler::getSessionHandler();
         $params = $sessionHandler->getCookieParams();
@@ -150,8 +174,10 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
         SimpleSAML_Utilities::setCookie($source->getAuthId() . '-username', $username, $params, FALSE);
     }
 
-    if ($source->isRememberMeEnabled()) {
-        if (array_key_exists('rememberMe', $_REQUEST) && $_REQUEST['rememberMe'] === 'Yes') {
+    if ($source->isRememberMeEnabled())
+    {
+        if (array_key_exists('rememberMe', $_REQUEST) && $_REQUEST['rememberMe'] === 'Yes')
+        {
             $state['RememberMe'] = TRUE;
             $stateID = SimpleSAML_Auth_State::saveState($state, sspmod_core_Auth_UserPassBase::STAGEID);
         }
@@ -162,35 +188,43 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
     $tpl->data['rememberMeChecked'] = $source->isRememberMeChecked();
     $tpl->data['links'] = $source->getLoginLinks();
 
-    if (array_key_exists('forcedUsername', $state)) {
+    if (array_key_exists('forcedUsername', $state))
+    {
         $tpl->data['forceUsername'] = true;
         $tpl->data['rememberUsernameEnabled'] = false;
         $tpl->data['rememberUsernameChecked'] = false;
-    } else {
+    } else
+    {
         $tpl->data['forceUsername'] = false;
         $tpl->data['rememberUsernameEnabled'] = $source->getRememberUsernameEnabled();
         $tpl->data['rememberUsernameChecked'] = $source->getRememberUsernameChecked();
     }
 
-    if (!empty($state['SPMetadata'])) {
+    if (!empty($state['SPMetadata']))
+    {
         $tpl->data['SPMetadata'] = $state['SPMetadata'];
-    } else {
+    } else
+    {
         $tpl->data['SPMetadata'] = NULL;
     }
 }
 
-if (empty($_REQUEST['loadCounter'])) {
+if (empty($_REQUEST['loadCounter']))
+{
     $tpl->data['loadCounter'] = 1;
 }
 
 // Get all the ui data placed in state and set it to $tpl->data for future use in loginform.php
-if (!empty($state['privacyidea:privacyidea:ui'])) {
-    foreach ($state['privacyidea:privacyidea:ui'] as $key => $value) {
+if (!empty($state['privacyidea:privacyidea:ui']))
+{
+    foreach ($state['privacyidea:privacyidea:ui'] as $key => $value)
+    {
         $tpl->data[$key] = $value;
     }
 }
 
-if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess") {
+if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
+{
     $tpl->data['LogoutURL'] = SimpleSAML_Module::getModuleURL('core/authenticate.php', array('as' => $state['Source']['auth'])) . "&logout";
 }
 
