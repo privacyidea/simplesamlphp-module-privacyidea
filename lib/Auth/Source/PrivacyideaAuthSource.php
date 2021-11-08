@@ -2,7 +2,7 @@
 
 const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
 
-require_once((dirname(__FILE__, 4)) . '/src/privacyidea-php-sdk/SDK-Autoloader.php');
+require_once((dirname(__FILE__, 3)) . '/sdk-php/src/SDK-Autoloader.php');
 
 /**
  * privacyidea authentication module.

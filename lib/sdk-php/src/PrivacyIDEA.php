@@ -129,7 +129,7 @@ class PrivacyIDEA
 
         if ($username) {
             $authToken = $this->getAuthToken();
-            // If error occured in getAuthToken() - return this error in PIResponse object
+            // If error occurred in getAuthToken() - return this error in PIResponse object
             $header = array("authorization:" . $authToken);
 
             $parameter = array("user" => $username);
@@ -217,7 +217,7 @@ class PrivacyIDEA
 
         $authToken = $this->getAuthToken();
 
-        // If error occured in getAuthToken() - return this error in PIResponse object
+        // If error occurred in getAuthToken() - return this error in PIResponse object
         $header = array("authorization:" . $authToken);
 
         // Check if user has token

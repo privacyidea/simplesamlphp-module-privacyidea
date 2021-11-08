@@ -1,6 +1,6 @@
 <?php
 
-require_once((dirname(__FILE__, 3)) . '/src/privacyidea-php-sdk/SDK-Autoloader.php');
+require_once((dirname(__FILE__, 2)) . '/sdk-php/src/SDK-Autoloader.php');
 
 class sspmod_privacyidea_Auth_utils
 {
@@ -117,7 +117,14 @@ class sspmod_privacyidea_Auth_utils
             $state['privacyidea:privacyidea:ui']['message'] = $result->messages;
             $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
             $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
-            $state['privacyidea:privacyidea:ui']['mode'] = "otp";
+            if($result->triggeredTokenTypes()) {
+                $state['privacyidea:privacyidea:ui']['mode'] = "otp";
+                SimpleSAML_Logger::error("send otp mode!!");
+
+            }else {
+                $state['privacyidea:privacyidea:ui']['mode'] = "sendPass";
+                SimpleSAML_Logger::error("send pass mode"); //TODO Not here!
+            }
 
         } elseif ($result->value) {
             SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully!");

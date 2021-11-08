@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__, 2) . '/src/privacyidea-php-sdk/SDK-Autoloader.php');
+require_once(dirname(__FILE__, 2) . '/lib/sdk-php/src/SDK-Autoloader.php');
 
 SimpleSAML_Logger::info("Calling formbuilder...");
 

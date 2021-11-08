@@ -9,7 +9,7 @@
  * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
 
-require_once((dirname(__FILE__, 4)) . '/src/privacyidea-php-sdk/SDK-Autoloader.php');
+require_once((dirname(__FILE__, 3)) . '/sdk-php/src/SDK-Autoloader.php');
 
 class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter implements PILog
 {
@@ -99,7 +99,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         if (!empty($this->authProcConfig['doTriggerChallenge']) && $this->authProcConfig['doTriggerChallenge'] === 'true') {
             $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
             if (!$this->pi->serviceAccountAvailable()) {
-                SimpleSAML_Logger::error('Service account or password is not set in config. Cannot to do trigger challenge');
+                SimpleSAML_Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
             } else {
                 //try {
                 $response = $this->pi->triggerChallenge($username);
@@ -138,6 +138,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
      * @param string $stateID
      * @param string $username
      * @return string
+     * @throws PIBadRequestException
      */
     private function enrollToken($stateID, $username)
     {
@@ -148,7 +149,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
         // Error if no serviceAccount or servicePass
         if ($this->pi->serviceAccountAvailable() === false) {
-            SimpleSAML_Logger::error("privacyIDEA service account for token enrollment is not set!");
+            SimpleSAML_Logger::error("privacyIDEA: service account for token enrollment is not set!");
         } else {
             // Compose params
             $genkey = 1;
@@ -167,7 +168,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             // Nullcheck
             if ($response === null) {
                 throw new SimpleSAML_Error_BadRequest(
-                    "privacyIDEA: We were not able to read the response from the PI server");
+                    "privacyIDEA: We were not able to read the response from the PI server.");
             }
 
             // If we have a response from PI - save QR Code into state to show it soon
