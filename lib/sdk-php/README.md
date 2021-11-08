@@ -8,7 +8,9 @@ To use our API Library you have to install curl on your machine. If you have ins
 with Composer you don't need to think about it, because Composer will do it for you automatically.
 To avoid bugs we also advise you to install PHP >=7.3.
 
-## Composer
+## Connecting & Composer
+
+You can add our library to your repository as a submodule or install it using Composer.
 
 To install our repository with Composer, run this command in Terminal:
 

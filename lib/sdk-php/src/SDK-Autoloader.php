@@ -10,10 +10,12 @@ spl_autoload_register('autoLoader');
 function autoLoader($className)
 {
     $fullPath = dirname(__FILE__) . "/" . $className . ".php";
-    if (file_exists($fullPath)) {
+    if (file_exists($fullPath))
+    {
         require_once $fullPath;
         return true;
-    } else {
+    } else
+    {
         return false;
     }
 }

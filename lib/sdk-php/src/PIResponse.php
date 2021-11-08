@@ -31,7 +31,8 @@ class PIResponse
     {
         assert('string' === gettype($json));
 
-        if ($json == null || $json == "") {
+        if ($json == null || $json == "")
+        {
             $privacyIDEA->errorLog("PrivacyIDEA - PIResponse: No response from PI.");
             return null;
         }
@@ -41,7 +42,8 @@ class PIResponse
         $map = json_decode($json, true);
 
         // If wrong response format - throw error
-        if ($map == null) {
+        if ($map == null)
+        {
             $privacyIDEA->errorLog("PrivacyIDEA - PIResponse: Response from PI was in wrong format. JSON expected.");
             return null;
         }
@@ -50,28 +52,33 @@ class PIResponse
         $ret->raw = $json;
 
         // Possibility to show an error message from PI server if no value
-        if (!isset($map['result']['value'])) {
+        if (!isset($map['result']['value']))
+        {
             $ret->errorCode = $map['result']['error']['code'];
             $ret->errorMessage = $map['result']['error']['message'];
             return $ret;
         }
 
         // Set information from PI response to property
-        if (isset($map['detail']['messages'])) {
+        if (isset($map['detail']['messages']))
+        {
             $ret->messages = implode(", ", array_unique($map['detail']['messages'])) ?: "";
         }
-        if (isset($map['detail']['transaction_id'])) {
+        if (isset($map['detail']['transaction_id']))
+        {
             $ret->transactionID = $map['detail']['transaction_id'];
         }
         $ret->status = $map['result']['status'] ?: false;
         $ret->value = $map['result']['value'] ?: false;
 
         // Prepare attributes and detail
-        if (!empty($map['detail']['user'])) {
+        if (!empty($map['detail']['user']))
+        {
             $attributes = $map['detail']['user'];
             $detail = $map['detail'];
 
-            if (isset($attributes['username'])) {
+            if (isset($attributes['username']))
+            {
                 $attributes['realm'] = $map['detail']['user-realm'] ?: "";
                 $attributes['resolver'] = $map['detail']['user-resolver'] ?: "";
             }
@@ -79,9 +86,11 @@ class PIResponse
         }
 
         // Set all challenges to objects and set it all to one array
-        if (isset($map['detail']['multi_challenge'])) {
+        if (isset($map['detail']['multi_challenge']))
+        {
             $mc = $map['detail']['multi_challenge'];
-            foreach ($mc as $challenge) {
+            foreach ($mc as $challenge)
+            {
                 $tmp = new PIChallenge();
                 $tmp->transactionID = $challenge['transaction_id'];
                 $tmp->message = $challenge['message'];
@@ -89,12 +98,14 @@ class PIResponse
                 $tmp->type = $challenge['type'];
                 $tmp->attributes = $challenge['attributes'];
 
-                if ($tmp->type === "webauthn") {
+                if ($tmp->type === "webauthn")
+                {
                     $t = $challenge['attributes']['webAuthnSignRequest'];
                     $tmp->webAuthnSignRequest = json_encode($t);
                 }
 
-                if($tmp->type === "u2f") {
+                if ($tmp->type === "u2f")
+                {
                     $t = $challenge['attributes']['u2fSignRequest'];
                     $tmp->u2fSignRequest = json_encode($t);
                 }
@@ -112,7 +123,8 @@ class PIResponse
     public function triggeredTokenTypes()
     {
         $ret = array();
-        foreach ($this->multiChallenge as $challenge) {
+        foreach ($this->multiChallenge as $challenge)
+        {
             array_push($ret, $challenge->type);
         }
         return array_unique($ret);
@@ -124,8 +136,10 @@ class PIResponse
      */
     public function otpMessage()
     {
-        foreach ($this->multiChallenge as $challenge) {
-            if ($challenge->type !== "push" && $challenge->type !== "webauthn") {
+        foreach ($this->multiChallenge as $challenge)
+        {
+            if ($challenge->type !== "push" && $challenge->type !== "webauthn")
+            {
                 return $challenge->message;
             }
         }
@@ -138,8 +152,10 @@ class PIResponse
      */
     public function pushMessage()
     {
-        foreach ($this->multiChallenge as $challenge) {
-            if ($challenge->type === "push") {
+        foreach ($this->multiChallenge as $challenge)
+        {
+            if ($challenge->type === "push")
+            {
                 return $challenge->message;
             }
         }
@@ -152,8 +168,10 @@ class PIResponse
      */
     public function webauthnMessage()
     {
-        foreach ($this->multiChallenge as $challenge) {
-            if ($challenge->type === "webauthn") {
+        foreach ($this->multiChallenge as $challenge)
+        {
+            if ($challenge->type === "webauthn")
+            {
                 return $challenge->message;
             }
         }
@@ -167,8 +185,10 @@ class PIResponse
     public function webAuthnSignRequest()
     {
         $ret = "";
-        foreach ($this->multiChallenge as $challenge) {
-            if ($challenge->type === "webauthn") {
+        foreach ($this->multiChallenge as $challenge)
+        {
+            if ($challenge->type === "webauthn")
+            {
                 $ret = $challenge->webAuthnSignRequest;
                 break;
             }
@@ -179,8 +199,10 @@ class PIResponse
     public function u2fSignRequest()
     {
         $ret = "";
-        foreach ($this->multiChallenge as $challenge) {
-            if ($challenge->type === "u2f") {
+        foreach ($this->multiChallenge as $challenge)
+        {
+            if ($challenge->type === "u2f")
+            {
                 $ret = $challenge->u2fSignRequest;
                 break;
             }

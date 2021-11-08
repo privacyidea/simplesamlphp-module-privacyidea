@@ -51,7 +51,8 @@ class PrivacyIDEA
      */
     function debugLog($message)
     {
-        if ($this->logger != null) {
+        if ($this->logger != null)
+        {
             $this->logger->piDebug($message);
         }
     }
@@ -62,7 +63,8 @@ class PrivacyIDEA
      */
     function errorLog($message)
     {
-        if ($this->logger != null) {
+        if ($this->logger != null)
+        {
             $this->logger->piError($message);
         }
     }
@@ -85,14 +87,17 @@ class PrivacyIDEA
         $this->debugLog("validateCheck() with user=" . $username . ", pass=" . $pass . " and if is set transactionID " . $transactionID);
 
         //Check if parameters are set
-        if (!empty($username) || !empty($pass)) {
+        if (!empty($username) || !empty($pass))
+        {
             $params["user"] = $username;
             $params["pass"] = $pass;
-            if (!empty($transactionID)) {
+            if (!empty($transactionID))
+            {
                 //Add transaction ID in case of challenge response
                 $params["transaction_id"] = $transactionID;
             }
-            if ($this->realm) {
+            if ($this->realm)
+            {
                 $params["realm"] = $this->realm;
             }
 
@@ -101,11 +106,13 @@ class PrivacyIDEA
 
             //Return the response from /validate/check as PIResponse object
             $ret = PIResponse::fromJSON($response, $this);
-            if ($ret == null) {
+            if ($ret == null)
+            {
                 $this->debugLog("privacyIDEA - Validate Check: no response from PI-server");
             }
             return $ret;
-        } else {
+        } else
+        {
             //Handle debug message if $username is empty
             $this->debugLog("privacyIDEA - Validate Check: params incomplete!");
         }
@@ -127,7 +134,8 @@ class PrivacyIDEA
         // Log entry of the pollTransaction()
         $this->debugLog("triggerChallenge() with username=" . $username);
 
-        if ($username) {
+        if ($username)
+        {
             $authToken = $this->getAuthToken();
             // If error occurred in getAuthToken() - return this error in PIResponse object
             $header = array("authorization:" . $authToken);
@@ -140,12 +148,14 @@ class PrivacyIDEA
             //Return the response from /validate/triggerchallenge as PIResponse object
             $ret = PIResponse::fromJSON($response, $this);
 
-            if ($ret == null) {
+            if ($ret == null)
+            {
                 $this->debugLog("privacyIDEA - Trigger Challenge: no response from PI-server");
             }
             return $ret;
 
-        } else {
+        } else
+        {
             //Handle debug message if empty $username
             $this->debugLog("privacyIDEA - Trigger Challenge: no username");
         }
@@ -166,7 +176,8 @@ class PrivacyIDEA
         // Log entry of the pollTransaction()
         $this->debugLog("pollTransaction() with transaction ID=" . $transactionID);
 
-        if (!empty($transactionID)) {
+        if (!empty($transactionID))
+        {
             $params = array("transaction_id" => $transactionID);
             // Call /validate/polltransaction using transactionID and decode it from JSON
             $responseJSON = $this->sendRequest($params, array(''), 'GET', '/validate/polltransaction');
@@ -174,7 +185,8 @@ class PrivacyIDEA
             //Return the response from /validate/polltransaction
             return $response['result']['value'];
 
-        } else {
+        } else
+        {
             //Handle debug message if $transactionID is empty
             $this->debugLog("privacyIDEA - Poll Transaction: No transaction ID");
         }
@@ -197,7 +209,8 @@ class PrivacyIDEA
         assert('string' === gettype($username));
         assert('string' === gettype($type));
         assert('string' === gettype($genkey));
-        if (isset($description)) {
+        if (isset($description))
+        {
             assert('string' === gettype($description));
         }
 
@@ -205,7 +218,8 @@ class PrivacyIDEA
         $this->debugLog("privacyIDEA - enrollToken() with user=" . $username . ", genkey=" . $genkey . ", type=" . $type . ", description=" . $description);
 
         // Check if parameters contain the required keys
-        if (empty($username) || empty($type)) {
+        if (empty($username) || empty($type))
+        {
             $this->debugLog("privacyIDEA - Enroll Token: Token enrollment not possible because params are not complete");
             return array();
         }
@@ -223,11 +237,13 @@ class PrivacyIDEA
         // Check if user has token
         $tokenInfo = json_decode($this->sendRequest(array("user" => $params['user']), $header, 'GET', '/token/'));
 
-        if (!empty($tokenInfo->result->value->tokens)) {
+        if (!empty($tokenInfo->result->value->tokens))
+        {
             $this->debugLog("privacyIDEA - Enroll Token: User already has a token. No need to enroll a new one.");
             return array();
 
-        } else {
+        } else
+        {
             // Call /token/init endpoint and return the PI response
             return json_decode($this->sendRequest($params, $header, 'POST', '/token/init'));
         }
@@ -254,14 +270,16 @@ class PrivacyIDEA
         $this->debugLog("ValidateCheckWebAuthn with user=" . $username . ", transactionID=" . $transactionID . ", WebAuthnSignResponse=" . $webAuthnSignResponse . ", origin=" . $origin);
 
         // Check if parameters are set
-        if (!empty($username) || !empty($transactionID)) {
+        if (!empty($username) || !empty($transactionID))
+        {
 
             // Compose standard validate/check params
             $params["user"] = $username;
             $params["pass"] = "";
             $params["transaction_id"] = $transactionID;
 
-            if ($this->realm) {
+            if ($this->realm)
+            {
                 $params["realm"] = $this->realm;
             }
 
@@ -273,10 +291,12 @@ class PrivacyIDEA
             $params[SIGNATUREDATA] = $tmp[SIGNATUREDATA];
             $params[AUTHENTICATORDATA] = $tmp[AUTHENTICATORDATA];
 
-            if (!empty($tmp[USERHANDLE])) {
+            if (!empty($tmp[USERHANDLE]))
+            {
                 $params[USERHANDLE] = $tmp[USERHANDLE];
             }
-            if (!empty($tmp[ASSERTIONCLIENTEXTENSIONS])) {
+            if (!empty($tmp[ASSERTIONCLIENTEXTENSIONS]))
+            {
                 $params[ASSERTIONCLIENTEXTENSIONS] = $tmp[ASSERTIONCLIENTEXTENSIONS];
             }
 
@@ -287,12 +307,14 @@ class PrivacyIDEA
             //Return the response from /validate/check as PIResponse object
             $ret = PIResponse::fromJSON($response, $this);
 
-            if ($ret == null) {
+            if ($ret == null)
+            {
                 $this->debugLog("privacyIDEA - WebAuthn: no response from PI-server");
             }
             return $ret;
 
-        } else {
+        } else
+        {
             //Handle debug message if $username is empty
             $this->debugLog("privacyIDEA - WebAuthn: params incomplete!");
         }
@@ -318,14 +340,16 @@ class PrivacyIDEA
         $this->debugLog("ValidateCheckU2F with user=" . $username . ", transactionID=" . $transactionID . ", u2fSignResponse=" . $u2fSignResponse);
 
         // Check if parameters are set
-        if (!empty($username) || !empty($transactionID) || !empty($u2fSignResponse)) {
+        if (!empty($username) || !empty($transactionID) || !empty($u2fSignResponse))
+        {
 
             // Compose standard validate/check params
             $params["user"] = $username;
             $params["pass"] = "";
             $params["transaction_id"] = $transactionID;
 
-            if ($this->realm) {
+            if ($this->realm)
+            {
                 $params["realm"] = $this->realm;
             }
 
@@ -339,12 +363,14 @@ class PrivacyIDEA
             //Return the response from /validate/check as PIResponse object
             $ret = PIResponse::fromJSON($response, $this);
 
-            if ($ret == null) {
+            if ($ret == null)
+            {
                 $this->debugLog("privacyIDEA - U2F: no response from PI-server");
             }
             return $ret;
 
-        } else {
+        } else
+        {
             //Handle debug message if $username is empty
             $this->debugLog("privacyIDEA - U2F: params incomplete!");
         }
@@ -369,7 +395,8 @@ class PrivacyIDEA
      */
     public function getAuthToken()
     {
-        if (!$this->serviceAccountAvailable()) {
+        if (!$this->serviceAccountAvailable())
+        {
             $this->errorLog("Cannot retrieve auth token without service account");
             return false;
         }
@@ -380,14 +407,16 @@ class PrivacyIDEA
             "password" => $this->serviceAccountPass
         );
 
-        if ($this->serviceAccountRealm != null && $this->serviceAccountRealm != "") {
+        if ($this->serviceAccountRealm != null && $this->serviceAccountRealm != "")
+        {
             $params["realm"] = $this->serviceAccountRealm;
         }
 
         // Call /auth endpoint and decode the response from JSON to PHP
         $response = json_decode($this->sendRequest($params, array(''), 'POST', '/auth'), true);
 
-        if (!empty($response['result']['value'])) {
+        if (!empty($response['result']['value']))
+        {
             // Get auth token from response->result->value->token and return the token
             return $response['result']['value']['token'];
         }
@@ -424,19 +453,24 @@ class PrivacyIDEA
 
         curl_setopt($curlInstance, CURLOPT_URL, $completeUrl);
         curl_setopt($curlInstance, CURLOPT_HEADER, true);
-        if ($headers) {
+        if ($headers)
+        {
             curl_setopt($curlInstance, CURLOPT_HTTPHEADER, $headers);
         }
         curl_setopt($curlInstance, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curlInstance, CURLOPT_USERAGENT, $this->userAgent);
-        if ($httpMethod === "POST") {
+        if ($httpMethod === "POST")
+        {
             curl_setopt($curlInstance, CURLOPT_POST, true);
             curl_setopt($curlInstance, CURLOPT_POSTFIELDS, $params);
 
-        } elseif ($httpMethod === "GET") {
+        } elseif ($httpMethod === "GET")
+        {
             $paramsStr = '?';
-            if (!empty($params)) {
-                foreach ($params as $key => $value) {
+            if (!empty($params))
+            {
+                foreach ($params as $key => $value)
+                {
                     $paramsStr .= $key . "=" . $value . "&";
                 }
             }
@@ -445,22 +479,27 @@ class PrivacyIDEA
 
         // Check if you should to verify privacyIDEA's SSL certificate in your config
         // If true - do it, if false - don't verify
-        if ($this->sslVerifyHost === true) {
+        if ($this->sslVerifyHost === true)
+        {
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 2);
-        } else {
+        } else
+        {
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 0);
         }
 
-        if ($this->sslVerifyPeer === true) {
+        if ($this->sslVerifyPeer === true)
+        {
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 2);
-        } else {
+        } else
+        {
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 0);
         }
 
         //Store response in the variable
         $response = curl_exec($curlInstance);
 
-        if (!$response) {
+        if (!$response)
+        {
             //Handle error if no response and return an empty string
             $curlErrno = curl_errno($curlInstance);
             $this->errorLog("privacyIDEA-SDK: Bad request to PI server. " . curl_error($curlInstance) . " errno: " . $curlErrno);
@@ -471,7 +510,8 @@ class PrivacyIDEA
         $ret = substr($response, $headerSize);
 
         // Log the response
-        if ($endpoint != "/auth") {
+        if ($endpoint != "/auth")
+        {
             $retJson = json_decode($ret, true);
             $this->debugLog($endpoint . " returned " . json_encode($retJson, JSON_PRETTY_PRINT));
         }
