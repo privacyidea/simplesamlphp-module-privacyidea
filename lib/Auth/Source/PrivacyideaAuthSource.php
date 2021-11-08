@@ -58,38 +58,48 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
         parent::__construct($info, $config);
 
-        if (!in_array('attributemap', $config)) {
+        if (!in_array('attributemap', $config))
+        {
             $config['attributemap'] = array();
         }
-        if (!in_array('detailmap', $config)) {
+        if (!in_array('detailmap', $config))
+        {
             $config['detailmap'] = array();
         }
-        if (!in_array('concatenationmap', $config)) {
+        if (!in_array('concatenationmap', $config))
+        {
             $config['concatenationmap'] = array();
         }
 
         $this->authSourceConfig = $config;
 
         // Build a pi object
-        if (!empty($this->authSourceConfig['privacyideaServerURL'])) {
+        if (!empty($this->authSourceConfig['privacyideaServerURL']))
+        {
             $this->pi = new PrivacyIDEA("simpleSAMLphp", $this->authSourceConfig['privacyideaServerURL']);
         }
-        if (!empty($this->authSourceConfig['sslVerifyHost'])) {
+        if (!empty($this->authSourceConfig['sslVerifyHost']))
+        {
             $this->pi->sslVerifyHost = $this->authSourceConfig['sslVerifyHost'] !== "false";
         }
-        if (!empty($this->authSourceConfig['sslVerifyPeer'])) {
+        if (!empty($this->authSourceConfig['sslVerifyPeer']))
+        {
             $this->pi->sslVerifyPeer = $this->authSourceConfig['sslVerifyPeer'] !== "false";
         }
-        if (!empty($this->authSourceConfig['serviceAccount'])) {
+        if (!empty($this->authSourceConfig['serviceAccount']))
+        {
             $this->pi->serviceAccountName = $this->authSourceConfig['serviceAccount'];
         }
-        if (!empty($this->authSourceConfig['servicePass'])) {
+        if (!empty($this->authSourceConfig['servicePass']))
+        {
             $this->pi->serviceAccountPass = $this->authSourceConfig['servicePass'];
         }
-        if (!empty($this->authSourceConfig['serviceRealm'])) {
+        if (!empty($this->authSourceConfig['serviceRealm']))
+        {
             $this->pi->serviceAccountRealm = $this->authSourceConfig['serviceRealm'];
         }
-        if (!empty($this->authSourceConfig['privacyideaServerURL'])) {
+        if (!empty($this->authSourceConfig['privacyideaServerURL']))
+        {
             $this->pi->logger = $this;
         }
     }

@@ -26,19 +26,24 @@ class sspmod_privacyidea_Auth_utils
 
         $state['privacyidea:privacyidea:ui']['mode'] = $formParams['mode'];
 
-        if ($formParams["modeChanged"] == "1") {
+        if ($formParams["modeChanged"] == "1")
+        {
             $state['privacyidea:privacyidea:ui']['loadCounter'] = 1;
             return null;
         }
 
-        if (empty($formParams['username'])) {
+        if (empty($formParams['username']))
+        {
 
-            if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource") {
+            if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
+            {
                 $username = $state['privacyidea:privacyidea']['username'];
-            } else {
+            } else
+            {
                 $username = $state["Attributes"][$serverConfig['uidKey']][0];
             }
-        } else {
+        } else
+        {
             $username = $formParams['username'];
         }
 
@@ -55,36 +60,46 @@ class sspmod_privacyidea_Auth_utils
         $transactionID = $state['privacyidea:privacyidea']['transactionID'];
 
         // Send a request according to the mode
-        if ($formParams['mode'] == "push") {
+        if ($formParams['mode'] == "push")
+        {
 //            SimpleSAML_Logger::info("PUSH MODE.");
 
-            if ($pi->pollTransaction($transactionID)) {
+            if ($pi->pollTransaction($transactionID))
+            {
                 $result = $pi->validateCheck($username, "", $transactionID);
-            } else {
+            } else
+            {
                 SimpleSAML_Logger::debug("privacyIDEA: PUSH not confirmed yet");
             }
 
-        } elseif ($formParams['mode'] == "u2f") {
+        } elseif ($formParams['mode'] == "u2f")
+        {
             $u2fSignResponse = $formParams['u2fSignResponse'];
 
-            if (empty($u2fSignResponse)) {
+            if (empty($u2fSignResponse))
+            {
                 SimpleSAML_Logger::error("Incomplete data for U2F authentication: u2fSignResponse is missing!");
-            } else {
+            } else
+            {
 //                SimpleSAML_Logger::info("U2F MODE.");
                 $result = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse);
             }
 
-        } elseif ($formParams['mode'] == "webauthn") {
+        } elseif ($formParams['mode'] == "webauthn")
+        {
             $origin = $formParams['origin'];
             $webAuthnSignResponse = $formParams['webAuthnSignResponse'];
 
-            if (empty($origin) || empty($webAuthnSignResponse)) {
+            if (empty($origin) || empty($webAuthnSignResponse))
+            {
                 SimpleSAML_Logger::error("Incomplete data for WebAuthn authentication: WebAuthnSignResponse or Origin is missing!");
-            } else {
+            } else
+            {
 //                SimpleSAML_Logger::info("WEBAUTHN MODE.");
                 $result = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin);
             }
-        } else {
+        } else
+        {
 //            SimpleSAML_Logger::info("OTP MODE.");
             // Call validate/check endpoint adding parameters and eventually transaction ID
             $result = $pi->validateCheck($username, $formParams["otp"], $transactionID);
@@ -108,8 +123,8 @@ class sspmod_privacyidea_Auth_utils
 
         $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
 
-        if (($result->multiChallenge) !== array()) {
-
+        if (($result->multiChallenge) !== array())
+        {
             $triggeredTokens = $result->triggeredTokenTypes();
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
@@ -117,26 +132,22 @@ class sspmod_privacyidea_Auth_utils
             $state['privacyidea:privacyidea:ui']['message'] = $result->messages;
             $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
             $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
-            if($result->triggeredTokenTypes()) {
-                $state['privacyidea:privacyidea:ui']['mode'] = "otp";
-                SimpleSAML_Logger::error("send otp mode!!");
-
-            }else {
-                $state['privacyidea:privacyidea:ui']['mode'] = "sendPass";
-                SimpleSAML_Logger::error("send pass mode"); //TODO Not here!
-            }
-
-        } elseif ($result->value) {
+        } elseif ($result->value)
+        {
             SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully!");
-            if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess") {
+
+            if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
+            {
                 SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
                 SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
             }
-        } elseif (!empty($result->errorCode)) {
+        } elseif (!empty($result->errorCode))
+        {
             SimpleSAML_Logger::error("PrivacyIDEA server: Error code: " . $result->errorCode . ", Error message: " . $result->errorMessage);
             $state['privacyidea:privacyidea']['errorCode'] = $result->errorCode;
             $state['privacyidea:privacyidea']['errorMessage'] = $result->errorMessage;
-        } else {
+        } else
+        {
             SimpleSAML_Logger::error("privacyIDEA: Wrong OTP.");
             $state['privacyidea:privacyidea']['errorMessage'] = "You have entered incorrect OTP. Please try again or use another token.";
         }
@@ -167,11 +178,14 @@ class sspmod_privacyidea_Auth_utils
         assert('array' === gettype($config));
         assert('array' === gettype($state));
 
-        if (gettype($config['uidKey']) === "array" && !empty($config['uidKey'])) {
+        if (gettype($config['uidKey']) === "array" && !empty($config['uidKey']))
+        {
 
-            foreach ($config['uidKey'] as $i) {
+            foreach ($config['uidKey'] as $i)
+            {
 
-                if (isset($state['Attributes'][$i][0])) {
+                if (isset($state['Attributes'][$i][0]))
+                {
                     $config['uidKey'] = $i;
                 }
             }
@@ -187,13 +201,17 @@ class sspmod_privacyidea_Auth_utils
      */
     public static function checkPIAbility(array $state, array $config)
     {
-        if (isset($config['enabledPath']) || isset($state['enabledPath'])) {
-            if ($config['enabledKey'] === false || $state['enabledKey'] === false) {
+        if (isset($config['enabledPath']) || isset($state['enabledPath']))
+        {
+            if ($config['enabledKey'] === false || $state['enabledKey'] === false)
+            {
                 return true;
-            } else {
+            } else
+            {
                 return false;
             }
-        } else {
+        } else
+        {
             return false;
         }
     }

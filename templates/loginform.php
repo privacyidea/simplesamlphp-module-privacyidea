@@ -1,23 +1,30 @@
 <?php
 
 // Set default scenario if isn't set
-if (!empty($this->data['authProcFilterScenario'])) {
-    if (empty($this->data['username'])) {
+if (!empty($this->data['authProcFilterScenario']))
+{
+    if (empty($this->data['username']))
+    {
         $this->data['username'] = null;
     }
-} else {
+} else
+{
     $this->data['authProcFilterScenario'] = 0;
 }
 
 // Set the right text shown in otp/pass field(s)
-if (!empty($this->data['otpFieldHint'])) {
+if (!empty($this->data['otpFieldHint']))
+{
     $otpHint = $this->data['otpFieldHint'];
-} else {
+} else
+{
     $otpHint = $this->t('{privacyidea:privacyidea:otp}');
 }
-if (!empty($this->data['passFieldHint'])) {
+if (!empty($this->data['passFieldHint']))
+{
     $passHint = $this->data['passFieldHint'];
-} else {
+} else
+{
     $passHint = $this->t('{privacyidea:privacyidea:password}');
 }
 
@@ -31,16 +38,19 @@ if ($this->data['u2fSignRequest']) {
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
 
 // Prepare next settings
-if (strlen($this->data['username']) > 0) {
+if (strlen($this->data['username']) > 0)
+{
     $this->data['autofocus'] = 'password';
-} else {
+} else
+{
     $this->data['autofocus'] = 'username';
 }
 
 $this->includeAtTemplateBase('includes/header.php');
 
 // Prepare error case to show it in UI if needed
-if ($this->data['errorCode'] !== NULL) {
+if ($this->data['errorCode'] !== NULL)
+{
     ?>
 
     <div style="border-left: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; background: #f5f5f5">
@@ -61,10 +71,13 @@ if ($this->data['errorCode'] !== NULL) {
             <div class="loginlogo"></div>
 
             <?php
-            if ($this->data['authProcFilterScenario']) {
+            if ($this->data['authProcFilterScenario'])
+            {
                 echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title_challenge}')) . '</h2>';
-            } else {
-                if ($this->data['step'] < 2) {
+            } else
+            {
+                if ($this->data['step'] < 2)
+                {
                     echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title}')) . '</h2>';
                 }
             }
@@ -76,13 +89,15 @@ if ($this->data['errorCode'] !== NULL) {
                         <div class="input-wrapper focused">
                             <div class="identifier-shown">
                                 <?php
-                                if ($this->data['forceUsername']) {
+                                if ($this->data['forceUsername'])
+                                {
                                     ?>
                                     <strong style="font-size: medium"><?php echo htmlspecialchars($this->data['username']) ?></strong>
                                     <input type="hidden" id="username" name="username"
                                            value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"/>
                                     <?php
-                                } else {
+                                } else
+                                {
                                     ?>
                                     <label for="username"></label>
                                     <input type="text" id="username" tabindex="1" name="username"
@@ -95,23 +110,30 @@ if ($this->data['errorCode'] !== NULL) {
                                 }
 
                                 // Remember username in authproc
-                                if (!$this->data['authProcFilterScenario']) {
-                                    if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
+                                if (!$this->data['authProcFilterScenario'])
+                                {
+                                    if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled'])
+                                    {
                                         $rowspan = 1;
-                                    } elseif (array_key_exists('organizations', $this->data)) {
+                                    } elseif (array_key_exists('organizations', $this->data))
+                                    {
                                         $rowspan = 3;
-                                    } else {
+                                    } else
+                                    {
                                         $rowspan = 2;
                                     }
-                                    if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled']) {
-                                        if ($this->data['rememberUsernameEnabled']) {
+                                    if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled'])
+                                    {
+                                        if ($this->data['rememberUsernameEnabled'])
+                                        {
                                             echo str_repeat("\t", 4);
                                             echo '<input type="checkbox" id="rememberUsername" tabindex="4" name="rememberUsername"
                                          value="Yes" ';
                                             echo $this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ';
                                             echo htmlspecialchars($this->t('{login:remember_username}'));
                                         }
-                                        if ($this->data['rememberMeEnabled']) {
+                                        if ($this->data['rememberMeEnabled'])
+                                        {
                                             echo str_repeat("\t", 4);
                                             echo '<input type="checkbox" id="rememberMe" tabindex="4" name="rememberMe" value="Yes" ';
                                             echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
@@ -162,44 +184,57 @@ if ($this->data['errorCode'] !== NULL) {
 
                                 <script>
                                     // Helper functions
-                                    function value(id) {
+                                    function value(id)
+                                    {
                                         const element = document.getElementById(id);
-                                        if (element != null) {
+                                        if (element != null)
+                                        {
                                             return element.value;
-                                        } else {
+                                        } else
+                                        {
                                             console.log(id + " is null!");
                                         }
                                         return "";
                                     }
 
-                                    function set(id, value) {
+                                    function set(id, value)
+                                    {
                                         const element = document.getElementById(id);
-                                        if (element != null) {
+                                        if (element != null)
+                                        {
                                             element.value = value;
-                                        } else {
+                                        } else
+                                        {
                                             console.log(id + " is null!");
                                         }
                                     }
 
-                                    function disable(id) {
+                                    function disable(id)
+                                    {
                                         const element = document.getElementById(id);
-                                        if (element != null) {
+                                        if (element != null)
+                                        {
                                             element.style.display = "none";
-                                        } else {
+                                        } else
+                                        {
                                             console.log(id + " is null!");
                                         }
                                     }
 
-                                    function enable(id) {
+                                    function enable(id)
+                                    {
                                         const element = document.getElementById(id);
-                                        if (element != null) {
+                                        if (element != null)
+                                        {
                                             element.style.display = "initial";
-                                        } else {
+                                        } else
+                                        {
                                             console.log(id + " is null!");
                                         }
                                     }
 
-                                    function changeMode(newMode) {
+                                    function changeMode(newMode)
+                                    {
                                         document.getElementById("mode").value = newMode;
                                         document.getElementById("modeChanged").value = "1";
                                         document.forms["piLoginForm"].submit();
@@ -208,7 +243,8 @@ if ($this->data['errorCode'] !== NULL) {
 
                                 <?php
                                 // If enrollToken load QR Code
-                                if (isset($this->data['tokenQR'])) {
+                                if (isset($this->data['tokenQR']))
+                                {
                                     echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
                                     ?>
                                     <div class="tokenQR">
@@ -221,7 +257,8 @@ if ($this->data['errorCode'] !== NULL) {
 
                             <?php
                             // Organizations
-                            if (array_key_exists('organizations', $this->data)) {
+                            if (array_key_exists('organizations', $this->data))
+                            {
                                 ?>
                                 <div class="identifier-shown">
                                     <?php echo htmlspecialchars($this->t('{login:organization}')); ?>
@@ -229,20 +266,26 @@ if ($this->data['errorCode'] !== NULL) {
                                         <select name="organization" tabindex="3">
 
                                             <?php
-                                            if (array_key_exists('selectedOrg', $this->data)) {
+                                            if (array_key_exists('selectedOrg', $this->data))
+                                            {
                                                 $selectedOrg = $this->data['selectedOrg'];
-                                            } else {
+                                            } else
+                                            {
                                                 $selectedOrg = NULL;
                                             }
 
-                                            foreach ($this->data['organizations'] as $orgId => $orgDesc) {
-                                                if (is_array($orgDesc)) {
+                                            foreach ($this->data['organizations'] as $orgId => $orgDesc)
+                                            {
+                                                if (is_array($orgDesc))
+                                                {
                                                     $orgDesc = $this->t($orgDesc);
                                                 }
 
-                                                if ($orgId === $selectedOrg) {
+                                                if ($orgId === $selectedOrg)
+                                                {
                                                     $selected = 'selected="selected" ';
-                                                } else {
+                                                } else
+                                                {
                                                     $selected = '';
                                                 }
 
@@ -274,7 +317,8 @@ if ($this->data['errorCode'] !== NULL) {
 
             <?php
             // Logout
-            if (isset($this->data['LogoutURL'])) { ?>
+            if (isset($this->data['LogoutURL']))
+            { ?>
                 <p>
                     <a href="<?php echo htmlspecialchars($this->data['LogoutURL']); ?>"><?php echo $this->t('{status:logout}'); ?></a>
                 </p>
@@ -283,9 +327,11 @@ if ($this->data['errorCode'] !== NULL) {
     </div>  <!-- End of container -->
 
 <?php
-if (!empty($this->data['links'])) {
+if (!empty($this->data['links']))
+{
     echo '<ul class="links" style="margin-top: 2em">';
-    foreach ($this->data['links'] as $l) {
+    foreach ($this->data['links'] as $l)
+    {
         echo '<li><a href="' . htmlspecialchars($l['href'], ENT_QUOTES) . '">' . htmlspecialchars($this->t($l['text'])) . '</a></li>';
     }
     echo '</ul>';
@@ -305,81 +351,99 @@ $this->includeAtTemplateBase('includes/footer.php');
     <script>
         const step = '<?php echo $this->data['step'] ?>';
 
-        if (step > "1") {
+        if (step > "1")
+        {
             disable("username");
             disable("password");
-        } else {
+        } else
+        {
             disable("otp");
             disable("message");
             disable("AlternateLoginOptions");
         }
 
         // Set alternate token button visibility
-        if (value("webAuthnSignRequest") === "") {
+        if (value("webAuthnSignRequest") === "")
+        {
             disable("useWebAuthnButton");
         }
 
-        if (value("u2fSignRequest") === "") {
+        if (value("u2fSignRequest") === "")
+        {
             disable("useU2FButton");
         }
 
-        if (value("pushAvailable") !== "1") {
+        if (value("pushAvailable") !== "1")
+        {
             disable("usePushButton");
         }
 
-        if (value("otpAvailable") !== "1") {
+        if (value("otpAvailable") !== "1")
+        {
             disable("useOTPButton");
         }
 
-        if (value("pushAvailable") === "0" && value("webAuthnSignRequest") === "" && value("u2fSignRequest") === "") {
+        if (value("pushAvailable") === "0" && value("webAuthnSignRequest") === "" && value("u2fSignRequest") === "")
+        {
             disable("alternateTokenDiv");
         }
 
-        if (value("mode") === "otp") {
+        if (value("mode") === "otp")
+        {
             disable("useOTPButton");
         }
 
-        if (value("mode") === "webauthn") {
+        if (value("mode") === "webauthn")
+        {
             doWebAuthn();
         }
 
-        if (value("mode") === "u2f") {
+        if (value("mode") === "u2f")
+        {
             doU2F();
         }
 
-        if (value("mode") === "push") {
+        if (value("mode") === "push")
+        {
             const pollingIntervals = [4, 3, 2, 1];
 
             disable("otp");
             disable("usePushButton");
             disable("submitButton");
 
-            if (value("loadCounter") > (pollingIntervals.length - 1)) {
+            if (value("loadCounter") > (pollingIntervals.length - 1))
+            {
                 refreshTime = pollingIntervals[(pollingIntervals.length - 1)];
-            } else {
+            } else
+            {
                 refreshTime = pollingIntervals[Number(value("loadCounter") - 1)];
             }
 
             refreshTime *= 1000;
-            setTimeout(() => {
+            setTimeout(() =>
+            {
                 document.forms["piLoginForm"].submit();
             }, refreshTime);
         }
 
-        function doWebAuthn() {
+        function doWebAuthn()
+        {
             // If mode is push, we have to change it, otherwise the site will refresh while doing webauthn
-            if (value("mode") === "push") {
+            if (value("mode") === "push")
+            {
                 changeMode("webauthn");
             }
 
-            if (!window.isSecureContext) {
+            if (!window.isSecureContext)
+            {
                 alert("Unable to proceed with Web Authn because the context is insecure!");
                 console.log("Insecure context detected: Aborting Web Authn authentication!")
                 changeMode("otp");
                 return;
             }
 
-            if (!window.pi_webauthn) {
+            if (!window.pi_webauthn)
+            {
                 alert("Could not load WebAuthn library. Please try again or use other token.");
                 changeMode("otp");
                 return;
@@ -388,35 +452,42 @@ $this->includeAtTemplateBase('includes/footer.php');
             const requestStr = value("webAuthnSignRequest");
 
             // Set origin
-            if (!window.location.origin) {
+            if (!window.location.origin)
+            {
                 window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
             }
             set("origin", window.origin);
 
-            try {
+            try
+            {
                 const requestjson = JSON.parse(requestStr);
 
                 const webAuthnSignResponse = window.pi_webauthn.sign(requestjson);
-                webAuthnSignResponse.then((webauthnresponse) => {
+                webAuthnSignResponse.then((webauthnresponse) =>
+                {
                     const response = JSON.stringify(webauthnresponse);
                     set("webAuthnSignResponse", response);
                     set("mode", "webauthn");
                     document.forms["piLoginForm"].submit();
                 });
 
-            } catch (err) {
+            } catch (err)
+            {
                 console.log("Error while signing WebAuthnSignRequest: " + err);
                 alert("Error while signing WebAuthnSignRequest: " + err);
             }
         }
 
-        function doU2F() {
+        function doU2F()
+        {
             // If mode is push, we have to change it, otherwise the site will refresh while doing webauthn
-            if (value("mode") === "push") {
+            if (value("mode") === "push")
+            {
                 changeMode("u2f");
             }
 
-            if (!window.isSecureContext) {
+            if (!window.isSecureContext)
+            {
                 alert("Unable to proceed with U2F because the context is insecure!");
                 console.log("Insecure context detected: Aborting U2F authentication!")
                 changeMode("otp");
@@ -425,22 +496,26 @@ $this->includeAtTemplateBase('includes/footer.php');
 
             const requestStr = value("u2fSignRequest");
 
-            if (requestStr === null) {
+            if (requestStr === null)
+            {
                 alert("Could not load U2F library. Please try again or use other token.");
                 changeMode("otp");
                 return;
             }
 
-            try {
+            try
+            {
                 const requestjson = JSON.parse(requestStr);
                 sign_u2f_request(requestjson);
-            } catch (err) {
+            } catch (err)
+            {
                 console.log("Error while signing U2FSignRequest: " + err);
                 alert("Error while signing U2FSignRequest: " + err);
             }
         }
 
-        function sign_u2f_request(signRequest) {
+        function sign_u2f_request(signRequest)
+        {
 
             let appId = signRequest["appId"];
             let challenge = signRequest["challenge"];
@@ -451,9 +526,11 @@ $this->includeAtTemplateBase('includes/footer.php');
                 keyHandle: signRequest["keyHandle"]
             });
 
-            u2f.sign(appId, challenge, registeredKeys, function (result) {
+            u2f.sign(appId, challenge, registeredKeys, function (result)
+            {
                 const stringResult = JSON.stringify(result);
-                if (stringResult.includes("clientData") && stringResult.includes("signatureData")) {
+                if (stringResult.includes("clientData") && stringResult.includes("signatureData"))
+                {
                     set("u2fSignResponse", stringResult);
                     set("mode", "u2f");
                     document.forms["piLoginForm"].submit();
@@ -465,7 +542,8 @@ $this->includeAtTemplateBase('includes/footer.php');
 <?php
 if (!$this->data['pushAvailable']
     && (($this->data['u2fSignRequest']) == "")
-    && (($this->data['webAuthnSignRequest']) == "")) {
+    && (($this->data['webAuthnSignRequest']) == ""))
+{
     ?>
     <script>
         document.getElementById("AlternateLoginOptions").style.display = "none";
