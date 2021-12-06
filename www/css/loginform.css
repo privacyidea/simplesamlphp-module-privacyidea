@@ -20,6 +20,10 @@
 	margin:15px;
 }
 
+#message {
+	display: block;
+}
+
 label[for=otp] {
 	font-weight: bold;
 }

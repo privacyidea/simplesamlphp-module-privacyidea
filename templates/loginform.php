@@ -150,7 +150,9 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <label for="otp" class="block" id="message"><?php echo $this->data['message'] ?></label>
+                                <strong id="message"><?php echo $this->data['message'] ?></strong>
+
+                                <label for="otp"></label>
                                 <input id="otp" name="otp" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"/>
                                 <br>
@@ -178,7 +180,7 @@ if ($this->data['errorCode'] !== NULL)
                                        value="<?php echo $this->data['loadCounter'] ?>"/>
 
                                 <!-- Additional input to persist the message -->
-                                <input id="message" type="hidden" name="message"
+                                <input type="hidden" name="message"
                                        value="<?php echo $this->data['message'] ?>"/>
 
                                 <?php
