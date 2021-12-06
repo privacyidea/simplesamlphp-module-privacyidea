@@ -242,7 +242,7 @@ if ($this->data['errorCode'] !== NULL)
                 </div> <!-- form-panel -->
 
                 <div id="AlternateLoginOptions" class="groupMargin">
-                    <h3><label>Alternate login options:</label></h3>
+                    <h3><label><?php echo $this->t('{privacyidea:privacyidea:alternate_login_options}'); ?></label></h3>
                     <!-- Alternate Login Options-->
                     <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
                     <input id="usePushButton" name="usePushButton" type="button" value="Push"/>

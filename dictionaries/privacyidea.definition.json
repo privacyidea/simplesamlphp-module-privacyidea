@@ -38,6 +38,9 @@
 	"u2fNotWorking": {
 		"en": "U2F is currently not working."
 	},
+	"alternate_login_options": {
+		"en": "Alternate login options:"
+	},
 	"tryAgain": {
 		"en": "Try Again"
 	}
