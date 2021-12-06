@@ -103,7 +103,9 @@ if ($this->data['errorCode'] !== NULL)
                                 } else
                                 {
                                     ?>
-                                    <label for="username"></label>
+                                    <label for="username" class="sr-only">
+                                        <?php echo $this->t('{login:username}'); ?>
+                                    </label>
                                     <input type="text" id="username" tabindex="1" name="username"
                                            value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"
                                            placeholder="<?php echo htmlspecialchars($this->t('{login:username}'), ENT_QUOTES) ?>"
@@ -146,13 +148,17 @@ if ($this->data['errorCode'] !== NULL)
                                 } ?>
 
                                 <!-- Pass and OTP fields -->
-                                <label for="password"></label>
+                                <label for="password" class="sr-only">
+                                    <?php echo $this->t('{privacyidea:privacyidea:password}'); ?>
+                                </label>
                                 <input id="password" name="password" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
                                 <strong id="message"><?php echo $this->data['message'] ?></strong>
 
-                                <label for="otp"></label>
+                                <label for="otp" class="sr-only">
+                                    <?php echo $this->t('{privacyidea:privacyidea:otp}'); ?>
+                                </label>
                                 <input id="otp" name="otp" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"/>
                                 <br>
@@ -203,38 +209,35 @@ if ($this->data['errorCode'] !== NULL)
                             {
                                 ?>
                                 <div class="identifier-shown">
-                                    <?php echo htmlspecialchars($this->t('{login:organization}')); ?>
-                                    <label>
-                                        <select name="organization" tabindex="3">
+                                    <label for="organization"><?php echo htmlspecialchars($this->t('{login:organization}')); ?></label>
+                                    <select id="organization" name="organization" tabindex="3">
+                                        <?php
+                                        if (array_key_exists('selectedOrg', $this->data))
+                                        {
+                                            $selectedOrg = $this->data['selectedOrg'];
+                                        } else
+                                        {
+                                            $selectedOrg = NULL;
+                                        }
 
-                                            <?php
-                                            if (array_key_exists('selectedOrg', $this->data))
+                                        foreach ($this->data['organizations'] as $orgId => $orgDesc)
+                                        {
+                                            if (is_array($orgDesc))
                                             {
-                                                $selectedOrg = $this->data['selectedOrg'];
-                                            } else
-                                            {
-                                                $selectedOrg = NULL;
+                                                $orgDesc = $this->t($orgDesc);
                                             }
 
-                                            foreach ($this->data['organizations'] as $orgId => $orgDesc)
+                                            if ($orgId === $selectedOrg)
                                             {
-                                                if (is_array($orgDesc))
-                                                {
-                                                    $orgDesc = $this->t($orgDesc);
-                                                }
+                                                $selected = 'selected="selected" ';
+                                            } else
+                                            {
+                                                $selected = '';
+                                            }
 
-                                                if ($orgId === $selectedOrg)
-                                                {
-                                                    $selected = 'selected="selected" ';
-                                                } else
-                                                {
-                                                    $selected = '';
-                                                }
-
-                                                echo '<option ' . $selected . 'value="' . htmlspecialchars($orgId, ENT_QUOTES) . '">' . htmlspecialchars($orgDesc) . '</option>';
-                                            } ?>
-                                        </select>
-                                    </label>
+                                            echo '<option ' . $selected . 'value="' . htmlspecialchars($orgId, ENT_QUOTES) . '">' . htmlspecialchars($orgDesc) . '</option>';
+                                        } ?>
+                                    </select>
                                 </div>
                             <?php } ?>
                         </div> <!-- focused -->
@@ -242,7 +245,7 @@ if ($this->data['errorCode'] !== NULL)
                 </div> <!-- form-panel -->
 
                 <div id="AlternateLoginOptions" class="groupMargin">
-                    <h3><label><?php echo $this->t('{privacyidea:privacyidea:alternate_login_options}'); ?></label></h3>
+                    <h3><?php echo $this->t('{privacyidea:privacyidea:alternate_login_options}'); ?></h3>
                     <!-- Alternate Login Options-->
                     <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
                     <input id="usePushButton" name="usePushButton" type="button" value="Push"/>
