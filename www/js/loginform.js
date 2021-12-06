@@ -29,7 +29,7 @@ function disable(id)
     const element = document.getElementById(id);
     if (element != null)
     {
-        element.style.display = "none";
+        element.classList.add("hidden");
     } else
     {
         console.log(id + " is null!");
@@ -41,7 +41,7 @@ function enable(id)
     const element = document.getElementById(id);
     if (element != null)
     {
-        element.style.display = "initial";
+        element.classList.remove("hidden");
     } else
     {
         console.log(id + " is null!");
@@ -245,7 +245,7 @@ function sign_u2f_request(signRequest)
 }
 
 if (document.getElementById("privacyidea-hide-alternate").content == "true") {
-    document.getElementById("AlternateLoginOptions").style.display = "none";
+    document.getElementById("AlternateLoginOptions").classList.add("hidden");
 }
 
 document.addEventListener("DOMContentLoaded", (event) => {

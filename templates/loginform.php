@@ -46,6 +46,10 @@ if (strlen($this->data['username']) > 0)
     $this->data['autofocus'] = 'username';
 }
 
+$this->data['head'] .= '<link rel="stylesheet" href="'
+    . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/css/loginform.css'), ENT_QUOTES)
+    . '" media="screen" />';
+
 $this->includeAtTemplateBase('includes/header.php');
 
 // Prepare error case to show it in UI if needed
@@ -53,9 +57,9 @@ if ($this->data['errorCode'] !== NULL)
 {
     ?>
 
-    <div style="border-left: 1px solid #e8e8e8; border-bottom: 1px solid #e8e8e8; background: #f5f5f5">
+    <div class="error-dialog">
         <img src="/<?php echo htmlspecialchars($this->data['baseurlpath'], ENT_QUOTES); ?>resources/icons/experience/gtk-dialog-error.48x48.png"
-             class="float-l erroricon" style="margin: 15px " alt="gtk-dialog-error"/>
+             class="float-l erroricon" alt="gtk-dialog-error"/>
         <h2><?php echo $this->t('{login:error_header}'); ?></h2>
         <p>
             <strong><?php echo htmlspecialchars("Error " . $this->data['errorCode'] . ": " . $this->data['errorMessage']); ?></strong>
@@ -92,7 +96,7 @@ if ($this->data['errorCode'] !== NULL)
                                 if ($this->data['forceUsername'])
                                 {
                                     ?>
-                                    <strong style="font-size: medium"><?php echo htmlspecialchars($this->data['username']) ?></strong>
+                                    <h3><?php echo htmlspecialchars($this->data['username']) ?></h3>
                                     <input type="hidden" id="username" name="username"
                                            value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"/>
                                     <?php
@@ -101,7 +105,6 @@ if ($this->data['errorCode'] !== NULL)
                                     ?>
                                     <label for="username"></label>
                                     <input type="text" id="username" tabindex="1" name="username"
-                                           style="width:322px; margin:25px 15px 15px"
                                            value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"
                                            placeholder="<?php echo htmlspecialchars($this->t('{login:username}'), ENT_QUOTES) ?>"
                                     />
@@ -145,18 +148,14 @@ if ($this->data['errorCode'] !== NULL)
                                 <!-- Pass and OTP fields -->
                                 <label for="password"></label>
                                 <input id="password" name="password" tabindex="1" type="password" value="" class="text"
-                                       placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"
-                                       style="width:322px; margin:15px"/>
+                                       placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <label for="otp" class="block"><strong
-                                            id="message"><?php echo $this->data['message'] ?></strong></label>
-                                <br>
+                                <label for="otp" class="block" id="message"><?php echo $this->data['message'] ?></label>
                                 <input id="otp" name="otp" tabindex="1" type="password" value="" class="text"
-                                       placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"
-                                       style="width:322px; margin: 25px 15px 7px"/>
+                                       placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"/>
                                 <br>
                                 <input id="submitButton" tabindex="1" class="rc-button rc-button-submit" type="submit"
-                                       name="Submit" style="width:210px; margin:0 15px 7px"
+                                       name="Submit"
                                        value="<?php echo htmlspecialchars($this->t('{login:login_button}'), ENT_QUOTES) ?>"/>
 
                                 <!-- Hidden input which store the info about changes for future use in backend-->
@@ -240,20 +239,14 @@ if ($this->data['errorCode'] !== NULL)
                     </div> <!-- slide-out-->
                 </div> <!-- form-panel -->
 
-                <div id="AlternateLoginOptions" style="margin-top:35px" class="groupMargin">
-                    <label><strong>Alternate login options:</strong></label>
-                    <br>
+                <div id="AlternateLoginOptions" class="groupMargin">
+                    <h3><label>Alternate login options:</label></h3>
                     <!-- Alternate Login Options-->
-                    <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"
-                           style="width:140px; margin:15px 10px 7px"/>
-                    <input id="usePushButton" name="usePushButton" type="button" value="Push"
-                           style="width:140px; margin:15px 10px 7px"/>
-                    <input id="useOTPButton" name="useOTPButton" style="width:140px; margin:15px 15px 7px" type="button"
-                           value="OTP"/>
-                    <input id="useU2FButton" name="useU2FButton" type="button" value="U2F"
-                           style="width:140px; margin:15px 10px 7px"/>
+                    <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
+                    <input id="usePushButton" name="usePushButton" type="button" value="Push"/>
+                    <input id="useOTPButton" name="useOTPButton" type="button" value="OTP"/>
+                    <input id="useU2FButton" name="useU2FButton" type="button" value="U2F"/>
                 </div>
-                <br><br>
             </form>
 
             <?php
@@ -270,7 +263,7 @@ if ($this->data['errorCode'] !== NULL)
 <?php
 if (!empty($this->data['links']))
 {
-    echo '<ul class="links" style="margin-top: 2em">';
+    echo '<ul class="links">';
     foreach ($this->data['links'] as $l)
     {
         echo '<li><a href="' . htmlspecialchars($l['href'], ENT_QUOTES) . '">' . htmlspecialchars($this->t($l['text'])) . '</a></li>';
