@@ -272,8 +272,6 @@ if (!empty($this->data['links']))
     }
     echo '</ul>';
 }
-
-$this->includeAtTemplateBase('includes/footer.php');
 ?>
 
     <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/webauthn.js'), ENT_QUOTES) ?>">
@@ -289,5 +287,21 @@ $this->includeAtTemplateBase('includes/footer.php');
         && (($this->data['webAuthnSignRequest']) == "")
     ) ? 'true' : 'false'; ?>">
 
+    <meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
+    $translations = [];
+    $translation_keys = [
+        'alert_webauthn_insecure_context', 'alert_webauthn_unavailable', 'alert_webAuthnSignRequest_error',
+        'alert_u2f_insecure_context', 'alert_u2f_unavailable', 'alert_U2FSignRequest_error',
+    ];
+    foreach ($translation_keys as $translation_key) {
+        $translations[$translation_key] = $this->t(sprintf('{privacyidea:privacyidea:%s}', $translation_key));
+    }
+    echo htmlspecialchars(json_encode($translations));
+    ?>">
+
     <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/loginform.js'), ENT_QUOTES) ?>">
     </script>
+
+<?php
+$this->includeAtTemplateBase('includes/footer.php');
+?>

@@ -41,6 +41,24 @@
 	"alternate_login_options": {
 		"en": "Alternate login options:"
 	},
+	"alert_webauthn_insecure_context": {
+		"en": "Unable to proceed with Web Authn because the context is insecure!"
+	},
+	"alert_webauthn_unavailable": {
+		"en": "Could not load WebAuthn library. Please try again or use other token."
+	},
+	"alert_webAuthnSignRequest_error": {
+		"en": "Error while signing WebAuthnSignRequest:"
+	},
+	"alert_u2f_insecure_context": {
+		"en": "Unable to proceed with U2F because the context is insecure!"
+	},
+	"alert_u2f_unavailable": {
+		"en": "Could not load U2F library. Please try again or use other token."
+	},
+	"alert_U2FSignRequest_error": {
+		"en": "Error while signing U2FSignRequest:"
+	},
 	"tryAgain": {
 		"en": "Try Again"
 	}

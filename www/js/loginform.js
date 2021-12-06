@@ -55,6 +55,10 @@ function changeMode(newMode)
     document.forms["piLoginForm"].submit();
 }
 
+function t(key) {
+    return JSON.parse(document.getElementById("privacyidea-translations").content)[key];
+}
+
 const step = document.getElementById("privacyidea-step").content;
 
 if (step > "1")
@@ -142,7 +146,7 @@ function doWebAuthn()
 
     if (!window.isSecureContext)
     {
-        alert("Unable to proceed with Web Authn because the context is insecure!");
+        alert(t("alert_webauthn_insecure_context"));
         console.log("Insecure context detected: Aborting Web Authn authentication!")
         changeMode("otp");
         return;
@@ -150,7 +154,7 @@ function doWebAuthn()
 
     if (!window.pi_webauthn)
     {
-        alert("Could not load WebAuthn library. Please try again or use other token.");
+        alert(t("alert_webauthn_unavailable"));
         changeMode("otp");
         return;
     }
@@ -180,7 +184,7 @@ function doWebAuthn()
     } catch (err)
     {
         console.log("Error while signing WebAuthnSignRequest: " + err);
-        alert("Error while signing WebAuthnSignRequest: " + err);
+        alert(t("alert_webAuthnSignRequest_error") + " " + err);
     }
 }
 
@@ -194,7 +198,7 @@ function doU2F()
 
     if (!window.isSecureContext)
     {
-        alert("Unable to proceed with U2F because the context is insecure!");
+        alert(t("alert_u2f_insecure_context"));
         console.log("Insecure context detected: Aborting U2F authentication!")
         changeMode("otp");
         return;
@@ -204,7 +208,7 @@ function doU2F()
 
     if (requestStr === null)
     {
-        alert("Could not load U2F library. Please try again or use other token.");
+        alert(t("alert_u2f_unavailable"));
         changeMode("otp");
         return;
     }
@@ -216,7 +220,7 @@ function doU2F()
     } catch (err)
     {
         console.log("Error while signing U2FSignRequest: " + err);
-        alert("Error while signing U2FSignRequest: " + err);
+        alert(t("alert_U2FSignRequest_error") + " " + err);
     }
 }
 
