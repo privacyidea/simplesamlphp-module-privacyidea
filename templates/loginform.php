@@ -182,65 +182,6 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="message" type="hidden" name="message"
                                        value="<?php echo $this->data['message'] ?>"/>
 
-                                <script>
-                                    // Helper functions
-                                    function value(id)
-                                    {
-                                        const element = document.getElementById(id);
-                                        if (element != null)
-                                        {
-                                            return element.value;
-                                        } else
-                                        {
-                                            console.log(id + " is null!");
-                                        }
-                                        return "";
-                                    }
-
-                                    function set(id, value)
-                                    {
-                                        const element = document.getElementById(id);
-                                        if (element != null)
-                                        {
-                                            element.value = value;
-                                        } else
-                                        {
-                                            console.log(id + " is null!");
-                                        }
-                                    }
-
-                                    function disable(id)
-                                    {
-                                        const element = document.getElementById(id);
-                                        if (element != null)
-                                        {
-                                            element.style.display = "none";
-                                        } else
-                                        {
-                                            console.log(id + " is null!");
-                                        }
-                                    }
-
-                                    function enable(id)
-                                    {
-                                        const element = document.getElementById(id);
-                                        if (element != null)
-                                        {
-                                            element.style.display = "initial";
-                                        } else
-                                        {
-                                            console.log(id + " is null!");
-                                        }
-                                    }
-
-                                    function changeMode(newMode)
-                                    {
-                                        document.getElementById("mode").value = newMode;
-                                        document.getElementById("modeChanged").value = "1";
-                                        document.forms["piLoginForm"].submit();
-                                    }
-                                </script>
-
                                 <?php
                                 // If enrollToken load QR Code
                                 if (isset($this->data['tokenQR']))
@@ -304,12 +245,12 @@ if ($this->data['errorCode'] !== NULL)
                     <br>
                     <!-- Alternate Login Options-->
                     <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"
-                           onclick="doWebAuthn()" style="width:140px; margin:15px 10px 7px"/>
+                           style="width:140px; margin:15px 10px 7px"/>
                     <input id="usePushButton" name="usePushButton" type="button" value="Push"
-                           onclick="changeMode('push')" style="width:140px; margin:15px 10px 7px"/>
+                           style="width:140px; margin:15px 10px 7px"/>
                     <input id="useOTPButton" name="useOTPButton" style="width:140px; margin:15px 15px 7px" type="button"
-                           value="OTP" onclick="changeMode('otp')"/>
-                    <input id="useU2FButton" name="useU2FButton" type="button" value="U2F" onclick="doU2F()"
+                           value="OTP"/>
+                    <input id="useU2FButton" name="useU2FButton" type="button" value="U2F"
                            style="width:140px; margin:15px 10px 7px"/>
                 </div>
                 <br><br>
@@ -346,206 +287,12 @@ $this->includeAtTemplateBase('includes/footer.php');
     <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) ?>">
     </script>
 
-    <!--We need to open a new script tag up here-->
+    <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
+    <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="<?php echo (
+        !$this->data['pushAvailable']
+        && (($this->data['u2fSignRequest']) == "")
+        && (($this->data['webAuthnSignRequest']) == "")
+    ) ? 'true' : 'false'; ?>">
 
-    <script>
-        const step = '<?php echo $this->data['step'] ?>';
-
-        if (step > "1")
-        {
-            disable("username");
-            disable("password");
-        } else
-        {
-            disable("otp");
-            disable("message");
-            disable("AlternateLoginOptions");
-        }
-
-        // Set alternate token button visibility
-        if (value("webAuthnSignRequest") === "")
-        {
-            disable("useWebAuthnButton");
-        }
-
-        if (value("u2fSignRequest") === "")
-        {
-            disable("useU2FButton");
-        }
-
-        if (value("pushAvailable") !== "1")
-        {
-            disable("usePushButton");
-        }
-
-        if (value("otpAvailable") !== "1")
-        {
-            disable("useOTPButton");
-        }
-
-        if (value("pushAvailable") === "0" && value("webAuthnSignRequest") === "" && value("u2fSignRequest") === "")
-        {
-            disable("alternateTokenDiv");
-        }
-
-        if (value("mode") === "otp")
-        {
-            disable("useOTPButton");
-        }
-
-        if (value("mode") === "webauthn")
-        {
-            doWebAuthn();
-        }
-
-        if (value("mode") === "u2f")
-        {
-            doU2F();
-        }
-
-        if (value("mode") === "push")
-        {
-            const pollingIntervals = [4, 3, 2, 1];
-
-            disable("otp");
-            disable("usePushButton");
-            disable("submitButton");
-
-            if (value("loadCounter") > (pollingIntervals.length - 1))
-            {
-                refreshTime = pollingIntervals[(pollingIntervals.length - 1)];
-            } else
-            {
-                refreshTime = pollingIntervals[Number(value("loadCounter") - 1)];
-            }
-
-            refreshTime *= 1000;
-            setTimeout(() =>
-            {
-                document.forms["piLoginForm"].submit();
-            }, refreshTime);
-        }
-
-        function doWebAuthn()
-        {
-            // If mode is push, we have to change it, otherwise the site will refresh while doing webauthn
-            if (value("mode") === "push")
-            {
-                changeMode("webauthn");
-            }
-
-            if (!window.isSecureContext)
-            {
-                alert("Unable to proceed with Web Authn because the context is insecure!");
-                console.log("Insecure context detected: Aborting Web Authn authentication!")
-                changeMode("otp");
-                return;
-            }
-
-            if (!window.pi_webauthn)
-            {
-                alert("Could not load WebAuthn library. Please try again or use other token.");
-                changeMode("otp");
-                return;
-            }
-
-            const requestStr = value("webAuthnSignRequest");
-
-            // Set origin
-            if (!window.location.origin)
-            {
-                window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-            }
-            set("origin", window.origin);
-
-            try
-            {
-                const requestjson = JSON.parse(requestStr);
-
-                const webAuthnSignResponse = window.pi_webauthn.sign(requestjson);
-                webAuthnSignResponse.then((webauthnresponse) =>
-                {
-                    const response = JSON.stringify(webauthnresponse);
-                    set("webAuthnSignResponse", response);
-                    set("mode", "webauthn");
-                    document.forms["piLoginForm"].submit();
-                });
-
-            } catch (err)
-            {
-                console.log("Error while signing WebAuthnSignRequest: " + err);
-                alert("Error while signing WebAuthnSignRequest: " + err);
-            }
-        }
-
-        function doU2F()
-        {
-            // If mode is push, we have to change it, otherwise the site will refresh while doing webauthn
-            if (value("mode") === "push")
-            {
-                changeMode("u2f");
-            }
-
-            if (!window.isSecureContext)
-            {
-                alert("Unable to proceed with U2F because the context is insecure!");
-                console.log("Insecure context detected: Aborting U2F authentication!")
-                changeMode("otp");
-                return;
-            }
-
-            const requestStr = value("u2fSignRequest");
-
-            if (requestStr === null)
-            {
-                alert("Could not load U2F library. Please try again or use other token.");
-                changeMode("otp");
-                return;
-            }
-
-            try
-            {
-                const requestjson = JSON.parse(requestStr);
-                sign_u2f_request(requestjson);
-            } catch (err)
-            {
-                console.log("Error while signing U2FSignRequest: " + err);
-                alert("Error while signing U2FSignRequest: " + err);
-            }
-        }
-
-        function sign_u2f_request(signRequest)
-        {
-
-            let appId = signRequest["appId"];
-            let challenge = signRequest["challenge"];
-            let registeredKeys = [];
-
-            registeredKeys.push({
-                version: "U2F_V2",
-                keyHandle: signRequest["keyHandle"]
-            });
-
-            u2f.sign(appId, challenge, registeredKeys, function (result)
-            {
-                const stringResult = JSON.stringify(result);
-                if (stringResult.includes("clientData") && stringResult.includes("signatureData"))
-                {
-                    set("u2fSignResponse", stringResult);
-                    set("mode", "u2f");
-                    document.forms["piLoginForm"].submit();
-                }
-            })
-        }
+    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/loginform.js'), ENT_QUOTES) ?>">
     </script>
-
-<?php
-if (!$this->data['pushAvailable']
-    && (($this->data['u2fSignRequest']) == "")
-    && (($this->data['webAuthnSignRequest']) == ""))
-{
-    ?>
-    <script>
-        document.getElementById("AlternateLoginOptions").style.display = "none";
-    </script>
-<?php } ?>
