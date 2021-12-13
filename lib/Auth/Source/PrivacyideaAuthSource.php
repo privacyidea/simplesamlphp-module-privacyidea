@@ -1,7 +1,14 @@
 <?php
 
+namespace SimpleSAML\Module\privacyidea\Auth\Source;
+
 use PrivacyIdea\PHPClient\PILog;
 use PrivacyIdea\PHPClient\PrivacyIDEA;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\Module\core\Auth\UserPassBase;
+use SimpleSAML\Utils\HTTP;
 
 const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
 
@@ -40,7 +47,7 @@ const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mob
  * which is based on Radius.php
  *
  */
-class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_Auth_UserPassBase implements PILog
+class PrivacyideaAuthSource extends UserPassBase implements PILog
 {
     /* @var array The serverconfig is listed in this array */
     public $authSourceConfig;
@@ -114,11 +121,11 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
     public function authenticate(&$state)
     {
         assert('array' === gettype($state));
-        SimpleSAML_Logger::debug("privacyIDEA AUTH SOURCE authenticate...");
+        Logger::debug("privacyIDEA AUTH SOURCE authenticate...");
 
         // We are going to need the authID in order to retrieve this authentication source later.
         $state['privacyidea:privacyidea']['AuthId'] = self::getAuthId();
-        SimpleSAML_Logger::debug("privacyIDEA AUTH SOURCE stateID: " . $state['privacyidea:privacyidea']['AuthId']);
+        Logger::debug("privacyIDEA AUTH SOURCE stateID: " . $state['privacyidea:privacyidea']['AuthId']);
         $state['privacyidea:privacyidea']['transactionID'] = "";
         $state['privacyidea:privacyidea']['authenticationMethod'] = "authsource";
 
@@ -133,21 +140,21 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         $state['privacyidea:privacyidea:ui']['passFieldHint'] = @$this->authSourceConfig['passFieldHint'] ?: "";
         $state['privacyidea:privacyidea:ui']['loadCounter'] = "1";
 
-        $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-        SimpleSAML_Logger::debug("Saved state privacyidea:privacyidea from Source/privacyidea.php");
+        $stateID = State::saveState($state, 'privacyidea:privacyidea');
+        Logger::debug("Saved state privacyidea:privacyidea from Source/privacyidea.php");
 
-        $url = SimpleSAML_Module::getModuleURL('privacyidea/formbuilder.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $stateID));
+        $url = Module::getModuleURL('privacyidea/formbuilder.php');
+        HTTP::redirectTrustedURL($url, array('StateId' => $stateID));
     }
 
     public function piDebug($message)
     {
-        SimpleSAML_Logger::debug("PrivacyIDEA AUTHSOURCE: " . $message);
+        Logger::debug("PrivacyIDEA AUTHSOURCE: " . $message);
     }
 
     public function piError($message)
     {
-        SimpleSAML_Logger::error("PrivacyIDEA AUTHSOURCE: " . $message);
+        Logger::error("PrivacyIDEA AUTHSOURCE: " . $message);
     }
 
     /**
@@ -160,7 +167,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
     protected function login($username, $password)
     {
         // Stub.
-        SimpleSAML_Logger::debug("privacyIDEA AUTHSOURCE LOGIN");
+        Logger::debug("privacyIDEA AUTHSOURCE LOGIN");
         return;
     }
 }

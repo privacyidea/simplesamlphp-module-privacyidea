@@ -1,5 +1,7 @@
 <?php
 
+use SimpleSAML\Module;
+
 // Set default scenario if isn't set
 if (!empty($this->data['authProcFilterScenario']))
 {
@@ -32,7 +34,7 @@ if (!empty($this->data['passFieldHint']))
 /*$head = '';
 if ($this->data['u2fSignRequest']) {
     // Add javascript for U2F support before including the header.
-    $head .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
+    $head .= '<script type="text/javascript" src="' . htmlspecialchars(Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
 }*/
 
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
@@ -47,7 +49,7 @@ if (strlen($this->data['username']) > 0)
 }
 
 $this->data['head'] .= '<link rel="stylesheet" href="'
-    . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/css/loginform.css'), ENT_QUOTES)
+    . htmlspecialchars(Module::getModuleUrl('privacyidea/css/loginform.css'), ENT_QUOTES)
     . '" media="screen" />';
 
 $this->includeAtTemplateBase('includes/header.php');
@@ -286,10 +288,10 @@ if (!empty($this->data['links']))
 }
 ?>
 
-    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/webauthn-client/pi-webauthn.js'), ENT_QUOTES) ?>">
+    <script src="<?php echo htmlspecialchars(Module::getModuleUrl('privacyidea/js/webauthn-client/pi-webauthn.js'), ENT_QUOTES) ?>">
     </script>
 
-    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) ?>">
+    <script src="<?php echo htmlspecialchars(Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) ?>">
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
@@ -311,7 +313,7 @@ if (!empty($this->data['links']))
     echo htmlspecialchars(json_encode($translations));
     ?>">
 
-    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/loginform.js'), ENT_QUOTES) ?>">
+    <script src="<?php echo htmlspecialchars(Module::getModuleUrl('privacyidea/js/loginform.js'), ENT_QUOTES) ?>">
     </script>
 
 <?php

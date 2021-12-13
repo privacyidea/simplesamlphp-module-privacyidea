@@ -1,9 +1,15 @@
 <?php
 
+namespace SimpleSAML\Module\privacyidea\Auth;
+
 use PrivacyIdea\PHPClient\PIResponse;
 use PrivacyIdea\PHPClient\PrivacyIDEA;
+use SimpleSAML\Auth\ProcessingChain;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Error\Exception;
+use SimpleSAML\Logger;
 
-class sspmod_privacyidea_Auth_utils
+class utils
 {
     /**
      * Perform 2FA authentication given the current state and an OTP from a token managed by privacyIDEA
@@ -21,9 +27,9 @@ class sspmod_privacyidea_Auth_utils
         assert('array' === gettype($formParams));
         assert('array' === gettype($serverConfig));
 
-        SimpleSAML_Logger::debug("utils::authenticatePI...");
-        SimpleSAML_Logger::debug("Form data: " . http_build_query($formParams, '', ', '));
-        SimpleSAML_Logger::debug("Server config: " . http_build_query($serverConfig, '', ', '));
+        Logger::debug("utils::authenticatePI...");
+        Logger::debug("Form data: " . http_build_query($formParams, '', ', '));
+        Logger::debug("Server config: " . http_build_query($serverConfig, '', ', '));
 
         $state['privacyidea:privacyidea:ui']['mode'] = $formParams['mode'];
 
@@ -65,7 +71,7 @@ class sspmod_privacyidea_Auth_utils
         // Send a request according to the mode
         if ($formParams['mode'] == "push")
         {
-//            SimpleSAML_Logger::info("PUSH MODE.");
+//            Logger::info("PUSH MODE.");
 
             if ($pi->pollTransaction($transactionID))
             {
@@ -73,7 +79,7 @@ class sspmod_privacyidea_Auth_utils
             }
             else
             {
-                SimpleSAML_Logger::debug("privacyIDEA: PUSH not confirmed yet");
+                Logger::debug("privacyIDEA: PUSH not confirmed yet");
             }
 
         }
@@ -83,11 +89,11 @@ class sspmod_privacyidea_Auth_utils
 
             if (empty($u2fSignResponse))
             {
-                SimpleSAML_Logger::error("Incomplete data for U2F authentication: u2fSignResponse is missing!");
+                Logger::error("Incomplete data for U2F authentication: u2fSignResponse is missing!");
             }
             else
             {
-//                SimpleSAML_Logger::info("U2F MODE.");
+//                Logger::info("U2F MODE.");
                 $result = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse);
             }
 
@@ -99,17 +105,17 @@ class sspmod_privacyidea_Auth_utils
 
             if (empty($origin) || empty($webAuthnSignResponse))
             {
-                SimpleSAML_Logger::error("Incomplete data for WebAuthn authentication: WebAuthnSignResponse or Origin is missing!");
+                Logger::error("Incomplete data for WebAuthn authentication: WebAuthnSignResponse or Origin is missing!");
             }
             else
             {
-//                SimpleSAML_Logger::info("WEBAUTHN MODE.");
+//                Logger::info("WEBAUTHN MODE.");
                 $result = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin);
             }
         }
         else
         {
-//            SimpleSAML_Logger::info("OTP MODE.");
+//            Logger::info("OTP MODE.");
             // Call validate/check endpoint adding parameters and eventually transaction ID
             $result = $pi->validateCheck($username, $formParams["otp"], $transactionID);
         }
@@ -130,7 +136,7 @@ class sspmod_privacyidea_Auth_utils
     {
         assert('string' === gettype($stateID));
 
-        $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
+        $state = State::loadState($stateID, 'privacyidea:privacyidea');
 
         if (($result->multiChallenge) !== array())
         {
@@ -144,26 +150,26 @@ class sspmod_privacyidea_Auth_utils
         }
         elseif ($result->value)
         {
-            SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully!");
+            Logger::debug("privacyIDEA: User authenticated successfully!");
 
             if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
             {
-                SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+                State::saveState($state, 'privacyidea:privacyidea');
+                ProcessingChain::resumeProcessing($state);
             }
         }
         elseif (!empty($result->errorCode))
         {
-            SimpleSAML_Logger::error("PrivacyIDEA server: Error code: " . $result->errorCode . ", Error message: " . $result->errorMessage);
+            Logger::error("PrivacyIDEA server: Error code: " . $result->errorCode . ", Error message: " . $result->errorMessage);
             $state['privacyidea:privacyidea']['errorCode'] = $result->errorCode;
             $state['privacyidea:privacyidea']['errorMessage'] = $result->errorMessage;
         }
         else
         {
-            SimpleSAML_Logger::error("privacyIDEA: Wrong OTP.");
+            Logger::error("privacyIDEA: Wrong OTP.");
             $state['privacyidea:privacyidea']['errorMessage'] = "You have entered incorrect OTP. Please try again or use another token.";
         }
-        return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+        return State::saveState($state, 'privacyidea:privacyidea');
     }
 
     /**
@@ -173,7 +179,7 @@ class sspmod_privacyidea_Auth_utils
     public static function getClientIP()
     {
         $result = @$_SERVER['HTTP_X_FORWARDED_FOR'] ?: @$_SERVER['REMOTE_ADDR'] ?: @$_SERVER['HTTP_CLIENT_IP'];
-        SimpleSAML_Logger::debug('privacyIDEA: client ip: ' . $result);
+        Logger::debug('privacyIDEA: client ip: ' . $result);
         return $result;
     }
 

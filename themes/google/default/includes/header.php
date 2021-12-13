@@ -1,5 +1,6 @@
 <?php
 
+use SimpleSAML\Module;
 
 /**
  * Support the htmlinject hook, which allows modules to change header, pre and post body on all pages.
@@ -23,7 +24,7 @@ if (array_key_exists('pageid', $this->data)) {
         'page' => $this->data['pageid']
     );
 
-    SimpleSAML_Module::callHooks('htmlinject', $hookinfo);
+    Module::callHooks('htmlinject', $hookinfo);
 }
 
 // - o - o - o - o - o - o - o - o - o - o - o - o -

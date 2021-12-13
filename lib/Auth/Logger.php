@@ -1,5 +1,9 @@
 <?php
 
+namespace SimpleSAML\Module\privacyidea\Auth;
+
+use SimpleSAML\Logger;
+
 class Logger implements PILog
 {
     /**
@@ -8,7 +12,7 @@ class Logger implements PILog
      */
     public function piDebug($message)
     {
-        SimpleSAML_Logger::debug($message);
+        Logger::debug($message);
     }
 
     /**
@@ -17,6 +21,6 @@ class Logger implements PILog
      */
     public function piError($message)
     {
-        SimpleSAML_Logger::error($message);
+        Logger::error($message);
     }
 }

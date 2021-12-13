@@ -1,8 +1,18 @@
 <?php
 
+namespace SimpleSAML\Module\privacyidea\Auth\Process;
+
 use PrivacyIdea\PHPClient\PIBadRequestException;
 use PrivacyIdea\PHPClient\PILog;
 use PrivacyIdea\PHPClient\PrivacyIDEA;
+use SimpleSAML\Auth\ProcessingFilter;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Error\BadRequest;
+use SimpleSAML\Error\Exception;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\Module\privacyidea\Auth\utils;
+use SimpleSAML\Utils\HTTP;
 
 /**
  * This authentication processing filter allows you to add a second step
@@ -12,7 +22,7 @@ use PrivacyIdea\PHPClient\PrivacyIDEA;
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
  * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
-class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter implements PILog
+class PrivacyideaAuthProc extends ProcessingFilter implements PILog
 {
     /* @var array This contains the authproc configuration which is set in metadata */
     private $authProcConfig;
@@ -60,7 +70,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             }
         } else
         {
-            SimpleSAML_Logger::error("privacyIDEA: privacyIDEA server url is not set in class: privacyidea:privacyidea in metadata.");
+           Logger::error("privacyIDEA: privacyIDEA server url is not set in class: privacyidea:privacyidea in metadata.");
         }
     }
 
@@ -71,7 +81,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
      */
     public function process(&$state)
     {
-        SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: Entering process function.");
+        Logger::info("privacyIDEA Auth Proc Filter: Entering process function.");
         assert('array' === gettype($state));
 
         // Update state before starting the authentication process
@@ -81,26 +91,26 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         // It can be used to configure that a user does not need to provide a second factor when logging in from the local network.
         if (!empty($this->authProcConfig['excludeClientIPs']))
         {
-            $state['privacyIDEA']['enabled'][0] = $this->matchIP(sspmod_privacyidea_Auth_utils::getClientIP(), $this->authProcConfig['excludeClientIPs']);
+            $state['privacyIDEA']['enabled'][0] = $this->matchIP(utils::getClientIP(), $this->authProcConfig['excludeClientIPs']);
         }
 
         // If set to "true" in config, selectively disable the privacyIDEA authentication using the entityID and/or SAML attributes.
         if (!empty($this->authProcConfig['checkEntityID']) && $this->authProcConfig['checkEntityID'] === 'true')
         {
-            $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+            $stateID = State::saveState($state, 'privacyidea:privacyidea');
             $stateID = $this->checkEntityID($this->authProcConfig, $stateID);
-            $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
+            $state = State::loadState($stateID, 'privacyidea:privacyidea');
         }
 
         // Check if privacyIDEA is disabled by a filter
-        if (sspmod_privacyidea_Auth_utils::checkPIAbility($state, $this->authProcConfig) === true)
+        if (utils::checkPIAbility($state, $this->authProcConfig) === true)
         {
-            SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is disabled by a filter");
+            Logger::debug("privacyIDEA: privacyIDEA is disabled by a filter");
             return;
         }
 
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
-        $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+        $stateID = State::saveState($state, 'privacyidea:privacyidea');
 
         // Check if it should be controlled that user has no tokens and a new token should be enrolled.
         if (!empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
@@ -111,15 +121,15 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         // Check if all the challenges should be triggered at once and if possible, do it
         if (!empty($this->authProcConfig['doTriggerChallenge']) && $this->authProcConfig['doTriggerChallenge'] === 'true')
         {
-            $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+            $stateID = State::saveState($state, 'privacyidea:privacyidea');
             if (!$this->pi->serviceAccountAvailable())
             {
-                SimpleSAML_Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
+                Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
             } else
             {
                 //try {
                 $response = $this->pi->triggerChallenge($username);
-                $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response);
+                $stateID = utils::processPIResponse($stateID, $response);
                 //} catch (PIBadRequestException $e) {
                 // show some text in ui "Authentication server unreachable."
 
@@ -128,7 +138,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         } elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
 
-            $response = sspmod_privacyidea_Auth_utils::authenticatePI($state,
+            $response = utils::authenticatePI($state,
                                                                       array('pass' => $this->authProcConfig['tryFirstAuthPass']),
                                                                       $this->authProcConfig);
 
@@ -138,17 +148,17 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             }
         }
 
-        $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
+        $state = State::loadState($stateID, 'privacyidea:privacyidea');
 
         // Procfilters work already done. Save the state and go to formbuilder.php to authenticate
         // Set authprocess as authentication method and save the state
         $state['privacyidea:privacyidea']['authenticationMethod'] = "authprocess";
         $state['privacyidea:privacyidea:ui']['step'] = 2;
-        $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+        $stateID = State::saveState($state, 'privacyidea:privacyidea');
 
         // Go to otpform
-        $url = SimpleSAML_Module::getModuleURL('privacyidea/formbuilder.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $stateID));
+        $url = Module::getModuleURL('privacyidea/formbuilder.php');
+        HTTP::redirectTrustedURL($url, array('StateId' => $stateID));
     }
 
     /**
@@ -163,12 +173,12 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         assert('string' === gettype($username));
         assert('string' === gettype($stateID));
 
-        $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
+        $state = State::loadState($stateID, 'privacyidea:privacyidea');
 
         // Error if no serviceAccount or servicePass
         if ($this->pi->serviceAccountAvailable() === false)
         {
-            SimpleSAML_Logger::error("privacyIDEA: service account for token enrollment is not set!");
+            Logger::error("privacyIDEA: service account for token enrollment is not set!");
         } else
         {
             // Compose params
@@ -181,7 +191,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
             if (!empty($response->errorMessage))
             {
-                SimpleSAML_Logger::error("PrivacyIDEA server: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
+                Logger::error("PrivacyIDEA server: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
                 $state['privacyidea:privacyidea']['errorCode'] = $response->errorCode;
                 $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
             }
@@ -189,7 +199,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             // Nullcheck
             if ($response === null)
             {
-                throw new SimpleSAML_Error_BadRequest(
+                throw new BadRequest(
                     "privacyIDEA: We were not able to read the response from the PI server.");
             }
 
@@ -199,7 +209,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             {
                 $state['privacyidea:tokenEnrollment']['tokenQR'] = $response->detail->googleurl->img;
             }
-            return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+            return State::saveState($state, 'privacyidea:privacyidea');
         }
         return "";
     }
@@ -249,8 +259,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
      */
     private function checkEntityID($authProcConfig, $stateID)
     {
-        SimpleSAML_Logger::debug("Checking requesting entity ID for privacyIDEA");
-        $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
+        Logger::debug("Checking requesting entity ID for privacyIDEA");
+        $state = State::loadState($stateID, 'privacyidea:privacyidea');
 
         $excludeEntityIDs = $authProcConfig['excludeEntityIDs'] ?: array();
         $includeAttributes = $authProcConfig['includeAttributes'] ?: array();
@@ -262,13 +272,13 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         $requestEntityID = $state["Destination"]["entityid"];
 
         // if the requesting entityID matches the given list set the return parameter to false
-        SimpleSAML_Logger::debug("privacyidea:checkEntityID: Requesting entityID is " . $requestEntityID);
+        Logger::debug("privacyidea:checkEntityID: Requesting entityID is " . $requestEntityID);
         $matchedEntityIDs = $this->strMatchesRegArr($requestEntityID, $excludeEntityIDs);
         if ($matchedEntityIDs)
         {
             $ret = false;
             $entityIDKey = $matchedEntityIDs[0];
-            SimpleSAML_Logger::debug("privacyidea:checkEntityID: Matched entityID is " . $entityIDKey);
+            Logger::debug("privacyidea:checkEntityID: Matched entityID is " . $entityIDKey);
 
             // if there is also a match for any attribute value in the includeAttributes
             // fall back to the default return value: true
@@ -285,7 +295,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                             if (!empty($matchedAttrs))
                             {
                                 $ret = true;
-                                SimpleSAML_Logger::debug("privacyidea:checkEntityID: Requesting entityID in " .
+                                Logger::debug("privacyidea:checkEntityID: Requesting entityID in " .
                                                          "list, but excluded by at least one attribute regexp \"" . $attrKey .
                                                          "\" = \"" . $matchedAttrs[0] . "\".");
                                 break;
@@ -293,20 +303,20 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                         }
                     } else
                     {
-                        SimpleSAML_Logger::debug("privacyidea:checkEntityID: attribute key " .
+                        Logger::debug("privacyidea:checkEntityID: attribute key " .
                                                  $attrKey . " not contained in request");
                     }
                 }
             }
         } else
         {
-            SimpleSAML_Logger::debug("privacyidea:checkEntityID: Requesting entityID " .
+            Logger::debug("privacyidea:checkEntityID: Requesting entityID " .
                                      $requestEntityID . " not matched by any regexp.");
         }
 
         $state[$setPath][$setKey][0] = $ret;
 
-        $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+        $stateID = State::saveState($state, 'privacyidea:privacyidea');
 
         if ($ret)
         {
@@ -315,7 +325,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         {
             $retStr = "false";
         }
-        SimpleSAML_Logger::debug("Setting \$state[" . $setPath . "][" . $setKey . "][0] = " . $retStr . ".");
+        Logger::debug("Setting \$state[" . $setPath . "][" . $setKey . "][0] = " . $retStr . ".");
 
         return $stateID;
     }
@@ -337,11 +347,11 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             {
                 $reg = "/" . $reg . "/";
             }
-            SimpleSAML_Logger::debug("privacyidea:checkEntityID: test regexp " . $reg . " against the string " . $str);
+            Logger::debug("privacyidea:checkEntityID: test regexp " . $reg . " against the string " . $str);
 
             if (preg_match($reg, $str))
             {
-                array_push($retArr, $reg);
+                $retArr[] = $reg;
             }
         }
         return $retArr;
@@ -353,7 +363,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
      */
     public function piDebug($message)
     {
-        SimpleSAML_Logger::debug($message);
+        Logger::debug($message);
     }
 
     /**
@@ -362,6 +372,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
      */
     public function piError($message)
     {
-        SimpleSAML_Logger::error($message);
+        Logger::error($message);
     }
 }
