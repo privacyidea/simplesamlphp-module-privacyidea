@@ -1,4 +1,0 @@
-[submodule "lib/sdk-php"]
-	path = lib/sdk-php
-	url = https://github.com/privacyidea/sdk-php.git
-	branch = master

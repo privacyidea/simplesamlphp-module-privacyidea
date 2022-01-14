@@ -1,6 +1,7 @@
 <?php
 
-require_once((dirname(__FILE__, 2)) . '/sdk-php/src/SDK-Autoloader.php');
+use PrivacyIdea\PHPClient\PIResponse;
+use PrivacyIdea\PHPClient\PrivacyIDEA;
 
 class sspmod_privacyidea_Auth_utils
 {
