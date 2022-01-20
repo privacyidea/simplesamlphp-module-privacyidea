@@ -1,53 +1,87 @@
 {
 	"header": {
+		"cs": "Přihlášení systémem privacyIDEA",
 		"de": "Anmelden gegen privacyIDEA",
 		"nl": "Authenticeer tegen privacyIDEA"
 	},
 	"login_title": {
+		"cs": "Vložte své uživatelské jméno a heslo",
 		"de": "Bitte geben Sie Ihren Nutzernamen und Passwort ein",
 		"nl": "Vul uw gebruikersnaam en wachtwoord in."
 	},
 	"password_otp": {
+		"cs": "Heslo + jednorázový kód",
 		"de": "Password + OTP",
 		"nl": "Wachtwoord + OTP"
 	},
 	"password": {
+		"en": "Heslo",
 		"de": "Password",
 		"nl": "Wachtwoord"
 	},
 	"otp": {
+		"cs": "Jednorázový kód",
 		"de": "Einmalpasswort",
 		"nl": "OTP"
 	},
 	"login_title_challenge": {
+		"en": "Vložte jednorázový kód",
 		"de": "Bitte geben Sie Ihr Einmalpasswort ein",
 		"nl": "Vul je eenmalige wachtwoord in."
 	},
 	"otp_extra_text": {
+		"en": "Vložte své heslo a jednorázový kód",
 		"de": "Bitte geben Sie Ihr Password und Ihr Einmalpasswort ein",
 		"nl": "Vul je wachtwoord en eenmalige wachtwoord (OTP) in."
 	},
 	"login_text_challenge": {
+		"en": "Vložený PIN nebo heslo jsou správné, nyní použijte druhou metodu ověření.",
 		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch Ihren zweiten Faktor nutzen.",
 		"nl": "U heeft het de juiste PIN of wachtwoord ingegegeven. Geef nu ook uw tweede factor in."
 	},
 	"scanTokenQR": {
+		"en": "Naskenujte tento QR kód aplikací pro TOTP (např. Google Authenticator nebo privacyIDEA Authenticator) a zobrazený kód vložte níže.",
 		"de": "Scannen Sie den QR-Code mit einer App, wie dem Google Authenticator oder privacyIDEA Authenticator und geben Sie den angezeigten Code unten ein.",
 		"nl": "Scan deze QR-code met een app zoals Google Authenticator of privacyIDEA Authenticator en geef de getoonde code in."
 	},
 	"chal_resp_message": {
+		"cs": "Potvrďte jedním z následujících tokenů: ",
 		"de": "Bitte bestätigen Sie mit einem der folgenden Token: ",
 		"nl": "Bevestig met één van deze tokens: "
 	},
 	"enroll_u2f": {
+		"cs": "Použijte svůj U2F autentikátor pro dokončení registrace.",
 		"de": "Bitte nutzen Sie Ihr U2F-Gerät, um das Ausrollen fertigzustellen.",
 		"nl": "Gebruik uw u2f-toestel om de aanmelding verder te zetten."
 	},
 	"u2fNotWorking": {
+		"cs": "U2F není k dispozici.",
 		"de": "U2F funktioniert momentan nicht.",
 		"nl": "U2F werkt momenteel niet."
 	},
+	"alternate_login_options": {
+		"cs": "Další možnosti přihlášení:"
+	},
+	"alert_webauthn_insecure_context": {
+		"cs": "Není možné použít autentizaci WebAuthn, protože neodpovídá bezpečnostní kontext."
+	},
+	"alert_webauthn_unavailable": {
+		"cs": "Načtení WebAuthn knihovny se nezdařilo. Zkuste to znovu nebo použijte jiný token."
+	},
+	"alert_webAuthnSignRequest_error": {
+		"cs": "Chyba při podepisování WebAuthnSignRequest:"
+	},
+	"alert_u2f_insecure_context": {
+		"cs": "Není možné použít autentizaci U2F, protože neodpovídá bezpečnostní kontext."
+	},
+	"alert_u2f_unavailable": {
+		"cs": "Načtení U2F knihovny se nezdařilo. Zkuste to znovu nebo použijte jiný token."
+	},
+	"alert_U2FSignRequest_error": {
+		"cs": "Chyba při podepisování U2FSignRequest:"
+	},
 	"tryAgain": {
+		"cs": "Zkusit znovu",
 		"de": "Nochmal versuchen",
 		"nl": "Probeer opnieuw"
 	}
