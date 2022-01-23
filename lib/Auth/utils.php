@@ -130,7 +130,19 @@ class sspmod_privacyidea_Auth_utils
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
             $state['privacyidea:privacyidea']['transactionID'] = $result->transactionID;
             $state['privacyidea:privacyidea:ui']['message'] = $result->messages;
-            $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
+            // API returns each WebAuthn token ID as a separate challenge, they need to be combined.
+            // These challenges are identical except the allowCredentials list, which needs to be unioned.
+            $webAuthnSignRequest = $result->webAuthnSignRequest();
+            if ($webAuthnSignRequest !== "" && $result->multiChallenge) {
+                $webAuthnSignRequest = json_decode($webAuthnSignRequest);
+                foreach($result->multiChallenge as $challenge) {
+                    if ($challenge->type === "webauthn") {
+                        $webAuthnSignRequest->allowCredentials[] = $challenge->attributes['webAuthnSignRequest']['allowCredentials'][0];
+                    }
+                }
+                $webAuthnSignRequest = json_encode($webAuthnSignRequest);
+            }
+            $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $webAuthnSignRequest;
             $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
         } elseif ($result->value)
         {
