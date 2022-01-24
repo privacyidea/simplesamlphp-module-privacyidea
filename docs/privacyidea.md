@@ -83,8 +83,8 @@ You need to add the authentication source 'privacyidea' to
     /**
      * Set custom hints for the OTP and password fields
      */
-    'otpFieldHint' => 'OTP'
-    'passFieldHint' => 'Password'
+    'otpFieldHint' => 'OTP',
+    'passFieldHint' => 'Password',
 
     /*
      * This is the translation from privacyIDEA attribute names to 
