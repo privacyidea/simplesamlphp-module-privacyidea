@@ -4,6 +4,7 @@
     "type": "simplesamlphp-module",
     "license": "AGPL-3.0",
     "require": {
-        "simplesamlphp/composer-module-installer": "~1.0"
+        "simplesamlphp/composer-module-installer": "~1.0",
+        "privacyidea/privacyidea-php-client": "dev-master"
     }
 }

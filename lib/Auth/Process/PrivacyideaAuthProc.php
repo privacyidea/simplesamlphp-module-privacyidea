@@ -1,5 +1,9 @@
 <?php
 
+use PrivacyIdea\PHPClient\PIBadRequestException;
+use PrivacyIdea\PHPClient\PILog;
+use PrivacyIdea\PHPClient\PrivacyIDEA;
+
 /**
  * This authentication processing filter allows you to add a second step
  * authentication against privacyIDEA
@@ -8,9 +12,6 @@
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
  * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
-
-require_once((dirname(__FILE__, 3)) . '/sdk-php/src/SDK-Autoloader.php');
-
 class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter implements PILog
 {
     /* @var array This contains the authproc configuration which is set in metadata */

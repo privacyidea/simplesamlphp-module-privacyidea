@@ -156,15 +156,20 @@ if ($this->data['errorCode'] !== NULL)
 
                                 <strong id="message"><?php echo $this->data['message'] ?></strong>
 
+                                <br><br>
                                 <label for="otp" class="sr-only">
                                     <?php echo $this->t('{privacyidea:privacyidea:otp}'); ?>
                                 </label>
+
+                                
+
                                 <input id="otp" name="otp" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"/>
-                                <br>
+                                <br><br>
                                 <input id="submitButton" tabindex="1" class="rc-button rc-button-submit" type="submit"
                                        name="Submit"
                                        value="<?php echo htmlspecialchars($this->t('{login:login_button}'), ENT_QUOTES) ?>"/>
+                                <br><br>
 
                                 <!-- Hidden input which store the info about changes for future use in backend-->
                                 <input id="mode" type="hidden" name="mode" value="<?php echo $this->data['mode'] ?>"/>
@@ -245,13 +250,17 @@ if ($this->data['errorCode'] !== NULL)
                 </div> <!-- form-panel -->
 
                 <div id="AlternateLoginOptions" class="groupMargin">
-                    <h3><?php echo $this->t('{privacyidea:privacyidea:alternate_login_options}'); ?></h3>
+
+                    <h3><label><?php echo $this->t('{privacyidea:privacyidea:alternate_login_options}'); ?></label></h3>
+                    <br>
+
                     <!-- Alternate Login Options-->
                     <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
                     <input id="usePushButton" name="usePushButton" type="button" value="Push"/>
                     <input id="useOTPButton" name="useOTPButton" type="button" value="OTP"/>
                     <input id="useU2FButton" name="useU2FButton" type="button" value="U2F"/>
                 </div>
+                <br>
             </form>
 
             <?php
@@ -277,7 +286,7 @@ if (!empty($this->data['links']))
 }
 ?>
 
-    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/webauthn.js'), ENT_QUOTES) ?>">
+    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/webauthn-client/pi-webauthn.js'), ENT_QUOTES) ?>">
     </script>
 
     <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) ?>">
