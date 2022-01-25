@@ -38,11 +38,13 @@ class sspmod_privacyidea_Auth_utils
             if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
             {
                 $username = $state['privacyidea:privacyidea']['username'];
-            } else
+            }
+            else
             {
                 $username = $state["Attributes"][$serverConfig['uidKey']][0];
             }
-        } else
+        }
+        else
         {
             $username = $formParams['username'];
         }
@@ -67,25 +69,29 @@ class sspmod_privacyidea_Auth_utils
             if ($pi->pollTransaction($transactionID))
             {
                 $result = $pi->validateCheck($username, "", $transactionID);
-            } else
+            }
+            else
             {
                 SimpleSAML_Logger::debug("privacyIDEA: PUSH not confirmed yet");
             }
 
-        } elseif ($formParams['mode'] == "u2f")
+        }
+        elseif ($formParams['mode'] == "u2f")
         {
             $u2fSignResponse = $formParams['u2fSignResponse'];
 
             if (empty($u2fSignResponse))
             {
                 SimpleSAML_Logger::error("Incomplete data for U2F authentication: u2fSignResponse is missing!");
-            } else
+            }
+            else
             {
 //                SimpleSAML_Logger::info("U2F MODE.");
                 $result = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse);
             }
 
-        } elseif ($formParams['mode'] == "webauthn")
+        }
+        elseif ($formParams['mode'] == "webauthn")
         {
             $origin = $formParams['origin'];
             $webAuthnSignResponse = $formParams['webAuthnSignResponse'];
@@ -93,12 +99,14 @@ class sspmod_privacyidea_Auth_utils
             if (empty($origin) || empty($webAuthnSignResponse))
             {
                 SimpleSAML_Logger::error("Incomplete data for WebAuthn authentication: WebAuthnSignResponse or Origin is missing!");
-            } else
+            }
+            else
             {
 //                SimpleSAML_Logger::info("WEBAUTHN MODE.");
                 $result = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin);
             }
-        } else
+        }
+        else
         {
 //            SimpleSAML_Logger::info("OTP MODE.");
             // Call validate/check endpoint adding parameters and eventually transaction ID
@@ -132,7 +140,8 @@ class sspmod_privacyidea_Auth_utils
             $state['privacyidea:privacyidea:ui']['message'] = $result->messages;
             $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
             $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
-        } elseif ($result->value)
+        }
+        elseif ($result->value)
         {
             SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully!");
 
@@ -141,12 +150,14 @@ class sspmod_privacyidea_Auth_utils
                 SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
                 SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
             }
-        } elseif (!empty($result->errorCode))
+        }
+        elseif (!empty($result->errorCode))
         {
             SimpleSAML_Logger::error("PrivacyIDEA server: Error code: " . $result->errorCode . ", Error message: " . $result->errorMessage);
             $state['privacyidea:privacyidea']['errorCode'] = $result->errorCode;
             $state['privacyidea:privacyidea']['errorMessage'] = $result->errorMessage;
-        } else
+        }
+        else
         {
             SimpleSAML_Logger::error("privacyIDEA: Wrong OTP.");
             $state['privacyidea:privacyidea']['errorMessage'] = "You have entered incorrect OTP. Please try again or use another token.";
@@ -206,11 +217,13 @@ class sspmod_privacyidea_Auth_utils
             if ($config['enabledKey'] === false || $state['enabledKey'] === false)
             {
                 return true;
-            } else
+            }
+            else
             {
                 return false;
             }
-        } else
+        }
+        else
         {
             return false;
         }

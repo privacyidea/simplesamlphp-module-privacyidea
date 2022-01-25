@@ -9,7 +9,7 @@
  * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
 
-require_once((dirname(__FILE__, 3)) . '/sdk-php/src/SDK-Autoloader.php');
+require_once(dirname(__FILE__, 3) . '/sdk-php/src/SDK-Autoloader.php');
 
 class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter implements PILog
 {
