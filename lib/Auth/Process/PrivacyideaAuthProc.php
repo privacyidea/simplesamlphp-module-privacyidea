@@ -12,7 +12,6 @@ use PrivacyIdea\PHPClient\PrivacyIDEA;
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
  * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
-
 class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter implements PILog
 {
     /* @var array This contains the authproc configuration which is set in metadata */
