@@ -1,7 +1,3 @@
-[submodule "lib/sdk-php"]
-	path = lib/sdk-php
-	url = https://github.com/privacyidea/sdk-php.git
-	branch = master
 [submodule "www/js/webauthn-client"]
 	path = www/js/webauthn-client
 	url = https://github.com/privacyidea/webauthn-client.git

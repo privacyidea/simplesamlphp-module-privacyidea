@@ -1,5 +1,7 @@
 <?php
 
+use PrivacyIdea\PHPClient\PIResponse;
+
 /**
  * This is the helper class for PrivacyideaAuthSource.php
  */

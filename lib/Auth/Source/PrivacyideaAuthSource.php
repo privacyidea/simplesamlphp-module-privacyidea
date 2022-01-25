@@ -1,8 +1,9 @@
 <?php
 
-const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
+use PrivacyIdea\PHPClient\PILog;
+use PrivacyIdea\PHPClient\PrivacyIDEA;
 
-require_once((dirname(__FILE__, 3)) . '/sdk-php/src/SDK-Autoloader.php');
+const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
 
 /**
  * privacyidea authentication module.
