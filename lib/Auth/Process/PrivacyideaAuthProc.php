@@ -1,6 +1,6 @@
 <?php
 
-require_once((dirname(__FILE__, 3)) . '/php-client/src/SDK-Autoloader.php');
+require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
 
 /**
  * This authentication processing filter allows you to add a second step
@@ -255,7 +255,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
          * and we can't implement separate SSO for different IdP, SP etc.
          * So we delete single SSO data.
          */
-        Session::getSessionFromRequest()->deleteData('privacyidea:privacyidea:sso', 'data');
+        SimpleSAML_Session::getSessionFromRequest()->deleteData('privacyidea:privacyidea:sso', 'data');
     }
 
     /**

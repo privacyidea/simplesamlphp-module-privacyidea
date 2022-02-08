@@ -1,5 +1,8 @@
 <?php
 
+requre_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
+
+
 class Logger implements PILog
 {
     /**

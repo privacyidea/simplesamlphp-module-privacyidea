@@ -1,6 +1,6 @@
 <?php
 
-require_once((dirname(__FILE__, 3)) . '/php-client/src/SDK-Autoloader.php');
+require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
 
 /**
  * This is the helper class for PrivacyideaAuthSource.php
