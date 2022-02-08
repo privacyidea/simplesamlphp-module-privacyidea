@@ -28,7 +28,7 @@ label[for=otp] {
 	font-weight: bold;
 }
 
-#otp {
+#otp:focus {
 	margin: 25px 15px 7px;
 }
 

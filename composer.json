@@ -5,6 +5,11 @@
     "license": "AGPL-3.0",
     "require": {
         "simplesamlphp/composer-module-installer": "~1.0",
-        "privacyidea/privacyidea-php-client": "~0.9.3"
+        "privacyidea/privacyidea-php-client": "^0.9.5"
+    },
+    "config": {
+        "allow-plugins": {
+            "simplesamlphp/composer-module-installer": true
+        }
     }
 }

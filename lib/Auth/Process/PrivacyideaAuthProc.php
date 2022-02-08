@@ -1,8 +1,6 @@
 <?php
 
-use PrivacyIdea\PHPClient\PIBadRequestException;
-use PrivacyIdea\PHPClient\PILog;
-use PrivacyIdea\PHPClient\PrivacyIDEA;
+require_once((dirname(__FILE__, 3)) . '/php-client/src/SDK-Autoloader.php');
 
 /**
  * This authentication processing filter allows you to add a second step
@@ -58,7 +56,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             {
                 $this->pi->logger = $this;
             }
-        } else
+        }
+        else
         {
             SimpleSAML_Logger::error("privacyIDEA: privacyIDEA server url is not set in class: privacyidea:privacyidea in metadata.");
         }
@@ -99,6 +98,42 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             return;
         }
 
+        if (
+            array_key_exists('SSO', $this->authProcConfig)
+            && $this->authProcConfig['SSO'] === 'true'
+            && array_key_exists('core:IdP', $state)
+            && array_key_exists('AuthnInstant', $state)
+            && array_key_exists('Expire', $state)
+            && array_key_exists('Authority', $state)
+        )
+        {
+            SimpleSAML_Logger::debug("privacyIDEA: Check for existing SSO data from session.");
+            $session = SimpleSAML_Session::getSessionFromRequest();
+
+            $ssoData = $session->getData(
+                'privacyidea:privacyidea:sso',
+                'data'
+            );
+
+            if (
+                is_array($ssoData)
+                && array_key_exists('IdP', $ssoData)
+                && $ssoData['IdP'] === $state['core:IdP']
+                && array_key_exists('Authority', $ssoData)
+                && $ssoData['Authority'] === $state['Authority']
+                && array_key_exists('AuthnInstant', $ssoData)
+                && $ssoData['AuthnInstant'] === $state['AuthnInstant']
+                && array_key_exists('Expire', $ssoData)
+                && $ssoData['Expire'] === $state['Expire']
+                && array_key_exists('SSOInstant', $ssoData)
+                && $ssoData['SSOInstant'] <= time()
+            )
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data is valid. Ignoring SAML request for already logged in user.");
+                return;
+            }
+        }
+        sspmod_privacyidea_Auth_utils::saveSSOData($state);
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
@@ -115,7 +150,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             if (!$this->pi->serviceAccountAvailable())
             {
                 SimpleSAML_Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
-            } else
+            }
+            else
             {
                 //try {
                 $response = $this->pi->triggerChallenge($username);
@@ -125,7 +161,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
                 //}
             }
-        } elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
+        }
+        elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
 
             $response = sspmod_privacyidea_Auth_utils::authenticatePI($state,
@@ -146,7 +183,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         $state['privacyidea:privacyidea:ui']['step'] = 2;
         $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
-        // Go to otpform
+        // Go to formbuilder
         $url = SimpleSAML_Module::getModuleURL('privacyidea/formbuilder.php');
         SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $stateID));
     }
@@ -169,7 +206,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         if ($this->pi->serviceAccountAvailable() === false)
         {
             SimpleSAML_Logger::error("privacyIDEA: service account for token enrollment is not set!");
-        } else
+        }
+        else
         {
             // Compose params
             $genkey = 1;
@@ -205,6 +243,22 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
     }
 
     /**
+     * @return void
+     * @throws Exception
+     */
+    public static function handleLogout()
+    {
+        SimpleSAML_Logger::debug("privacyIDEA: handle logout. Remove SSO data.");
+
+        /*
+         * This method is static and called after login without providing state
+         * and we can't implement separate SSO for different IdP, SP etc.
+         * So we delete single SSO data.
+         */
+        Session::getSessionFromRequest()->deleteData('privacyidea:privacyidea:sso', 'data');
+    }
+
+    /**
      * This is the help function to exclude some IP from 2FA. Only if is set in config.
      * @param $clientIP
      * @param $excludeClientIPs
@@ -224,7 +278,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                 $startIP = ip2long($range[0]);
                 $endIP = ip2long($range[1]);
                 $match = $clientIP >= $startIP && $clientIP <= $endIP;
-            } else
+            }
+            else
             {
                 $match = $clientIP === ip2long($ipAddress);
             }
@@ -291,14 +346,16 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                                 break;
                             }
                         }
-                    } else
+                    }
+                    else
                     {
                         SimpleSAML_Logger::debug("privacyidea:checkEntityID: attribute key " .
                                                  $attrKey . " not contained in request");
                     }
                 }
             }
-        } else
+        }
+        else
         {
             SimpleSAML_Logger::debug("privacyidea:checkEntityID: Requesting entityID " .
                                      $requestEntityID . " not matched by any regexp.");
@@ -311,7 +368,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         if ($ret)
         {
             $retStr = "true";
-        } else
+        }
+        else
         {
             $retStr = "false";
         }

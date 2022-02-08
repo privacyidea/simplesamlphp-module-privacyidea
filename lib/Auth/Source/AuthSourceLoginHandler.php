@@ -1,6 +1,6 @@
 <?php
 
-use PrivacyIdea\PHPClient\PIResponse;
+require_once((dirname(__FILE__, 3)) . '/php-client/src/SDK-Autoloader.php');
 
 /**
  * This is the helper class for PrivacyideaAuthSource.php
@@ -53,7 +53,8 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
                 {
                     $response = $source->pi->triggerChallenge($username);
                 }
-            } elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
+            }
+            elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
                 && $source->authSourceConfig['doSendPassword'] === 'true')
             {
                 if (!empty($username))
@@ -61,11 +62,13 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
                     $response = $source->pi->validateCheck($username, $password);
                 }
             }
-        } elseif ($step > 1)
+        }
+        elseif ($step > 1)
         {
             $response = sspmod_privacyidea_Auth_utils::authenticatePI($state, $formParams, $source->authSourceConfig);
             $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-        } else
+        }
+        else
         {
             SimpleSAML_Logger::error("UNDEFINED STEP: " . $step);
         }
