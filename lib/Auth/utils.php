@@ -115,13 +115,13 @@ class sspmod_privacyidea_Auth_utils
 
     /**
      * Save all the information we need in session to allow SSO
+     *
      * @param $state
      * @return void
      * @throws Exception
      */
-    public static function saveSSOData($state)
+    public static function writeSSODataToSession($state)
     {
-        SimpleSAML_Logger::debug("privacyIDEA: WriteSSOData.");
         if (
             array_key_exists('privacyidea:serverconfig', $state)
             && is_array($state['privacyidea:serverconfig'])
@@ -172,16 +172,16 @@ class sspmod_privacyidea_Auth_utils
 
             if ($ssoData !== null)
             {
-                SimpleSAML_Logger::debug("privacyIDEA: Saved SSO data in session.");
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data saved in session.");
 
                 $session->setData('privacyidea:privacyidea:sso', 'data', $ssoData);
 
                 $session->registerLogoutHandler(
                     $state['Authority'],
-                    \sspmod_privacyidea_Auth_Process_privacyidea::class,
+                    \sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc::class,
                     'handleLogout'
                 );
-                SimpleSAML_Logger::debug("privacyIDEA: logout handler registered.");
+                SimpleSAML_Logger::debug("privacyIDEA: Logout handler registered.");
             }
             else
             {
@@ -191,7 +191,7 @@ class sspmod_privacyidea_Auth_utils
         }
         else
         {
-            SimpleSAML_Logger::debug("privacyIDEA: not writing sso data.");
+            SimpleSAML_Logger::debug("privacyIDEA: Not writing SSO data.");
         }
     }
 
@@ -240,6 +240,7 @@ class sspmod_privacyidea_Auth_utils
             SimpleSAML_Logger::error("privacyIDEA: Wrong OTP.");
             $state['privacyidea:privacyidea']['errorMessage'] = "You have entered incorrect OTP. Please try again or use another token.";
         }
+
         return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
     }
 

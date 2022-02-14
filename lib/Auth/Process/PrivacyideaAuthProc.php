@@ -65,6 +65,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
     /**
      * Run the filter.
+     *
      * @param array $state
      * @throws Exception if authentication fails
      */
@@ -98,42 +99,47 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             return;
         }
 
-        if (
-            array_key_exists('SSO', $this->authProcConfig)
-            && $this->authProcConfig['SSO'] === 'true'
-            && array_key_exists('core:IdP', $state)
-            && array_key_exists('AuthnInstant', $state)
-            && array_key_exists('Expire', $state)
-            && array_key_exists('Authority', $state)
-        )
+        // SSO
+        if (array_key_exists('SSO', $this->authProcConfig)
+            && $this->authProcConfig['SSO'] === 'true')
         {
-            SimpleSAML_Logger::debug("privacyIDEA: Check for existing SSO data from session.");
-            $session = SimpleSAML_Session::getSessionFromRequest();
+            sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
+//            SimpleSAML_Logger::debug("state: " . print_r($state, true));
 
-            $ssoData = $session->getData(
-                'privacyidea:privacyidea:sso',
-                'data'
-            );
-
-            if (
-                is_array($ssoData)
-                && array_key_exists('IdP', $ssoData)
-                && $ssoData['IdP'] === $state['core:IdP']
-                && array_key_exists('Authority', $ssoData)
-                && $ssoData['Authority'] === $state['Authority']
-                && array_key_exists('AuthnInstant', $ssoData)
-                && $ssoData['AuthnInstant'] === $state['AuthnInstant']
-                && array_key_exists('Expire', $ssoData)
-                && $ssoData['Expire'] === $state['Expire']
-                && array_key_exists('SSOInstant', $ssoData)
-                && $ssoData['SSOInstant'] <= time()
+            if (array_key_exists('core:IdP', $state)
+                && array_key_exists('AuthnInstant', $state)
+                && array_key_exists('Expire', $state)
+                && array_key_exists('Authority', $state)
             )
             {
-                SimpleSAML_Logger::debug("privacyIDEA: SSO data is valid. Ignoring SAML request for already logged in user.");
-                return;
+                SimpleSAML_Logger::debug("privacyIDEA: Check for existing SSO data from session.");
+                $session = SimpleSAML_Session::getSessionFromRequest();
+
+                $ssoData = $session->getData(
+                    'privacyidea:privacyidea:sso',
+                    'data'
+                );
+
+                if (is_array($ssoData)
+                    && array_key_exists('IdP', $ssoData)
+                    && $ssoData['IdP'] === $state['core:IdP']
+                    && array_key_exists('Authority', $ssoData)
+                    && $ssoData['Authority'] === $state['Authority']
+                    && array_key_exists('AuthnInstant', $ssoData)
+                    && $ssoData['AuthnInstant'] === $state['AuthnInstant']
+                    && array_key_exists('Expire', $ssoData)
+                    && $ssoData['Expire'] === $state['Expire']
+                    && array_key_exists('SSOInstant', $ssoData)
+                    && $ssoData['SSOInstant'] <= time()
+                )
+                {
+                    SimpleSAML_Logger::debug("privacyIDEA: SSO data is valid. Ignoring SAML request for already logged in user.");
+                    SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+                    SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+                }
             }
         }
-        sspmod_privacyidea_Auth_utils::saveSSOData($state);
+
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
@@ -243,6 +249,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
     }
 
     /**
+     * Remove SSO data by the logout
+     *
      * @return void
      * @throws Exception
      */
