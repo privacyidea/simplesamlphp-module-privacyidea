@@ -8,7 +8,8 @@ require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
 class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
 {
     /**
-     * This function will process the login for auth source.
+     * This function process the login for auth source.
+     *
      * @param string $stateID
      * @param array $formParams
      * @throws Exception
@@ -28,6 +29,16 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         if (!$source)
         {
             throw new Exception('Could not find authentication source with ID ' . $state["AuthId"]);
+        }
+
+        // SSO
+        if (array_key_exists('SSO', $source->authSourceConfig)
+            && $source->authSourceConfig['SSO'] === 'true')
+        {
+            sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
+//            SimpleSAML_Logger::debug("state: " . print_r($state, true));
+
+            sspmod_privacyidea_Auth_utils::checkSSO($state);
         }
 
         // If it is the first step, trigger challenges or send the password if configured
