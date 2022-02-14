@@ -32,7 +32,7 @@ if (!empty($this->data['passFieldHint']))
 /*$head = '';
 if ($this->data['u2fSignRequest']) {
     // Add javascript for U2F support before including the header.
-    $head .= '<script type="text/javascript" php-client="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
+    $head .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
 }*/
 
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
@@ -201,7 +201,7 @@ if ($this->data['errorCode'] !== NULL)
                                     echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
                                     ?>
                                     <div class="tokenQR">
-                                        <?php echo '<img php-client="' . $this->data['tokenQR'] . '" />'; ?>
+                                        <?php echo '<img src="' . $this->data['tokenQR'] . '" />'; ?>
                                     </div>
                                     <?php
                                 }
