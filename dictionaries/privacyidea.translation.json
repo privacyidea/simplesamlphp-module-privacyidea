@@ -60,7 +60,8 @@
 		"nl": "U2F werkt momenteel niet."
 	},
 	"alternate_login_options": {
-		"cs": "Další možnosti přihlášení:"
+		"cs": "Další možnosti přihlášení:",
+		"de": "Alternative Login Optionen:"
 	},
 	"alert_webauthn_insecure_context": {
 		"cs": "Není možné použít autentizaci WebAuthn, protože neodpovídá bezpečnostní kontext."

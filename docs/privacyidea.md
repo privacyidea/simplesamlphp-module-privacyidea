@@ -85,6 +85,13 @@ You need to add the authentication source 'privacyidea' to
      */
     'otpFieldHint' => 'OTP',
     'passFieldHint' => 'Password',
+    
+    /**
+     * Set this to 'true' if you want to use single sign on.
+     * All information required for SSO will be saved in the session.
+     * After logging out, the SSO data will be removed from the session.
+     */
+    'SSO' => 'false',
 
     /*
      * This is the translation from privacyIDEA attribute names to 
@@ -210,8 +217,15 @@ If you want to use privacyIDEA as an auth proc filter, change the metadata. Use 
         'doTriggerChallenge' => 'true',
         
         /**
-        * Set custom hints for the OTP and password fields
-        */
+         * Set this to 'true' if you want to use single sign on.
+         * All information required for SSO will be saved in the session.
+         * After logging out, the SSO data will be removed from the session.
+         */
+        'SSO' => 'false',
+        
+        /**
+         * Set custom hints for the OTP and password fields
+         */
         'otpFieldHint' => 'OTP'
         'passFieldHint' => 'Password'
 

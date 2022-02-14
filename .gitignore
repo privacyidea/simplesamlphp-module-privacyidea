@@ -1,2 +1,4 @@
 .idea
 sync.sh
+/www/js/webauthn-client
+/lib/php-client

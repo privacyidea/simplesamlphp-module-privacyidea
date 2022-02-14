@@ -1,7 +1,6 @@
 <?php
 
-use PrivacyIdea\PHPClient\PILog;
-use PrivacyIdea\PHPClient\PrivacyIDEA;
+require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
 
 const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
 
@@ -108,13 +107,14 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
     /**
      * Initialize login.
      * This function saves the information about the login, and redirects to the login page.
+     *
      * @override
      * @param array &$state Information about the current authentication.
      */
     public function authenticate(&$state)
     {
         assert('array' === gettype($state));
-        SimpleSAML_Logger::debug("privacyIDEA AUTH SOURCE authenticate...");
+        SimpleSAML_Logger::info("privacyIDEA AUTH SOURCE authenticate...");
 
         // We are going to need the authID in order to retrieve this authentication source later.
         $state['privacyidea:privacyidea']['AuthId'] = self::getAuthId();

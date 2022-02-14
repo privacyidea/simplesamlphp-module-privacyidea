@@ -1,7 +1,6 @@
 <?php
 
-use PrivacyIdea\PHPClient\PIResponse;
-use PrivacyIdea\PHPClient\PrivacyIDEA;
+require_once((dirname(__FILE__, 2)) . '/php-client/src/Client-Autoloader.php');
 
 class sspmod_privacyidea_Auth_utils
 {
@@ -65,8 +64,6 @@ class sspmod_privacyidea_Auth_utils
         // Send a request according to the mode
         if ($formParams['mode'] == "push")
         {
-//            SimpleSAML_Logger::info("PUSH MODE.");
-
             if ($pi->pollTransaction($transactionID))
             {
                 $result = $pi->validateCheck($username, "", $transactionID);
@@ -87,7 +84,6 @@ class sspmod_privacyidea_Auth_utils
             }
             else
             {
-//                SimpleSAML_Logger::info("U2F MODE.");
                 $result = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse);
             }
 
@@ -109,13 +105,138 @@ class sspmod_privacyidea_Auth_utils
         }
         else
         {
-//            SimpleSAML_Logger::info("OTP MODE.");
             // Call validate/check endpoint adding parameters and eventually transaction ID
             $result = $pi->validateCheck($username, $formParams["otp"], $transactionID);
         }
         $counter = $formParams['loadCounter'];
         $state['privacyidea:privacyidea:ui']['loadCounter'] = $counter + 1;
         return $result;
+    }
+
+    /**
+     * Collect all information that we need to allow SSO.
+     * Save it in session for future use.
+     *
+     * @param $state
+     * @return void
+     * @throws Exception
+     */
+    public static function writeSSODataToSession($state)
+    {
+        if (
+            array_key_exists('privacyidea:serverconfig', $state)
+            && is_array($state['privacyidea:serverconfig'])
+            && array_key_exists('SSO', $state['privacyidea:serverconfig'])
+            && $state['privacyidea:serverconfig']['SSO'] === 'true'
+        )
+        {
+            SimpleSAML_Logger::debug("privacyIDEA: SSO is enabled.");
+            $session = SimpleSAML_Session::getSessionFromRequest();
+            $ssoData = null;
+
+            if (
+                array_key_exists('AuthnInstant', $state)
+                && array_key_exists('Expire', $state)
+                && array_key_exists('Authority', $state)
+            )
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: Get SSO data from state.");
+                $ssoData = [
+                    'IdP' => $state['core:IdP'],
+                    'AuthnInstant' => $state['AuthnInstant'],
+                    'Expire' => $state['Expire'],
+                    'Authority' => $state['Authority'],
+                    'SSOInstant' => time(),
+                ];
+            }
+            elseif (array_key_exists('\SimpleSAML\Auth\Source.id', $state))
+            {
+                $authState = $session->getAuthState($state['\SimpleSAML\Auth\Source.id']);
+                if (
+                    is_array($authState)
+                    && array_key_exists('AuthnInstant', $authState)
+                    && array_key_exists('Expire', $authState)
+                    && array_key_exists('Authority', $authState)
+                )
+                {
+                    SimpleSAML_Logger::debug("privacyIDEA: Get SSO data from auth state stored in session.");
+                    $ssoData = [
+                        'IdP' => $state['core:IdP'],
+                        'AuthnInstant' => $authState['AuthnInstant'],
+                        'Expire' => $authState['Expire'],
+                        'Authority' => $authState['Authority'],
+                        'SSOInstant' => time(),
+                    ];
+                }
+                unset($authState);
+            }
+
+            if ($ssoData !== null)
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data saved in session.");
+
+                $session->setData('privacyidea:privacyidea:sso', 'data', $ssoData);
+
+                $session->registerLogoutHandler(
+                    $state['Authority'],
+                    \sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc::class,
+                    'handleLogout'
+                );
+                SimpleSAML_Logger::debug("privacyIDEA: Logout handler registered.");
+            }
+            else
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data is null.");
+            }
+            unset($session, $ssoData);
+        }
+        else
+        {
+            SimpleSAML_Logger::debug("privacyIDEA: Not writing SSO data.");
+        }
+    }
+
+    /**
+     * Check SSO data.
+     * Close the authentication if SSO data valid for already logged-in user.
+     *
+     * @param $state
+     * @return void
+     */
+    public static function checkSSO($state)
+    {
+        if (array_key_exists('core:IdP', $state)
+            && array_key_exists('AuthnInstant', $state)
+            && array_key_exists('Expire', $state)
+            && array_key_exists('Authority', $state)
+        )
+        {
+            SimpleSAML_Logger::debug("privacyIDEA: Check for existing SSO data from session.");
+            $session = SimpleSAML_Session::getSessionFromRequest();
+
+            $ssoData = $session->getData(
+                'privacyidea:privacyidea:sso',
+                'data'
+            );
+
+            if (is_array($ssoData)
+                && array_key_exists('IdP', $ssoData)
+                && $ssoData['IdP'] === $state['core:IdP']
+                && array_key_exists('Authority', $ssoData)
+                && $ssoData['Authority'] === $state['Authority']
+                && array_key_exists('AuthnInstant', $ssoData)
+                && $ssoData['AuthnInstant'] === $state['AuthnInstant']
+                && array_key_exists('Expire', $ssoData)
+                && $ssoData['Expire'] === $state['Expire']
+                && array_key_exists('SSOInstant', $ssoData)
+                && $ssoData['SSOInstant'] <= time()
+            )
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data is valid. Ignoring SAML request for already logged in user.");
+                SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+            }
+        }
     }
 
     /**
@@ -163,6 +284,7 @@ class sspmod_privacyidea_Auth_utils
             SimpleSAML_Logger::error("privacyIDEA: Wrong OTP.");
             $state['privacyidea:privacyidea']['errorMessage'] = "You have entered incorrect OTP. Please try again or use another token.";
         }
+
         return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
     }
 

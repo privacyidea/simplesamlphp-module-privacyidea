@@ -1,6 +1,6 @@
 <?php
 
-use PrivacyIdea\PHPClient\PIResponse;
+require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
 
 /**
  * This is the helper class for PrivacyideaAuthSource.php
@@ -8,7 +8,8 @@ use PrivacyIdea\PHPClient\PIResponse;
 class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
 {
     /**
-     * This function will process the login for auth source.
+     * This function process the login for auth source.
+     *
      * @param string $stateID
      * @param array $formParams
      * @throws Exception
@@ -28,6 +29,16 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         if (!$source)
         {
             throw new Exception('Could not find authentication source with ID ' . $state["AuthId"]);
+        }
+
+        // SSO
+        if (array_key_exists('SSO', $source->authSourceConfig)
+            && $source->authSourceConfig['SSO'] === 'true')
+        {
+            sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
+//            SimpleSAML_Logger::debug("state: " . print_r($state, true));
+
+            sspmod_privacyidea_Auth_utils::checkSSO($state);
         }
 
         // If it is the first step, trigger challenges or send the password if configured
@@ -53,7 +64,8 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
                 {
                     $response = $source->pi->triggerChallenge($username);
                 }
-            } elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
+            }
+            elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
                 && $source->authSourceConfig['doSendPassword'] === 'true')
             {
                 if (!empty($username))
@@ -61,11 +73,13 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
                     $response = $source->pi->validateCheck($username, $password);
                 }
             }
-        } elseif ($step > 1)
+        }
+        elseif ($step > 1)
         {
             $response = sspmod_privacyidea_Auth_utils::authenticatePI($state, $formParams, $source->authSourceConfig);
             $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-        } else
+        }
+        else
         {
             SimpleSAML_Logger::error("UNDEFINED STEP: " . $step);
         }
