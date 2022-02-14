@@ -87,10 +87,9 @@ You need to add the authentication source 'privacyidea' to
     'passFieldHint' => 'Password',
     
     /**
-     * Set this to 'true' if you will have single sign on possibility.
-     * All information that we need to process SSO will be saved in session
-     * and retrived by another log in.
-     * After log out the SSO data will be removed from session.
+     * Set this to 'true' if you want to use single sign on.
+     * All information required for SSO will be saved in the session.
+     * After logging out, the SSO data will be removed from the session.
      */
     'SSO' => 'false',
 
@@ -218,10 +217,9 @@ If you want to use privacyIDEA as an auth proc filter, change the metadata. Use 
         'doTriggerChallenge' => 'true',
         
         /**
-         * Set this to 'true' if you will have single sign on possibility.
-         * All information that we need to process SSO will be saved in session
-         * and retrived by another log in.
-         * After log out the SSO data will be removed from session.
+         * Set this to 'true' if you want to use single sign on.
+         * All information required for SSO will be saved in the session.
+         * After logging out, the SSO data will be removed from the session.
          */
         'SSO' => 'false',
         
