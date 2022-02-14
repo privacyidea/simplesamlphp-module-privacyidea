@@ -114,7 +114,8 @@ class sspmod_privacyidea_Auth_utils
     }
 
     /**
-     * Save all the information we need in session to allow SSO
+     * Collect all information that we need to allow SSO.
+     * Save it in session for future use.
      *
      * @param $state
      * @return void
@@ -192,6 +193,49 @@ class sspmod_privacyidea_Auth_utils
         else
         {
             SimpleSAML_Logger::debug("privacyIDEA: Not writing SSO data.");
+        }
+    }
+
+    /**
+     * Check SSO data.
+     * Close the authentication if SSO data valid for already logged-in user.
+     *
+     * @param $state
+     * @return void
+     */
+    public static function checkSSO($state)
+    {
+        if (array_key_exists('core:IdP', $state)
+            && array_key_exists('AuthnInstant', $state)
+            && array_key_exists('Expire', $state)
+            && array_key_exists('Authority', $state)
+        )
+        {
+            SimpleSAML_Logger::debug("privacyIDEA: Check for existing SSO data from session.");
+            $session = SimpleSAML_Session::getSessionFromRequest();
+
+            $ssoData = $session->getData(
+                'privacyidea:privacyidea:sso',
+                'data'
+            );
+
+            if (is_array($ssoData)
+                && array_key_exists('IdP', $ssoData)
+                && $ssoData['IdP'] === $state['core:IdP']
+                && array_key_exists('Authority', $ssoData)
+                && $ssoData['Authority'] === $state['Authority']
+                && array_key_exists('AuthnInstant', $ssoData)
+                && $ssoData['AuthnInstant'] === $state['AuthnInstant']
+                && array_key_exists('Expire', $ssoData)
+                && $ssoData['Expire'] === $state['Expire']
+                && array_key_exists('SSOInstant', $ssoData)
+                && $ssoData['SSOInstant'] <= time()
+            )
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data is valid. Ignoring SAML request for already logged in user.");
+                SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+            }
         }
     }
 
