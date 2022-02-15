@@ -80,10 +80,10 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
         // If set in config, allow to check the IP of the client and to control the 2FA depending on the client IP.
         // It can be used to configure that a user does not need to provide a second factor when logging in from the local network.
-//        if (!empty($this->authProcConfig['excludeClientIPs']))
-//        {
-//            $state['privacyIDEA']['enabled'][0] = $this->matchIP(sspmod_privacyidea_Auth_utils::getClientIP(), $this->authProcConfig['excludeClientIPs']);
-//        }
+        if (!empty($this->authProcConfig['excludeClientIPs']))
+        {
+            $state['privacyIDEA']['enabled'][0] = $this->matchIP(sspmod_privacyidea_Auth_utils::getClientIP(), $this->authProcConfig['excludeClientIPs']);
+        }
 
         // If set to "true" in config, selectively disable the privacyIDEA authentication using the entityID and/or SAML attributes.
         if (!empty($this->authProcConfig['checkEntityID']) && $this->authProcConfig['checkEntityID'] === 'true')
@@ -105,8 +105,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             && $this->authProcConfig['SSO'] === 'true')
         {
             sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
-//            SimpleSAML_Logger::debug("state: " . print_r($state, true));
-
             sspmod_privacyidea_Auth_utils::checkSSO($state);
         }
 

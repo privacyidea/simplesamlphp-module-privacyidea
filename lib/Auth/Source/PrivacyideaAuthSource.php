@@ -1,6 +1,7 @@
 <?php
 
 require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
+require_once((dirname(__FILE__, 2)) . '/PILogger.php');
 
 const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
 
@@ -39,7 +40,7 @@ const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mob
  * which is based on Radius.php
  *
  */
-class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_Auth_UserPassBase implements PILog
+class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_Auth_UserPassBase
 {
     /* @var array The serverconfig is listed in this array */
     public $authSourceConfig;
@@ -100,7 +101,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         }
         if (!empty($this->authSourceConfig['privacyideaServerURL']))
         {
-            $this->pi->logger = $this;
+            $this->pi->logger = new PILogger();
         }
     }
 
