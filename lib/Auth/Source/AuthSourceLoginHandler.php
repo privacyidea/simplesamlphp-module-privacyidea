@@ -87,7 +87,7 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         if ($response != null)
         {
             self::checkAuthenticationComplete($state, $response, $source->authSourceConfig);
-            $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response);
+            $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response, $source->authSourceConfig);
         }
 
         $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');

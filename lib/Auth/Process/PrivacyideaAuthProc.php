@@ -1,6 +1,7 @@
 <?php
 
 require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
+require_once((dirname(__FILE__, 2)) . '/PILogger.php');
 
 /**
  * This authentication processing filter allows you to add a second step
@@ -10,7 +11,7 @@ require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
  * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
-class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter implements PILog
+class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter
 {
     /* @var array This contains the authproc configuration which is set in metadata */
     private $authProcConfig;
@@ -54,7 +55,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             }
             if (!empty($this->authProcConfig['privacyideaServerURL']))
             {
-                $this->pi->logger = $this;
+                $this->pi->logger = new PILogger();
             }
         }
         else
@@ -79,10 +80,10 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
         // If set in config, allow to check the IP of the client and to control the 2FA depending on the client IP.
         // It can be used to configure that a user does not need to provide a second factor when logging in from the local network.
-        if (!empty($this->authProcConfig['excludeClientIPs']))
-        {
-            $state['privacyIDEA']['enabled'][0] = $this->matchIP(sspmod_privacyidea_Auth_utils::getClientIP(), $this->authProcConfig['excludeClientIPs']);
-        }
+//        if (!empty($this->authProcConfig['excludeClientIPs']))
+//        {
+//            $state['privacyIDEA']['enabled'][0] = $this->matchIP(sspmod_privacyidea_Auth_utils::getClientIP(), $this->authProcConfig['excludeClientIPs']);
+//        }
 
         // If set to "true" in config, selectively disable the privacyIDEA authentication using the entityID and/or SAML attributes.
         if (!empty($this->authProcConfig['checkEntityID']) && $this->authProcConfig['checkEntityID'] === 'true')
@@ -128,13 +129,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             }
             else
             {
-                //try {
                 $response = $this->pi->triggerChallenge($username);
-                $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response);
-                //} catch (PIBadRequestException $e) {
-                // show some text in ui "Authentication server unreachable."
-
-                //}
+                $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response, $this->authProcConfig);
             }
         }
         elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')

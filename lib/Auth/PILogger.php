@@ -1,9 +1,9 @@
 <?php
 
-requre_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
+require_once((dirname(__FILE__, 2)) . '/php-client/src/Client-Autoloader.php');
 
 
-class Logger implements PILog
+class PILogger implements PILog
 {
     /**
      * This function allows to show the debug messages from privacyIDEA server

@@ -56,7 +56,7 @@ class sspmod_privacyidea_Auth_utils
         $pi->sslVerifyHost = $serverConfig['sslVerifyHost'];
         $pi->sslVerifyPeer = $serverConfig['sslVerifyPeer'];
         $pi->realm = @$serverConfig['realm'] ?: "";
-//        $pi->logger = new Logger;
+//        $pi->logger = new PILogger;
 
         $result = null;
         $transactionID = $state['privacyidea:privacyidea']['transactionID'];
@@ -247,7 +247,7 @@ class sspmod_privacyidea_Auth_utils
      * @return string The modified state ID will be returned. It now contains the token types for the user.
      * @throws Exception
      */
-    public static function processPIResponse($stateID, PIResponse $result)
+    public static function processPIResponse($stateID, PIResponse $result, $config = null)
     {
         assert('string' === gettype($stateID));
 
@@ -256,12 +256,18 @@ class sspmod_privacyidea_Auth_utils
         if (($result->multiChallenge) !== array())
         {
             $triggeredTokens = $result->triggeredTokenTypes();
+
+            // Preferred token type
+            if ($config !== null)
+            {
+                $state['privacyidea:privacyidea:ui']['mode'] = self::preferredTokenType($config, $triggeredTokens);
+            }
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
-            $state['privacyidea:privacyidea']['transactionID'] = $result->transactionID;
             $state['privacyidea:privacyidea:ui']['message'] = $result->messages;
             $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
             $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
+            $state['privacyidea:privacyidea']['transactionID'] = $result->transactionID;
         }
         elseif ($result->value)
         {
@@ -289,6 +295,32 @@ class sspmod_privacyidea_Auth_utils
     }
 
     /**
+     * If preferredTokenType set in config to 'true', check if choosed token is triggered
+     * and set mode to preferred token to save the time by the authentication.
+     *
+     * @param $config
+     * @param $triggeredTokes
+     * @return mixed|string
+     */
+    public static function preferredTokenType($config, $triggeredTokes)
+    {
+        if (!empty($config['preferredTokenType']))
+        {
+            SimpleSAML_Logger::debug("Checking for preferred token type... ");
+
+            $preferred = $config['preferredTokenType'];
+            $triggered = $triggeredTokes;
+
+            if (in_array($preferred, $triggered))
+            {
+                SimpleSAML_Logger::debug("Found preferred token type: " . $preferred);
+                return $preferred;
+            }
+        }
+        return "otp";
+    }
+
+    /**
      * Determine the clients IP-Address.
      * @return string|null The IP-Address of the client.
      */
@@ -301,7 +333,8 @@ class sspmod_privacyidea_Auth_utils
 
     /**
      * Find the first usable uid key.
-     * If the administrator has configured multiple uidKeys, this will find the first one that exists as an Attribute in
+     * If the administrator has configured multiple uidKeys,
+     * this will find the first one that exists as an Attribute in
      * the $state and update the $config to use that key.
      * @param array $config The authproc configuration to use
      * @param array $state The global state to check the keys against

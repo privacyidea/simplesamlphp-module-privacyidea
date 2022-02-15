@@ -64,7 +64,7 @@ You need to add the authentication source 'privacyidea' to
     'servicePass'       => 'service',
     
     /**
-     *  Set this to 'true' to trigger challenges prior to the login 
+     *  Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
      *  using the configured service account. 
      *  This setting takes precedence over 'doSendPassword'.
      *  The value have to be a string.
@@ -72,7 +72,7 @@ You need to add the authentication source 'privacyidea' to
     'doTriggerChallenge' => 'true',
     
     /**
-     *  Set this to 'true' to send a request to validate/check with the username
+     *  Set doSendPassword to 'true' to send a request to validate/check with the username
      *  and an empty pass prior to the login. 
      *  This can be used to trigger challenges depending on the configuration in privacyIDEA 
      *  and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
@@ -87,11 +87,18 @@ You need to add the authentication source 'privacyidea' to
     'passFieldHint' => 'Password',
     
     /**
-     * Set this to 'true' if you want to use single sign on.
+     * Set SSO to 'true' if you want to use single sign on.
      * All information required for SSO will be saved in the session.
      * After logging out, the SSO data will be removed from the session.
      */
     'SSO' => 'false',
+    
+    /**
+     * Set preferredTokenType to your favourite token type.
+     * If the choosed token will be triggered,
+     * it will be used first.
+     */
+    'preferredTokenType' => 'otp',
 
     /*
      * This is the translation from privacyIDEA attribute names to 
@@ -222,6 +229,13 @@ If you want to use privacyIDEA as an auth proc filter, change the metadata. Use 
          * After logging out, the SSO data will be removed from the session.
          */
         'SSO' => 'false',
+        
+        /**
+         * Set preferredTokenType to your favourite token type.
+         * If the choosed token will be triggered,
+         * it will be used first.
+         */
+        'preferredTokenType' => 'otp',
         
         /**
          * Set custom hints for the OTP and password fields
