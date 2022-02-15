@@ -95,8 +95,8 @@ You need to add the authentication source 'privacyidea' to
     
     /**
      * Set preferredTokenType to your favourite token type.
-     * If the choosed token will be triggered,
-     * it will be used first.
+     * If the choosen token is triggered, it will be used to authenticate directly
+     * without having to press the button for the type.
      */
     'preferredTokenType' => 'otp',
 
@@ -232,8 +232,8 @@ If you want to use privacyIDEA as an auth proc filter, change the metadata. Use 
         
         /**
          * Set preferredTokenType to your favourite token type.
-         * If the choosed token will be triggered,
-         * it will be used first.
+         * If the choosen token is triggered, it will be used to authenticate directly
+         * without having to press the button for the type.
          */
         'preferredTokenType' => 'otp',
         
