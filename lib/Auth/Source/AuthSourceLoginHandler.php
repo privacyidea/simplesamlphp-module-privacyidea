@@ -36,8 +36,6 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
             && $source->authSourceConfig['SSO'] === 'true')
         {
             sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
-//            SimpleSAML_Logger::debug("state: " . print_r($state, true));
-
             sspmod_privacyidea_Auth_utils::checkSSO($state);
         }
 
@@ -50,7 +48,6 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         }
 
         $step = $state['privacyidea:privacyidea:ui']['step'];
-        //SimpleSAML_Logger::debug("STEP: " . $step);
         $response = null;
         if ($step == 1)
         {
@@ -87,7 +84,7 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         if ($response != null)
         {
             self::checkAuthenticationComplete($state, $response, $source->authSourceConfig);
-            $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response);
+            $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response, $source->authSourceConfig);
         }
 
         $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');

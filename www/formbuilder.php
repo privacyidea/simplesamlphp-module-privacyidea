@@ -52,15 +52,8 @@ if (!empty($_REQUEST['password']) || !empty($_REQUEST['username'])
         "u2fSignRequest" => array_key_exists('u2fSignRequest', $_REQUEST) ? $_REQUEST['u2fSignRequest'] : "",
         "u2fSignResponse" => array_key_exists('u2fSignResponse', $_REQUEST) ? $_REQUEST['u2fSignResponse'] : "",
         "message" => array_key_exists('message', $_REQUEST) ? $_REQUEST['message'] : "",
-        //    "loadCounter" => $_REQUEST['loadCounter'] ?: 1
         "loadCounter" => $_REQUEST['loadCounter']
     );
-//    array_push($formParams, "loadCounter");
-//    if(!empty($_REQUEST['loadCounter'])){
-//        $formParams['loadCounter'] = $_REQUEST['loadCounter'];
-//    } else {
-//        $formParams['loadCounter'] = 1;
-//    }
 
     if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
     {

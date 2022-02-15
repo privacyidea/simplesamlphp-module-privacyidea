@@ -1,6 +1,7 @@
 <?php
 
 require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
+require_once((dirname(__FILE__, 2)) . '/PILogger.php');
 
 /**
  * This authentication processing filter allows you to add a second step
@@ -10,7 +11,7 @@ require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
  * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
-class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter implements PILog
+class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Auth_ProcessingFilter
 {
     /* @var array This contains the authproc configuration which is set in metadata */
     private $authProcConfig;
@@ -54,7 +55,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             }
             if (!empty($this->authProcConfig['privacyideaServerURL']))
             {
-                $this->pi->logger = $this;
+                $this->pi->logger = new PILogger();
             }
         }
         else
@@ -104,8 +105,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             && $this->authProcConfig['SSO'] === 'true')
         {
             sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
-//            SimpleSAML_Logger::debug("state: " . print_r($state, true));
-
             sspmod_privacyidea_Auth_utils::checkSSO($state);
         }
 
@@ -128,13 +127,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             }
             else
             {
-                //try {
                 $response = $this->pi->triggerChallenge($username);
-                $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response);
-                //} catch (PIBadRequestException $e) {
-                // show some text in ui "Authentication server unreachable."
-
-                //}
+                $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response, $this->authProcConfig);
             }
         }
         elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
