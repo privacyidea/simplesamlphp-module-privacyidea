@@ -265,8 +265,13 @@ class sspmod_privacyidea_Auth_utils
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
             $state['privacyidea:privacyidea:ui']['message'] = $result->messages;
-            $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
-            $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
+
+            if(in_array("webauthn", $triggeredTokens)){
+                $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
+            }
+            if(in_array("u2f", $triggeredTokens)){
+                $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
+            }
             $state['privacyidea:privacyidea']['transactionID'] = $result->transactionID;
         }
         elseif ($result->value)
@@ -284,6 +289,9 @@ class sspmod_privacyidea_Auth_utils
             SimpleSAML_Logger::error("PrivacyIDEA server: Error code: " . $result->errorCode . ", Error message: " . $result->errorMessage);
             $state['privacyidea:privacyidea']['errorCode'] = $result->errorCode;
             $state['privacyidea:privacyidea']['errorMessage'] = $result->errorMessage;
+        }
+        elseif($result->triggeredTokenTypes() === array()){
+            SimpleSAML_Logger::debug("privacyIDEA: User have no tokens assigned.");
         }
         else
         {
