@@ -56,7 +56,6 @@ class sspmod_privacyidea_Auth_utils
         $pi->sslVerifyHost = $serverConfig['sslVerifyHost'];
         $pi->sslVerifyPeer = $serverConfig['sslVerifyPeer'];
         $pi->realm = @$serverConfig['realm'] ?: "";
-//        $pi->logger = new PILogger;
 
         $result = null;
         $transactionID = $state['privacyidea:privacyidea']['transactionID'];
@@ -99,7 +98,6 @@ class sspmod_privacyidea_Auth_utils
             }
             else
             {
-//                SimpleSAML_Logger::info("WEBAUTHN MODE.");
                 $result = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin);
             }
         }
@@ -306,7 +304,7 @@ class sspmod_privacyidea_Auth_utils
      * @param $triggeredTokes
      * @return mixed|string
      */
-    public static function preferredTokenType($config, $triggeredTokes)
+    public static function preferredTokenType($config, $triggeredToken)
     {
         if (!empty($config['preferredTokenType']))
         {
@@ -314,7 +312,7 @@ class sspmod_privacyidea_Auth_utils
 
             $preferred = $config['preferredTokenType'];
 
-            if (in_array($preferred, $triggeredTokes))
+            if (in_array($preferred, $triggeredToken))
             {
                 SimpleSAML_Logger::debug("Found preferred token type: " . $preferred);
                 return $preferred;
