@@ -313,9 +313,8 @@ class sspmod_privacyidea_Auth_utils
             SimpleSAML_Logger::debug("Checking for preferred token type... ");
 
             $preferred = $config['preferredTokenType'];
-            $triggered = $triggeredTokes;
 
-            if (in_array($preferred, $triggered))
+            if (in_array($preferred, $triggeredTokes))
             {
                 SimpleSAML_Logger::debug("Found preferred token type: " . $preferred);
                 return $preferred;
