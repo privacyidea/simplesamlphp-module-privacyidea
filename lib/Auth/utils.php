@@ -56,7 +56,6 @@ class sspmod_privacyidea_Auth_utils
         $pi->sslVerifyHost = $serverConfig['sslVerifyHost'];
         $pi->sslVerifyPeer = $serverConfig['sslVerifyPeer'];
         $pi->realm = @$serverConfig['realm'] ?: "";
-//        $pi->logger = new PILogger;
 
         $result = null;
         $transactionID = $state['privacyidea:privacyidea']['transactionID'];
@@ -99,7 +98,6 @@ class sspmod_privacyidea_Auth_utils
             }
             else
             {
-//                SimpleSAML_Logger::info("WEBAUTHN MODE.");
                 $result = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin);
             }
         }
@@ -265,8 +263,14 @@ class sspmod_privacyidea_Auth_utils
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
             $state['privacyidea:privacyidea:ui']['message'] = $result->messages;
-            $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
-            $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
+
+            if(in_array("webauthn", $triggeredTokens)){
+                $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $result->webAuthnSignRequest();
+            }
+            if(in_array("u2f", $triggeredTokens)){
+                $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
+            }
+          
             $state['privacyidea:privacyidea']['transactionID'] = $result->transactionID;
         }
         elseif ($result->value)
@@ -287,10 +291,9 @@ class sspmod_privacyidea_Auth_utils
         }
         else
         {
-            SimpleSAML_Logger::error("privacyIDEA: Wrong OTP.");
-            $state['privacyidea:privacyidea']['errorMessage'] = "You have entered incorrect OTP. Please try again or use another token.";
+            SimpleSAML_Logger::error("privacyIDEA: " . $result->message);
+            $state['privacyidea:privacyidea']['errorMessage'] = $result->message;
         }
-
         return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
     }
 
@@ -302,16 +305,15 @@ class sspmod_privacyidea_Auth_utils
      * @param $triggeredTokes
      * @return mixed|string
      */
-    public static function preferredTokenType($config, $triggeredTokes)
+
+    public static function preferredTokenType($config, $triggeredToken)
     {
         if (!empty($config['preferredTokenType']))
         {
             SimpleSAML_Logger::debug("Checking for preferred token type... ");
-
             $preferred = $config['preferredTokenType'];
-            $triggered = $triggeredTokes;
-
-            if (in_array($preferred, $triggered))
+          
+            if (in_array($preferred, $triggeredToken))
             {
                 SimpleSAML_Logger::debug("Found preferred token type: " . $preferred);
                 return $preferred;
