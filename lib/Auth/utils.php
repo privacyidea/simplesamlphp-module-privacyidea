@@ -270,6 +270,7 @@ class sspmod_privacyidea_Auth_utils
             if(in_array("u2f", $triggeredTokens)){
                 $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $result->u2fSignRequest();
             }
+          
             $state['privacyidea:privacyidea']['transactionID'] = $result->transactionID;
         }
         elseif ($result->value)
@@ -304,14 +305,14 @@ class sspmod_privacyidea_Auth_utils
      * @param $triggeredTokes
      * @return mixed|string
      */
+
     public static function preferredTokenType($config, $triggeredToken)
     {
         if (!empty($config['preferredTokenType']))
         {
             SimpleSAML_Logger::debug("Checking for preferred token type... ");
-
             $preferred = $config['preferredTokenType'];
-
+          
             if (in_array($preferred, $triggeredToken))
             {
                 SimpleSAML_Logger::debug("Found preferred token type: " . $preferred);
