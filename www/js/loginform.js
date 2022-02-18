@@ -105,11 +105,15 @@ if (value("mode") === "otp")
 
 if (value("mode") === "webauthn")
 {
+    disable("otp");
+    disable("submitButton");
     doWebAuthn();
 }
 
 if (value("mode") === "u2f")
 {
+    disable("otp");
+    disable("submitButton");
     doU2F();
 }
 
