@@ -290,15 +290,11 @@ class sspmod_privacyidea_Auth_utils
             $state['privacyidea:privacyidea']['errorCode'] = $result->errorCode;
             $state['privacyidea:privacyidea']['errorMessage'] = $result->errorMessage;
         }
-        elseif($result->triggeredTokenTypes() === array()){
-            SimpleSAML_Logger::debug("privacyIDEA: User have no tokens assigned.");
-        }
         else
         {
-            SimpleSAML_Logger::error("privacyIDEA: Wrong OTP.");
-            $state['privacyidea:privacyidea']['errorMessage'] = "You have entered incorrect OTP. Please try again or use another token.";
+            SimpleSAML_Logger::error("privacyIDEA: " . $result->message);
+            $state['privacyidea:privacyidea']['errorMessage'] = $result->message;
         }
-
         return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
     }
 
