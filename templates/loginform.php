@@ -161,8 +161,6 @@ if ($this->data['errorCode'] !== NULL)
                                     <?php echo $this->t('{privacyidea:privacyidea:otp}'); ?>
                                 </label>
 
-                                
-
                                 <input id="otp" name="otp" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"/>
                                 <br><br>
