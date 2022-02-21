@@ -35,8 +35,17 @@ class sspmod_privacyidea_Auth_Source_AuthSourceLoginHandler
         if (array_key_exists('SSO', $source->authSourceConfig)
             && $source->authSourceConfig['SSO'] === 'true')
         {
-            sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
-            sspmod_privacyidea_Auth_utils::checkSSO($state);
+            if (sspmod_privacyidea_Auth_utils::checkForValidSSO($state))
+            {
+                // TODO validate that the required attributes for saml are present in the state
+                // before completing the authentication preemptively
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data valid - logging in..");
+                SimpleSAML_Auth_Source::completeAuth($state);
+            }
+            else
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: No valid SSO data found.");
+            }
         }
 
         // If it is the first step, trigger challenges or send the password if configured

@@ -19,7 +19,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
     private $pi;
 
     /**
-     * privacyIDEA constructor.
      * @param array $config Authproc configuration.
      * @param mixed $reserved
      */
@@ -29,7 +28,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         parent::__construct($config, $reserved);
         $this->authProcConfig = $config;
 
-        // Create a new object from privacyIDEA class (SDK) and adjust the property which are needed by triggerChallenge()
+        // Create the privacyIDEA object and set the configuration
         if (!empty($this->authProcConfig['privacyideaServerURL']))
         {
             $this->pi = new PrivacyIDEA("simpleSAMLphp", $this->authProcConfig['privacyideaServerURL']);
@@ -60,7 +59,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
         else
         {
-            SimpleSAML_Logger::error("privacyIDEA: privacyIDEA server url is not set in class: privacyidea:privacyidea in metadata.");
+            SimpleSAML_Logger::error("privacyIDEA: Server url is not set in the configuration.");
         }
     }
 
@@ -72,11 +71,12 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
      */
     public function process(&$state)
     {
-        SimpleSAML_Logger::info("privacyIDEA Auth Proc Filter: Entering process function.");
+        SimpleSAML_Logger::info("privacyIDEA: Auth Proc Filter - Entering process function.");
         assert('array' === gettype($state));
 
         // Update state before starting the authentication process
         $state['privacyidea:serverconfig'] = $this->authProcConfig;
+        $state['privacyidea:privacyidea']['authenticationMethod'] = "authprocess";
 
         // If set in config, allow to check the IP of the client and to control the 2FA depending on the client IP.
         // It can be used to configure that a user does not need to provide a second factor when logging in from the local network.
@@ -93,10 +93,11 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
         }
 
-        // Check if privacyIDEA is disabled by a filter
-        if (sspmod_privacyidea_Auth_utils::checkPIAbility($state, $this->authProcConfig) === true)
+        // Check if privacyIDEA is disabled by configuration setting
+        if (sspmod_privacyidea_Auth_utils::isPrivacyIDEADisabled($state, $this->authProcConfig))
         {
             SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is disabled by a filter");
+            SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
             return;
         }
 
@@ -104,8 +105,15 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         if (array_key_exists('SSO', $this->authProcConfig)
             && $this->authProcConfig['SSO'] === 'true')
         {
-            sspmod_privacyidea_Auth_utils::writeSSODataToSession($state);
-            sspmod_privacyidea_Auth_utils::checkSSO($state);
+            if (sspmod_privacyidea_Auth_utils::checkForValidSSO($state))
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: SSO data valid - logging in..");
+                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+            }
+            else
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: No valid SSO data found.");
+            }
         }
 
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
@@ -117,9 +125,10 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             $stateID = $this->enrollToken($stateID, $username);
         }
 
-        // Check if all the challenges should be triggered at once and if possible, do it
+        // Check if triggerChallenge or a call with a static pass to /validate/check should be done
         if (!empty($this->authProcConfig['doTriggerChallenge']) && $this->authProcConfig['doTriggerChallenge'] === 'true')
         {
+            // Call /validate/triggerchallenge with the service account from the configuration to trigger all token of the user
             $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
             if (!$this->pi->serviceAccountAvailable())
             {
@@ -133,26 +142,29 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
         elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
-
+            // Call /validate/check with a static pass from the configuration
+            // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
             $response = sspmod_privacyidea_Auth_utils::authenticatePI($state,
                                                                       array('pass' => $this->authProcConfig['tryFirstAuthPass']),
                                                                       $this->authProcConfig);
 
             if (empty($response->multiChallenge) && $response->value)
             {
-                return;
+                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+            }
+            else if (!empty($response->multiChallenge))
+            {
+                $stateID = sspmod_privacyidea_Auth_utils::processPIResponse($stateID, $response, $this->authProcConfig);
             }
         }
 
         $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
 
-        // Procfilters work already done. Save the state and go to formbuilder.php to authenticate
-        // Set authprocess as authentication method and save the state
-        $state['privacyidea:privacyidea']['authenticationMethod'] = "authprocess";
+        // This is AuthProcFilter, so step 1 (username+password) is already done. Set the step to 2
         $state['privacyidea:privacyidea:ui']['step'] = 2;
         $stateID = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
-        // Go to formbuilder
+        // Redirect to formbuilder with the stateID to be able to load the state from there
         $url = SimpleSAML_Module::getModuleURL('privacyidea/formbuilder.php');
         SimpleSAML_Utilities::redirectTrustedURL($url, array('StateId' => $stateID));
     }
@@ -178,12 +190,10 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
         else
         {
-            // Compose params
             $genkey = 1;
             $type = $this->authProcConfig['tokenType'];
             $description = "Enrolled with simpleSAMLphp";
 
-            // Call SDK's enrollToken()
             $response = $this->pi->enrollToken($username, $genkey, $type, $description);
 
             if (!empty($response->errorMessage))
@@ -193,7 +203,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                 $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
             }
 
-            // Nullcheck
             if ($response === null)
             {
                 throw new SimpleSAML_Error_BadRequest(
@@ -209,24 +218,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
         }
         return "";
-    }
-
-    /**
-     * Remove SSO data by the logout
-     *
-     * @return void
-     * @throws Exception
-     */
-    public static function handleLogout()
-    {
-        SimpleSAML_Logger::debug("privacyIDEA: handle logout. Remove SSO data.");
-
-        /*
-         * This method is static and called after login without providing state
-         * and we can't implement separate SSO for different IdP, SP etc.
-         * So we delete single SSO data.
-         */
-        SimpleSAML_Session::getSessionFromRequest()->deleteData('privacyidea:privacyidea:sso', 'data');
     }
 
     /**
