@@ -137,9 +137,8 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
     {
         $tpl->data['tokenQR'] = null;
     }
-
-// Authsource step 1
 }
+// Authsource step 1
 elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
 {
     $authConfig = SimpleSAML_Configuration::getOptionalConfig("authsources.php");

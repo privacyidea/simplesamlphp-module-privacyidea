@@ -203,13 +203,14 @@ class sspmod_privacyidea_Auth_utils
 
         if (!empty($response->multiChallenge))
         {
+            $triggeredTokens = $response->triggeredTokenTypes();
             // Preferred token type
             if ($config !== null)
             {
                 $preferred = $config['preferredTokenType'];
                 if (!empty($preferred))
                 {
-                    if (in_array($preferred, $response->triggeredTokenTypes()))
+                    if (in_array($preferred, $triggeredTokens))
                     {
                         SimpleSAML_Logger::debug("Found preferred token type: " . $preferred);
                         $state['privacyidea:privacyidea:ui']['mode'] = $preferred;
