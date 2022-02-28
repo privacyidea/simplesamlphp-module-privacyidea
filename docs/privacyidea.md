@@ -1,27 +1,21 @@
-privacyidea module
+privacyIDEA module
 ==================
 
-This module provides an authentication module for simpleSAMLphp to talk to the privacyIDEA authentication server.
+This module is an authentication module for simpleSAMLphp to use with the privacyIDEA authentication server.
 
-The module contacts the privacyIDEA server via the API
+You can use this plugin in two different ways:
+<ol>
+    <li> AuthSource: This module does the complete authentication process against privacyIDEA
+    <li> AuthProc: This module does just one step of the authentication, the second factor against privacyIDEA
+</ol>
 
-https://privacyidea/validate/check
+NOTE: This plugin is enabled by default when installed, you do not need to enable it manually.
 
-and authenticates the user according to the token assigned to the user.
-
-The response can also contain some attributes.
-
-You can use this plugin in two different ways Method 1) authenticate against privacyIDEA only Method 2) authenticate the
-1st factor against your authsource and the 2nd factor against privacyIDEA
-
-NOTE: This plugin is enabled by default, you do not need to enable it manually.
-
-Method 1 (authsource)
-========
-
+AuthSource
+==========
 
 You need to add the authentication source 'privacyidea' to
-'config/authsources.php'. Do it like this:
+`config/authsources.php`. *example-privacyidea* is the name used to identify this module, it can be changed to your liking. The following is a template configuration:
 
 ```PHP
 'example-privacyidea' => array(
@@ -143,22 +137,22 @@ User attributes
 At the moment privacyIDEA will know and return the following attributes by default, that can be mapped to SAML
 attributes:
 
-username:    The login name surname:    The real world name of the user as it is retrieved from the user source
-givenname:    The real world name of the user as it is retrieved from the user source mobile:        The mobile phone
-number of the user as it is retrieved from the user source phone:        The phone number of the user as it is retrieved
-from the user source email:        The email address of the user as it is retrieved from the user source
+- username: The login name
+- surname: The real world name of the user as it is retrieved from the user source 
+- givenname: The real world name of the user as it is retrieved from the user source 
+- mobile: The mobile phone number of the user as it is retrieved from the user source 
+- phone: The phone number of the user as it is retrieved from the user source 
+- email: The email address of the user as it is retrieved from the user source
 
 The list can be extended by including custom attributes in the attributemap. If the privacyIDEA server returns an
 attribute 'groups', you can map that to 'groups' if you include it in the attributemap. Otherwise, it is discarded.
 
 
-
-
-Method 2 (authproc)
+AuthProc
 ========
 
 
-If you want to use privacyIDEA as an auth proc filter, change the metadata. Use the following example:
+If you want to use privacyIDEA as an auth process filter, add the configuration to the metadata file (e.g. `simplesaml/metadata/saml20-idp-hosted.php`. 
 
 ```PHP
 'authproc' => array(
