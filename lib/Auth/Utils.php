@@ -1,39 +1,38 @@
 <?php
 
 require_once((dirname(__FILE__, 2)) . '/php-client/src/Client-Autoloader.php');
+require_once('PILogger.php');
 
-class sspmod_privacyidea_Auth_utils
+class sspmod_privacyidea_Auth_Utils
 {
     /**
      * Perform 2FA given the current state and the inputs from the form.
      *
      * @param array $state state
      * @param array $formParams inputs from the form
-     * @param array $serverConfig
      * @return PIResponse|null An array containing attributes and detail, or NULL.
-     * @throws PIBadRequestException
+     * @throws Exception
      */
-    public static function authenticatePI(array &$state, array $formParams, array $serverConfig)
+    public static function authenticatePI(array &$state, array $formParams)
     {
         assert('array' === gettype($state));
         assert('array' === gettype($formParams));
-        assert('array' === gettype($serverConfig));
 
-        SimpleSAML_Logger::debug("utils::authenticatePI...");
-        SimpleSAML_Logger::debug("Form data: " . http_build_query($formParams, '', ', '));
-        SimpleSAML_Logger::debug("Server config: " . http_build_query($serverConfig, '', ', '));
+        SimpleSAML_Logger::debug("privacyIDEA: Utils::authenticatePI with form data:\n" . http_build_query($formParams, '', ', '));
 
-        $state['privacyidea:privacyidea:ui']['mode'] = $formParams['mode'];
-
+        // If the mode was changed, do not make any requests
         if ($formParams["modeChanged"] == "1")
         {
             $state['privacyidea:privacyidea:ui']['loadCounter'] = 1;
             return null;
         }
 
+        $state['privacyidea:privacyidea:ui']['mode'] = $formParams['mode'];
+        $serverConfig = $state['privacyidea:privacyidea'];
+
+        // Get the username from elsewhere if it is not in the form
         if (empty($formParams['username']))
         {
-
             if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
             {
                 $username = $state['privacyidea:privacyidea']['username'];
@@ -48,10 +47,11 @@ class sspmod_privacyidea_Auth_utils
             $username = $formParams['username'];
         }
 
-        $pi = new PrivacyIDEA("simpleSAMLphp", $serverConfig['privacyideaServerURL']);
-        $pi->sslVerifyHost = $serverConfig['sslVerifyHost'];
-        $pi->sslVerifyPeer = $serverConfig['sslVerifyPeer'];
-        $pi->realm = @$serverConfig['realm'] ?: "";
+        $pi = self::createPrivacyIDEAInstance($serverConfig);
+        if ($pi == null)
+        {
+            throw new Exception("Unable to initialize privacyIDEA");
+        }
 
         $response = null;
         $transactionID = $state['privacyidea:privacyidea']['transactionID'];
@@ -66,11 +66,6 @@ class sspmod_privacyidea_Auth_utils
                 // https://privacyidea.readthedocs.io/en/latest/tokens/authentication_modes.html#outofband-mode
                 $response = $pi->validateCheck($username, "", $transactionID);
             }
-            else
-            {
-                SimpleSAML_Logger::debug("privacyIDEA: PUSH not confirmed yet");
-            }
-
         }
         elseif ($formParams['mode'] == "u2f")
         {
@@ -78,7 +73,7 @@ class sspmod_privacyidea_Auth_utils
 
             if (empty($u2fSignResponse))
             {
-                SimpleSAML_Logger::error("Incomplete data for U2F authentication: u2fSignResponse is missing!");
+                SimpleSAML_Logger::error("privacyIDEA: Incomplete data for U2F authentication: u2fSignResponse is missing!");
             }
             else
             {
@@ -92,7 +87,7 @@ class sspmod_privacyidea_Auth_utils
 
             if (empty($origin) || empty($webAuthnSignResponse))
             {
-                SimpleSAML_Logger::error("Incomplete data for WebAuthn authentication: WebAuthnSignResponse or Origin is missing!");
+                SimpleSAML_Logger::error("privacyIDEA: Incomplete data for WebAuthn authentication: WebAuthnSignResponse or Origin is missing!");
             }
             else
             {
@@ -114,10 +109,9 @@ class sspmod_privacyidea_Auth_utils
      * The first authority returned by SSP is used. Authorities are validated before they are returned so the authority
      * that is used can be considered valid.
      *
-     * @param $state
      * @return void
      */
-    public static function tryWriteSSO($state)
+    public static function tryWriteSSO()
     {
         SimpleSAML_Logger::debug("privacyIDEA: tryWriteSSO");
 
@@ -131,14 +125,14 @@ class sspmod_privacyidea_Auth_utils
         }
 
         $authority = $authorities[0];
-        SimpleSAML_Logger::debug("privacyIDEA: Registering logout handler for authority " .  $authority);
+        SimpleSAML_Logger::debug("privacyIDEA: Registering logout handler for authority " . $authority);
 
         $session->registerLogoutHandler(
             $authority,
-            \sspmod_privacyidea_Auth_utils::class,
+            sspmod_privacyidea_Auth_Utils::class,
             'handleLogout'
         );
-        $session->setData('privacyidea:privacyidea:sso', "2FA-success", true);
+        $session->setData('privacyidea:privacyidea', "2FA-success", true);
         SimpleSAML_Logger::debug("privacyIDEA: SSO data written and logout handler registered.");
     }
 
@@ -157,12 +151,11 @@ class sspmod_privacyidea_Auth_utils
         // For SSO to be valid, we check 2 things:
         // 1. Valid login of SSP which is not expired
         // 2. Completed 2FA with this module
-        if(is_array($state) && array_key_exists('Expire', $state) && $state['Expire'] > time())
+        if (is_array($state) && array_key_exists('Expire', $state) && $state['Expire'] > time())
         {
             SimpleSAML_Logger::debug("privacyIDEA: Valid login found. Checking for valid 2FA..");
             $session = SimpleSAML_Session::getSessionFromRequest();
-            $success = $ssoData = $session->getData('privacyidea:privacyidea:sso', '2FA-success');
-            return $success;
+            return $session->getData('privacyidea:privacyidea', '2FA-success');
         }
         else
         {
@@ -185,49 +178,102 @@ class sspmod_privacyidea_Auth_utils
     }
 
     /**
+     * Create a new privacyIDEA object with the given configuration
+     *
+     * @param array $config
+     * @return PrivacyIDEA|null privacyIDEA object or null on error
+     */
+    public static function createPrivacyIDEAInstance($config)
+    {
+        if (!empty($config['privacyideaServerURL']))
+        {
+            $pi = new PrivacyIDEA("simpleSAMLphp", $config['privacyideaServerURL']);
+            $pi->logger = new PILogger();
+
+            if (array_key_exists('sslVerifyHost', $config) && !empty($config['sslVerifyHost']))
+            {
+                $pi->sslVerifyHost = $config['sslVerifyHost'] !== "false";
+            }
+
+            if (array_key_exists('sslVerifyPeer', $config) && !empty($config['sslVerifyPeer']))
+            {
+                $pi->sslVerifyPeer = $config['sslVerifyPeer'] !== "false";
+            }
+
+            if (array_key_exists('serviceAccount', $config) && !empty($config['serviceAccount']))
+            {
+                $pi->serviceAccountName = $config['serviceAccount'];
+            }
+
+            if (array_key_exists('servicePass', $config) && !empty($config['servicePass']))
+            {
+                $pi->serviceAccountPass = $config['servicePass'];
+            }
+
+            if (array_key_exists('serviceRealm', $config) && !empty($config['serviceRealm']))
+            {
+                $pi->serviceAccountRealm = $config['serviceRealm'];
+            }
+
+            if (array_key_exists('realm', $config) && !empty($config['realm']))
+            {
+                $pi->realm = $config['realm'];
+            }
+
+            return $pi;
+        }
+        else
+        {
+            SimpleSAML_Logger::error("privacyIDEA: Cannot create privacyIDEA instance: server url missing in configuration!");
+        }
+        return null;
+    }
+
+    /**
      * Process the response from privacyIDEA and write information for the next step to the state.
      * If the response from privacyIDEA indicates success and this module is used as AuthProcFilter,
      * this function will resume the processing chain and not return.
      *
-     * @param string $stateID to load the state
+     * @param string $stateId to load the state
      * @param mixed $response from privacyIDEA
-     * @return string stateID of the modified state
+     * @return string stateId of the modified state
      * @throws Exception
      */
-    public static function processPIResponse($stateID, PIResponse $response, $config = null)
+    public static function processPIResponse($stateId, PIResponse $response)
     {
-        assert('string' === gettype($stateID));
+        assert('string' === gettype($stateId));
+        $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
 
-        $state = SimpleSAML_Auth_State::loadState($stateID, 'privacyidea:privacyidea');
+        $config = $state['privacyidea:privacyidea'];
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
 
         if (!empty($response->multiChallenge))
         {
-            $triggeredTokens = $response->triggeredTokenTypes();
+            // Authentication not complete, new challenges where triggered. Prepare the state for the next step
+            $triggeredToken = $response->triggeredTokenTypes();
             // Preferred token type
-            if ($config !== null)
+            if ($config !== null && array_key_exists("preferredTokenType", $config))
             {
                 $preferred = $config['preferredTokenType'];
                 if (!empty($preferred))
                 {
-                    if (in_array($preferred, $triggeredTokens))
+                    if (in_array($preferred, $triggeredToken))
                     {
-                        SimpleSAML_Logger::debug("Found preferred token type: " . $preferred);
                         $state['privacyidea:privacyidea:ui']['mode'] = $preferred;
                     }
                 }
             }
 
-            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
+            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredToken);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
             $state['privacyidea:privacyidea:ui']['message'] = $response->messages;
 
-            if(in_array("webauthn", $triggeredTokens))
+            if (in_array("webauthn", $triggeredToken))
             {
                 $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $response->webAuthnSignRequest();
             }
 
-            if(in_array("u2f", $triggeredTokens))
+            if (in_array("u2f", $triggeredToken))
             {
                 $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $response->u2fSignRequest();
             }
@@ -236,30 +282,38 @@ class sspmod_privacyidea_Auth_utils
         }
         elseif ($response->value)
         {
+            // Authentication successful. Finalize the authentication depending on method (AuthProc or AuthSource) and
+            // write SSO specific data if enabled.
             SimpleSAML_Logger::debug("privacyIDEA: User authenticated successfully!");
 
-            // Write data for SSO if enabled
-            if(array_key_exists('SSO', $state['privacyidea:serverconfig']) &&
-                $state['privacyidea:serverconfig']['SSO'] == true)
-            {
-                sspmod_privacyidea_Auth_utils::tryWriteSSO($state);
-            }
-
-            // If called from AuthProcFilter, the authentication ends here
+            // Complete the authentication depending on method
             if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
             {
+                // Write data for SSO if enabled
+                if (array_key_exists('SSO', $config) && $config['SSO'] == true)
+                {
+                    sspmod_privacyidea_Auth_Utils::tryWriteSSO();
+                }
+
                 SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
                 SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+            }
+            else if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
+            {
+                // For AuthSource, the attributes required by saml need to be present, so check for that before completing
+                sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource::checkAuthenticationComplete($state, $response, $config);
             }
         }
         elseif (!empty($response->errorCode))
         {
-            SimpleSAML_Logger::error("PrivacyIDEA server: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
+            // privacyIDEA returned an error, prepare to display it
+            SimpleSAML_Logger::error("privacyIDEA: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
             $state['privacyidea:privacyidea']['errorCode'] = $response->errorCode;
             $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
         }
         else
         {
+            // Unexpected response
             SimpleSAML_Logger::error("privacyIDEA: " . $response->message);
             $state['privacyidea:privacyidea']['errorMessage'] = $response->message;
         }
