@@ -26,6 +26,6 @@ https://getcomposer.org/doc/00-intro.md
 
 You can install this plugin into simpleSAMLphp like this:
 
-    php composer.phar require privacyidea/simplesamlphp-module-privacyidea:v1.6
+    composer require privacyidea/simplesamlphp-module-privacyidea
 
 Check for the latest version of the plugin.
