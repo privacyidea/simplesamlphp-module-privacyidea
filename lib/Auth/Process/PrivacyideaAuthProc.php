@@ -133,11 +133,9 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
         elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
-
-            $response = sspmod_privacyidea_Auth_utils::authenticatePI($state,
-                                                                      array('pass' => $this->authProcConfig['tryFirstAuthPass']),
-                                                                      $this->authProcConfig);
-
+            // Call /validate/check with a static pass from the configuration
+            // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
+            $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, array('otp' => $this->authProcConfig['tryFirstAuthPass']));
             if (empty($response->multiChallenge) && $response->value)
             {
                 return;
@@ -183,7 +181,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             $type = $this->authProcConfig['tokenType'];
             $description = "Enrolled with simpleSAMLphp";
 
-            // Call SDK's enrollToken()
             $response = $this->pi->enrollToken($username, $genkey, $type, $description);
 
             if (!empty($response->errorMessage))
@@ -191,13 +188,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                 SimpleSAML_Logger::error("PrivacyIDEA server: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
                 $state['privacyidea:privacyidea']['errorCode'] = $response->errorCode;
                 $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
-            }
-
-            // Nullcheck
-            if ($response === null)
-            {
-                throw new SimpleSAML_Error_BadRequest(
-                    "privacyIDEA: We were not able to read the response from the PI server.");
             }
 
             // If we have a response from PI - save QR Code into state to show it soon
