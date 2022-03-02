@@ -283,7 +283,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          *  Depending on excludeEntityIDs and includeAttributes the filter will set the state variable 
          *  $state[$setPath][$setPath] to true or false.
          *  To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
-         *  that they equal enabledPath and enabledKey from privacyidea:serverconfig or privacyidea:privacyidea.
+         *  that they equal enabledPath and enabledKey from privacyidea:privacyidea.
          */
         'setPath'              => 'privacyIDEA',
         'setKey'               => 'enabled',
