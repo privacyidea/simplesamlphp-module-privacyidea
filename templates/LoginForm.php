@@ -7,7 +7,8 @@ if (!empty($this->data['authProcFilterScenario']))
     {
         $this->data['username'] = null;
     }
-} else
+}
+else
 {
     $this->data['authProcFilterScenario'] = 0;
 }
@@ -16,24 +17,19 @@ if (!empty($this->data['authProcFilterScenario']))
 if (!empty($this->data['otpFieldHint']))
 {
     $otpHint = $this->data['otpFieldHint'];
-} else
+}
+else
 {
     $otpHint = $this->t('{privacyidea:privacyidea:otp}');
 }
 if (!empty($this->data['passFieldHint']))
 {
     $passHint = $this->data['passFieldHint'];
-} else
+}
+else
 {
     $passHint = $this->t('{privacyidea:privacyidea:password}');
 }
-
-// Call u2f.js and u2f-api.js if u2f token is triggered
-/*$head = '';
-if ($this->data['u2fSignRequest']) {
-    // Add javascript for U2F support before including the header.
-    $head .= '<script type="text/javascript" src="' . htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) . '"></script>';
-}*/
 
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
 
@@ -41,7 +37,8 @@ $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
 if (strlen($this->data['username']) > 0)
 {
     $this->data['autofocus'] = 'password';
-} else
+}
+else
 {
     $this->data['autofocus'] = 'username';
 }
@@ -78,7 +75,8 @@ if ($this->data['errorCode'] !== NULL)
             if ($this->data['authProcFilterScenario'])
             {
                 echo '<h2>' . htmlspecialchars($this->t('{privacyidea:privacyidea:login_title_challenge}')) . '</h2>';
-            } else
+            }
+            else
             {
                 if ($this->data['step'] < 2)
                 {
@@ -87,7 +85,7 @@ if ($this->data['errorCode'] !== NULL)
             }
             ?>
 
-            <form action="" method="POST" id="piLoginForm" name="piLoginForm" class="loginForm">
+            <form action="FormReceiver.php" method="POST" id="piLoginForm" name="piLoginForm" class="loginForm">
                 <div class="form-panel first valid" id="gaia_firstform">
                     <div class="slide-out ">
                         <div class="input-wrapper focused">
@@ -100,13 +98,14 @@ if ($this->data['errorCode'] !== NULL)
                                     <input type="hidden" id="username" name="username"
                                            value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"/>
                                     <?php
-                                } else
+                                }
+                                else
                                 {
                                     ?>
                                     <label for="username" class="sr-only">
                                         <?php echo $this->t('{login:username}'); ?>
                                     </label>
-                                    <input type="text" id="username" tabindex="1" name="username"
+                                    <input type="text" id="username" tabindex="1" name="username" autofocus
                                            value="<?php echo htmlspecialchars($this->data['username'], ENT_QUOTES) ?>"
                                            placeholder="<?php echo htmlspecialchars($this->t('{login:username}'), ENT_QUOTES) ?>"
                                     />
@@ -120,10 +119,12 @@ if ($this->data['errorCode'] !== NULL)
                                     if ($this->data['rememberUsernameEnabled'] || $this->data['rememberMeEnabled'])
                                     {
                                         $rowspan = 1;
-                                    } elseif (array_key_exists('organizations', $this->data))
+                                    }
+                                    elseif (array_key_exists('organizations', $this->data))
                                     {
                                         $rowspan = 3;
-                                    } else
+                                    }
+                                    else
                                     {
                                         $rowspan = 2;
                                     }
@@ -154,7 +155,7 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <strong id="message"><?php echo $this->data['message'] ?></strong>
+                                <strong id="message"><?php echo $this->data['message'] ?: "" ?></strong>
 
                                 <br><br>
                                 <label for="otp" class="sr-only">
@@ -170,27 +171,32 @@ if ($this->data['errorCode'] !== NULL)
                                 <br><br>
 
                                 <!-- Hidden input which store the info about changes for future use in backend-->
-                                <input id="mode" type="hidden" name="mode" value="<?php echo $this->data['mode'] ?>"/>
+                                <input id="mode" type="hidden" name="mode"
+                                       value="<?php echo $this->data['mode'] ?: "otp" ?>"/>
+
                                 <input id="pushAvailable" type="hidden" name="pushAvailable"
-                                       value="<?php echo $this->data['pushAvailable'] ?>"/>
+                                       value="<?php echo @$this->data['pushAvailable'] ?: false ?>"/>
+
                                 <input id="otpAvailable" type="hidden" name="otpAvailable"
-                                       value="<?php echo $this->data['otpAvailable'] ?>"/>
+                                       value="<?php echo $this->data['otpAvailable'] ?: true ?>"/>
+
                                 <input id="webAuthnSignRequest" type="hidden" name="webAuthnSignRequest"
-                                       value='<?php echo $this->data['webAuthnSignRequest'] ?>'/>
+                                       value='<?php echo $this->data['webAuthnSignRequest'] ?: "" ?>'/>
+
                                 <input id="u2fSignRequest" type="hidden" name="u2fSignRequest"
-                                       value='<?php echo $this->data['u2fSignRequest'] ?>'/>
+                                       value='<?php echo $this->data['u2fSignRequest'] ?: "" ?>'/>
+
                                 <input id="modeChanged" type="hidden" name="modeChanged" value="0"/>
-                                <input id="step" type="hidden" name="step"
-                                       value="<?php echo $this->data['step'] ?>"/>
+                                <input id="step" type="hidden" name="step" value="<?php echo $this->data['step'] ?: 2 ?>"/>
+
                                 <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse" value=""/>
                                 <input id="u2fSignResponse" type="hidden" name="u2fSignResponse" value=""/>
                                 <input id="origin" type="hidden" name="origin" value=""/>
                                 <input id="loadCounter" type="hidden" name="loadCounter"
-                                       value="<?php echo $this->data['loadCounter'] ?>"/>
+                                       value="<?php echo $this->data['loadCounter'] ?: 1 ?>"/>
 
                                 <!-- Additional input to persist the message -->
-                                <input type="hidden" name="message"
-                                       value="<?php echo $this->data['message'] ?>"/>
+                                <input type="hidden" name="message" value="<?php echo $this->data['message'] ?: "" ?>"/>
 
                                 <?php
                                 // If enrollToken load QR Code
@@ -218,7 +224,8 @@ if ($this->data['errorCode'] !== NULL)
                                         if (array_key_exists('selectedOrg', $this->data))
                                         {
                                             $selectedOrg = $this->data['selectedOrg'];
-                                        } else
+                                        }
+                                        else
                                         {
                                             $selectedOrg = NULL;
                                         }
@@ -233,7 +240,8 @@ if ($this->data['errorCode'] !== NULL)
                                             if ($orgId === $selectedOrg)
                                             {
                                                 $selected = 'selected="selected" ';
-                                            } else
+                                            }
+                                            else
                                             {
                                                 $selected = '';
                                             }
@@ -303,7 +311,8 @@ if (!empty($this->data['links']))
         'alert_webauthn_insecure_context', 'alert_webauthn_unavailable', 'alert_webAuthnSignRequest_error',
         'alert_u2f_insecure_context', 'alert_u2f_unavailable', 'alert_U2FSignRequest_error',
     ];
-    foreach ($translation_keys as $translation_key) {
+    foreach ($translation_keys as $translation_key)
+    {
         $translations[$translation_key] = $this->t(sprintf('{privacyidea:privacyidea:%s}', $translation_key));
     }
     echo htmlspecialchars(json_encode($translations));
