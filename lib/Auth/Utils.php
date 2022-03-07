@@ -54,7 +54,11 @@ class sspmod_privacyidea_Auth_Utils
         }
 
         $response = null;
-        $transactionID = $state['privacyidea:privacyidea']['transactionID'];
+        $transactionID = "";
+        if (isset($state['privacyidea:privacyidea']['transactionID']))
+        {
+            $transactionID = $state['privacyidea:privacyidea']['transactionID'];
+        }
 
         // Send a request according to the mode
         if ($formParams['mode'] == "push")
@@ -368,7 +372,8 @@ class sspmod_privacyidea_Auth_Utils
     {
         if (isset($config['enabledPath']) || isset($state['enabledPath']))
         {
-            if ($config['enabledKey'] === false || $state['enabledKey'] === false)
+            if (isset($config['enabledKey'])
+                && ($config['enabledKey'] === false || $state['enabledKey'] === false))
             {
                 return true;
             }

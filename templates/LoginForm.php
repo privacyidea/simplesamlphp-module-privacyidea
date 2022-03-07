@@ -14,7 +14,7 @@ else
 }
 
 // Set the right text shown in otp/pass field(s)
-if (!empty($this->data['otpFieldHint']))
+if (isset($this->data['otpFieldHint']))
 {
     $otpHint = $this->data['otpFieldHint'];
 }
@@ -22,7 +22,7 @@ else
 {
     $otpHint = $this->t('{privacyidea:privacyidea:otp}');
 }
-if (!empty($this->data['passFieldHint']))
+if (isset($this->data['passFieldHint']))
 {
     $passHint = $this->data['passFieldHint'];
 }
@@ -155,7 +155,7 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <strong id="message"><?php echo $this->data['message'] ?: "" ?></strong>
+                                <strong id="message"><?php echo @$this->data['message'] ?: "" ?></strong>
 
                                 <br><br>
                                 <label for="otp" class="sr-only">
@@ -170,33 +170,33 @@ if ($this->data['errorCode'] !== NULL)
                                        value="<?php echo htmlspecialchars($this->t('{login:login_button}'), ENT_QUOTES) ?>"/>
                                 <br><br>
 
-                                <!-- Hidden input which store the info about changes for future use in backend-->
+                                <!-- Undefined index is suppressed and the default is used for these values -->
                                 <input id="mode" type="hidden" name="mode"
-                                       value="<?php echo $this->data['mode'] ?: "otp" ?>"/>
+                                       value="<?php echo @$this->data['mode'] ?: "otp" ?>"/>
 
                                 <input id="pushAvailable" type="hidden" name="pushAvailable"
                                        value="<?php echo @$this->data['pushAvailable'] ?: false ?>"/>
 
                                 <input id="otpAvailable" type="hidden" name="otpAvailable"
-                                       value="<?php echo $this->data['otpAvailable'] ?: true ?>"/>
+                                       value="<?php echo @$this->data['otpAvailable'] ?: true ?>"/>
 
                                 <input id="webAuthnSignRequest" type="hidden" name="webAuthnSignRequest"
-                                       value='<?php echo $this->data['webAuthnSignRequest'] ?: "" ?>'/>
+                                       value='<?php echo @$this->data['webAuthnSignRequest'] ?: "" ?>'/>
 
                                 <input id="u2fSignRequest" type="hidden" name="u2fSignRequest"
-                                       value='<?php echo $this->data['u2fSignRequest'] ?: "" ?>'/>
+                                       value='<?php echo @$this->data['u2fSignRequest'] ?: "" ?>'/>
 
                                 <input id="modeChanged" type="hidden" name="modeChanged" value="0"/>
-                                <input id="step" type="hidden" name="step" value="<?php echo $this->data['step'] ?: 2 ?>"/>
+                                <input id="step" type="hidden" name="step" value="<?php echo @$this->data['step'] ?: 2 ?>"/>
 
                                 <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse" value=""/>
                                 <input id="u2fSignResponse" type="hidden" name="u2fSignResponse" value=""/>
                                 <input id="origin" type="hidden" name="origin" value=""/>
                                 <input id="loadCounter" type="hidden" name="loadCounter"
-                                       value="<?php echo $this->data['loadCounter'] ?: 1 ?>"/>
+                                       value="<?php echo @$this->data['loadCounter'] ?: 1 ?>"/>
 
                                 <!-- Additional input to persist the message -->
-                                <input type="hidden" name="message" value="<?php echo $this->data['message'] ?: "" ?>"/>
+                                <input type="hidden" name="message" value="<?php echo @$this->data['message'] ?: "" ?>"/>
 
                                 <?php
                                 // If enrollToken load QR Code
@@ -301,8 +301,8 @@ if (!empty($this->data['links']))
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="<?php echo (
         !$this->data['pushAvailable']
-        && (($this->data['u2fSignRequest']) == "")
-        && (($this->data['webAuthnSignRequest']) == "")
+        && (!isset($this->data['u2fSignRequest']) || ($this->data['u2fSignRequest']) == "")
+        && (!isset($this->data['webAuthnSignRequest']) || ($this->data['webAuthnSignRequest']) == "")
     ) ? 'true' : 'false'; ?>">
 
     <meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
