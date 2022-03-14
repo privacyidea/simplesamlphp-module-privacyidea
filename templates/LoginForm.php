@@ -292,7 +292,7 @@ if (!empty($this->data['links']))
 }
 ?>
 
-    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/webauthn-client/pi-webauthn.js'), ENT_QUOTES) ?>">
+    <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/pi-webauthn.js'), ENT_QUOTES) ?>">
     </script>
 
     <script src="<?php echo htmlspecialchars(SimpleSAML_Module::getModuleUrl('privacyidea/js/u2f-api.js'), ENT_QUOTES) ?>">
