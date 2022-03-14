@@ -1,6 +1,5 @@
 <?php
 
-require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
 require_once((dirname(__FILE__, 2)) . '/PILogger.php');
 
 /**
