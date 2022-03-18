@@ -156,7 +156,7 @@ if ($this->data['errorCode'] !== NULL)
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
                                 <strong id="message"><?php echo @$this->data['message'] ?: "" ?></strong>
-
+                                <br>
                                 <input id="otp" name="otp" type="password"
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
                                 <br><br>
