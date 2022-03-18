@@ -156,14 +156,9 @@ if ($this->data['errorCode'] !== NULL)
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
                                 <strong id="message"><?php echo @$this->data['message'] ?: "" ?></strong>
-
-                                <br><br>
-                                <label for="otp" class="sr-only">
-                                    <?php echo $this->t('{privacyidea:privacyidea:otp}'); ?>
-                                </label>
-
-                                <input id="otp" name="otp" tabindex="1" type="password" value="" class="text"
-                                       placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>"/>
+                                <br>
+                                <input id="otp" name="otp" type="password"
+                                       placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
                                 <br><br>
                                 <input id="submitButton" tabindex="1" class="rc-button rc-button-submit" type="submit"
                                        name="Submit"
@@ -187,7 +182,8 @@ if ($this->data['errorCode'] !== NULL)
                                        value='<?php echo @$this->data['u2fSignRequest'] ?: "" ?>'/>
 
                                 <input id="modeChanged" type="hidden" name="modeChanged" value="0"/>
-                                <input id="step" type="hidden" name="step" value="<?php echo @$this->data['step'] ?: 2 ?>"/>
+                                <input id="step" type="hidden" name="step"
+                                       value="<?php echo @$this->data['step'] ?: 2 ?>"/>
 
                                 <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse" value=""/>
                                 <input id="u2fSignResponse" type="hidden" name="u2fSignResponse" value=""/>
@@ -196,7 +192,8 @@ if ($this->data['errorCode'] !== NULL)
                                        value="<?php echo @$this->data['loadCounter'] ?: 1 ?>"/>
 
                                 <!-- Additional input to persist the message -->
-                                <input type="hidden" name="message" value="<?php echo @$this->data['message'] ?: "" ?>"/>
+                                <input type="hidden" name="message"
+                                       value="<?php echo @$this->data['message'] ?: "" ?>"/>
 
                                 <?php
                                 // If enrollToken load QR Code

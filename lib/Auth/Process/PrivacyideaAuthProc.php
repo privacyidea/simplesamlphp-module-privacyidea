@@ -106,8 +106,20 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             }
             else
             {
-                $response = $this->pi->triggerChallenge($username);
-                $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
+                $response = null;
+                try
+                {
+                    $response = $this->pi->triggerChallenge($username);
+                }
+                catch (Exception $e)
+                {
+                    sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                }
+
+                if ($response != null)
+                {
+                    $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
+                }
             }
         }
         elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')

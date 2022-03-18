@@ -181,7 +181,14 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             {
                 if (!empty($username) && $source->pi->serviceAccountAvailable())
                 {
-                    $response = $source->pi->triggerChallenge($username);
+                    try
+                    {
+                        $response = $source->pi->triggerChallenge($username);
+                    }
+                    catch (Exception $e)
+                    {
+                        sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                    }
                 }
             }
             elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
@@ -189,13 +196,29 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             {
                 if (!empty($username))
                 {
-                    $response = $source->pi->validateCheck($username, $password);
+                    try
+                    {
+                        $response = $source->pi->validateCheck($username, $password);
+                    }
+                    catch (Exception $e)
+                    {
+                        sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                    }
                 }
             }
+            // Save the state at the end of step
+            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
         }
         elseif ($step > 1)
         {
-            $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, $formParams);
+            try
+            {
+                $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, $formParams);
+            }
+            catch (Exception $e)
+            {
+                sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+            }
             $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
         }
         else

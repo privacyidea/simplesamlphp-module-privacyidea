@@ -9,7 +9,11 @@ if (empty($stateId))
 $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
 
 // Find the username
-if (isset($state['privacyidea:privacyidea']['uidKey']))
+if (array_key_exists('username', $_REQUEST))
+{
+$username = (string)$_REQUEST['username'];
+}
+elseif (isset($state['privacyidea:privacyidea']['uidKey']))
 {
     $uidKey = $state['privacyidea:privacyidea']['uidKey'];
     $username = $state['Attributes'][$uidKey][0];
@@ -17,10 +21,6 @@ if (isset($state['privacyidea:privacyidea']['uidKey']))
 elseif (isset($state['privacyidea:privacyidea']['username']))
 {
     $username = $state['privacyidea:privacyidea']['username'];
-}
-elseif (array_key_exists('username', $_REQUEST))
-{
-    $username = (string)$_REQUEST['username'];
 }
 elseif (isset($state['core:username']))
 {
