@@ -155,7 +155,7 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="1" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <strong id="message"><?php echo @$this->data['message'] ?: "" ?></strong>
+                                <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES)?></strong>
                                 <br>
                                 <input id="otp" name="otp" type="password"
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
@@ -167,33 +167,33 @@ if ($this->data['errorCode'] !== NULL)
 
                                 <!-- Undefined index is suppressed and the default is used for these values -->
                                 <input id="mode" type="hidden" name="mode"
-                                       value="<?php echo @$this->data['mode'] ?: "otp" ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['mode'] ?: "otp", ENT_QUOTES) ?>"/>
 
                                 <input id="pushAvailable" type="hidden" name="pushAvailable"
-                                       value="<?php echo @$this->data['pushAvailable'] ?: false ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['pushAvailable'] ?: "", ENT_QUOTES) ?>"/>
 
                                 <input id="otpAvailable" type="hidden" name="otpAvailable"
-                                       value="<?php echo @$this->data['otpAvailable'] ?: true ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['otpAvailable'] ?: "1", ENT_QUOTES) ?>"/>
 
                                 <input id="webAuthnSignRequest" type="hidden" name="webAuthnSignRequest"
-                                       value='<?php echo @$this->data['webAuthnSignRequest'] ?: "" ?>'/>
+                                       value='<?php echo htmlspecialchars(@$this->data['webAuthnSignRequest'] ?: "", ENT_QUOTES) ?>'/>
 
                                 <input id="u2fSignRequest" type="hidden" name="u2fSignRequest"
-                                       value='<?php echo @$this->data['u2fSignRequest'] ?: "" ?>'/>
+                                       value='<?php echo htmlspecialchars(@$this->data['u2fSignRequest'] ?: "", ENT_QUOTES) ?>'/>
 
                                 <input id="modeChanged" type="hidden" name="modeChanged" value="0"/>
                                 <input id="step" type="hidden" name="step"
-                                       value="<?php echo @$this->data['step'] ?: 2 ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['step'] ?: 2, ENT_QUOTES) ?>"/>
 
                                 <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse" value=""/>
                                 <input id="u2fSignResponse" type="hidden" name="u2fSignResponse" value=""/>
                                 <input id="origin" type="hidden" name="origin" value=""/>
                                 <input id="loadCounter" type="hidden" name="loadCounter"
-                                       value="<?php echo @$this->data['loadCounter'] ?: 1 ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['loadCounter'] ?: 1, ENT_QUOTES) ?>"/>
 
                                 <!-- Additional input to persist the message -->
                                 <input type="hidden" name="message"
-                                       value="<?php echo @$this->data['message'] ?: "" ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['message'] ?: "" , ENT_QUOTES)?>"/>
 
                                 <?php
                                 // If enrollToken load QR Code

@@ -11,7 +11,7 @@ $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
 // Find the username
 if (array_key_exists('username', $_REQUEST))
 {
-$username = (string)$_REQUEST['username'];
+    $username = (string)$_REQUEST['username'];
 }
 elseif (isset($state['privacyidea:privacyidea']['uidKey']))
 {
