@@ -29,14 +29,13 @@ Taken from the google login page
     margin-bottom: 10px;
     background-size: 96px;
     background-repeat: no-repeat;
-    background-image: url(../img/avatar_2x.png);
+    background-image: url(../img/user.png);
     -webkit-transition: opacity 0.075s;
     -moz-transition: opacity 0.075s;
     -ms-transition: opacity 0.075s;
     -o-transition: opacity 0.075s;
     transition: opacity 0.075s;
 }
-
 
 .input-wrapper {
     position: relative;
