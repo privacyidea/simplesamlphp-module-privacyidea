@@ -396,23 +396,4 @@ class sspmod_privacyidea_Auth_Utils
         }
         return $config;
     }
-
-    /**
-     * Check if PrivacyIDEA was disabled by a filter.
-     * @param array $state The global state of simpleSAMLphp.
-     * @param array $config The config for the PrivacyIDEA server.
-     * @return boolean Whether PrivacyIDEA is disabled.
-     */
-    public static function isPrivacyIDEADisabled(array $state, array $config)
-    {
-        if (isset($config['enabledPath']) || isset($state['enabledPath']))
-        {
-            if (isset($config['enabledKey'])
-                && ($config['enabledKey'] === false || $state['enabledKey'] === false))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }

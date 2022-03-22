@@ -52,10 +52,16 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         // It can be used to configure that a user does not need to provide a second factor when logging in from the local network.
         if (!empty($this->authProcConfig['excludeClientIPs']))
         {
-            $state['privacyIDEA']['enabled'][0] = $this->matchIP(sspmod_privacyidea_Auth_Utils::getClientIP(), $this->authProcConfig['excludeClientIPs']);
+            $ip = sspmod_privacyidea_Auth_Utils::getClientIP();
+            if ($this->matchIP($ip, $this->authProcConfig['excludeClientIPs']))
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is disabled because ip " . $ip . " is excluded.");
+                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+            }
         }
 
         // If set to "true" in config, selectively disable the privacyIDEA authentication using the entityID and/or SAML attributes.
+        // The skipping will be done in self::isPrivacyIDEADisabled
         if (!empty($this->authProcConfig['checkEntityID']) && $this->authProcConfig['checkEntityID'] === 'true')
         {
             $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
@@ -64,11 +70,10 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
 
         // Check if privacyIDEA is disabled by configuration setting
-        if (sspmod_privacyidea_Auth_Utils::isPrivacyIDEADisabled($state, $this->authProcConfig))
+        if (self::isPrivacyIDEADisabled($state, $this->authProcConfig))
         {
             SimpleSAML_Logger::debug("privacyIDEA: privacyIDEA is disabled by a filter");
             SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
-            return;
         }
 
         // SSO check if authentication should be skipped
@@ -131,7 +136,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             {
                 SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
             }
-            else if (!empty($response->multiChallenge))
+            elseif (!empty($response->multiChallenge))
             {
                 $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
             }
@@ -333,10 +338,26 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
             if (preg_match($reg, $str))
             {
-                array_push($retArr, $reg);
+                $retArr[] = $reg;
             }
         }
         return $retArr;
+    }
+
+    /**
+     * Check if PrivacyIDEA was disabled by a filter.
+     * @param array $state The global state of simpleSAMLphp.
+     * @param array $config The config for the PrivacyIDEA server.
+     * @return boolean Whether PrivacyIDEA is disabled.
+     */
+    public static function isPrivacyIDEADisabled(array $state, array $config)
+    {
+        if (isset($config['enabledPath']) && isset($config['enabledKey']))
+        {
+            return isset($state[$config['enabledPath']][$config['enabledKey']][0])
+                && !$state[$config['enabledPath']][$config['enabledKey']][0];
+        }
+        return false;
     }
 
     /**
