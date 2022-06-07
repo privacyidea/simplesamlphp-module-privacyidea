@@ -2,88 +2,108 @@
 	"header": {
 		"cs": "Přihlášení systémem privacyIDEA",
 		"de": "Anmelden gegen privacyIDEA",
-		"nl": "Authenticeer tegen privacyIDEA"
+		"nl": "Authenticeer tegen privacyIDEA",
+		"tr": "PrivacyIDEA kimlik doğrulama"
 	},
 	"login_title": {
 		"cs": "Vložte své uživatelské jméno a heslo",
 		"de": "Bitte geben Sie Ihren Nutzernamen und Passwort ein",
-		"nl": "Vul uw gebruikersnaam en wachtwoord in."
+		"nl": "Vul uw gebruikersnaam en wachtwoord in.",
+		"tr": "Lütfen kullanıcı adınızı ve şifrenizi girin."
 	},
 	"password_otp": {
 		"cs": "Heslo + jednorázový kód",
 		"de": "Password + OTP",
-		"nl": "Wachtwoord + OTP"
+		"nl": "Wachtwoord + OTP",
+		"tr": "Parola + OTP"
 	},
 	"password": {
 		"cs": "Heslo",
 		"de": "Password",
-		"nl": "Wachtwoord"
+		"nl": "Wachtwoord",
+		"tr": "Parola"
 	},
 	"otp": {
 		"cs": "Jednorázový kód",
 		"de": "Einmalpasswort",
-		"nl": "OTP"
+		"nl": "OTP",
+		"tr": "OTP"
 	},
 	"login_title_challenge": {
 		"cs": "Vložte jednorázový kód",
 		"de": "Bitte geben Sie Ihr Einmalpasswort ein",
-		"nl": "Vul je eenmalige wachtwoord in."
+		"nl": "Vul je eenmalige wachtwoord in.",
+		"tr": "Lütfen Tek Kullanımlık Parolanızı(OTP) giriniz"
 	},
 	"otp_extra_text": {
 		"cs": "Vložte své heslo a jednorázový kód",
 		"de": "Bitte geben Sie Ihr Password und Ihr Einmalpasswort ein",
-		"nl": "Vul je wachtwoord en eenmalige wachtwoord (OTP) in."
+		"nl": "Vul je wachtwoord en eenmalige wachtwoord (OTP) in.",
+		"tr": "Lütfen Parolanızı ve Tek Kullanımlık Parolanızı(OTP) giriniz"
 	},
 	"login_text_challenge": {
 		"cs": "Vložený PIN nebo heslo jsou správné, nyní použijte druhou metodu ověření.",
 		"de": "Sie haben die korrekte PIN, bzw. das korrekte Passwort eingegeben. Aber nun müssen Sie noch Ihren zweiten Faktor nutzen.",
-		"nl": "U heeft het de juiste PIN of wachtwoord ingegegeven. Geef nu ook uw tweede factor in."
+		"nl": "U heeft het de juiste PIN of wachtwoord ingegegeven. Geef nu ook uw tweede factor in.",
+		"tr": "Doğru PIN'i veya parolayı girdiniz. Ancak şimdi ikinci faktörünüzü de kullanmanız gerekiyor."
 	},
 	"scanTokenQR": {
 		"cs": "Naskenujte tento QR kód aplikací pro TOTP (např. Google Authenticator nebo privacyIDEA Authenticator) a zobrazený kód vložte níže.",
 		"de": "Scannen Sie den QR-Code mit einer App, wie dem Google Authenticator oder privacyIDEA Authenticator und geben Sie den angezeigten Code unten ein.",
-		"nl": "Scan deze QR-code met een app zoals Google Authenticator of privacyIDEA Authenticator en geef de getoonde code in."
+		"nl": "Scan deze QR-code met een app zoals Google Authenticator of privacyIDEA Authenticator en geef de getoonde code in.",
+		"tr": "Bu QR kodunu Google Authenticator veya diğer  bir uygulamayla tarayın ve görüntülenen kodu aşağıya girin."
 	},
 	"chal_resp_message": {
 		"cs": "Potvrďte jedním z následujících tokenů: ",
 		"de": "Bitte bestätigen Sie mit einem der folgenden Token: ",
-		"nl": "Bevestig met één van deze tokens: "
+		"nl": "Bevestig met één van deze tokens: ",
+		"tr": "Lütfen şu jetonlardan biriyle onaylayın: "
 	},
 	"enroll_u2f": {
 		"cs": "Použijte svůj U2F autentikátor pro dokončení registrace.",
 		"de": "Bitte nutzen Sie Ihr U2F-Gerät, um das Ausrollen fertigzustellen.",
-		"nl": "Gebruik uw u2f-toestel om de aanmelding verder te zetten."
+		"nl": "Gebruik uw u2f-toestel om de aanmelding verder te zetten.",
+		"tr": "Kayıt işlemini tamamlamak için lütfen u2f cihazınızı kullanın"
 	},
 	"u2fNotWorking": {
 		"cs": "U2F není k dispozici.",
 		"de": "U2F funktioniert momentan nicht.",
-		"nl": "U2F werkt momenteel niet."
+		"nl": "U2F werkt momenteel niet.",
+		"tr": "U2F şu anda çalışmıyor."
 	},
 	"alternate_login_options": {
 		"cs": "Další možnosti přihlášení:",
-		"de": "Alternative Login Optionen:"
+		"de": "Alternative Login Optionen:",
+		"tr": "Alternatif oturum açma seçenekleri:"
 	},
 	"alert_webauthn_insecure_context": {
-		"cs": "Není možné použít autentizaci WebAuthn, protože neodpovídá bezpečnostní kontext."
+		"cs": "Není možné použít autentizaci WebAuthn, protože neodpovídá bezpečnostní kontext.",
+		"tr": "Bağlam güvenli olmadığı için Web Authn ile devam edilemiyor!"
 	},
 	"alert_webauthn_unavailable": {
-		"cs": "Načtení WebAuthn knihovny se nezdařilo. Zkuste to znovu nebo použijte jiný token."
+		"cs": "Načtení WebAuthn knihovny se nezdařilo. Zkuste to znovu nebo použijte jiný token.",
+		"tr": "WebAuthn kitaplığı yüklenemedi. Lütfen tekrar deneyin veya başka bir belirteç kullanın."
 	},
 	"alert_webAuthnSignRequest_error": {
-		"cs": "Chyba při podepisování WebAuthnSignRequest:"
+		"cs": "Chyba při podepisování WebAuthnSignRequest:",
+		"tr": "WebAuthnSignRequest imzalanırken hata oluştu:"
 	},
 	"alert_u2f_insecure_context": {
-		"cs": "Není možné použít autentizaci U2F, protože neodpovídá bezpečnostní kontext."
+		"cs": "Není možné použít autentizaci U2F, protože neodpovídá bezpečnostní kontext.",
+		"tr": "Bağlam güvenli olmadığı için U2F ile devam edilemiyor!"
 	},
 	"alert_u2f_unavailable": {
-		"cs": "Načtení U2F knihovny se nezdařilo. Zkuste to znovu nebo použijte jiný token."
+		"cs": "Načtení U2F knihovny se nezdařilo. Zkuste to znovu nebo použijte jiný token.",
+		"tr": "U2F kitaplığı yüklenemedi. Lütfen tekrar deneyin veya başka bir belirteç kullanın."
 	},
 	"alert_U2FSignRequest_error": {
-		"cs": "Chyba při podepisování U2FSignRequest:"
+		"cs": "Chyba při podepisování U2FSignRequest:",
+		"tr": "U2FSignRequest imzalanırken hata oluştu:"
 	},
 	"tryAgain": {
 		"cs": "Zkusit znovu",
 		"de": "Nochmal versuchen",
-		"nl": "Probeer opnieuw"
+		"nl": "Probeer opnieuw",
+		"tr": "Tekrar Dene"
 	}
 }
