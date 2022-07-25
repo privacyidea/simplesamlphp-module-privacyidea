@@ -96,6 +96,13 @@ You need to add the authentication source 'privacyidea' to
      */
     'preferredTokenType' => '',
 
+    /**
+     * OTP extra field:
+     * 'false' (default) - one password field for PIN and OTP
+     * 'true' - Password field for password and extra field for OTP
+     */
+    'otpextra' => 'false',
+
     /*
      * This is the translation from privacyIDEA attribute names to 
      * SAML attribute names.
