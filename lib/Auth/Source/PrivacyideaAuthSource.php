@@ -59,15 +59,15 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
         parent::__construct($info, $config);
 
-        if (!in_array('attributemap', $config))
+        if (!array_key_exists('attributemap', $config))
         {
             $config['attributemap'] = array();
         }
-        if (!in_array('detailmap', $config))
+        if (!array_key_exists('detailmap', $config))
         {
             $config['detailmap'] = array();
         }
-        if (!in_array('concatenationmap', $config))
+        if (!array_key_exists('concatenationmap', $config))
         {
             $config['concatenationmap'] = array();
         }
