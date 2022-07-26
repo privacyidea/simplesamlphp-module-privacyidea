@@ -31,6 +31,16 @@ else
     $passHint = $this->t('{privacyidea:privacyidea:password}');
 }
 
+// Check if otpExtra is set to true
+if (isset($this->data['otpExtra']) && $this->data['otpExtra'])
+{
+    $otpExtra = true;
+}
+else
+{
+    $otpExtra = false;
+}
+
 $this->data['header'] = $this->t('{privacyidea:privacyidea:header}');
 
 // Prepare next settings
@@ -159,6 +169,13 @@ if ($this->data['errorCode'] !== NULL)
                                 <br>
                                 <input id="otp" name="otp" type="password"
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
+
+                                <!-- OTP extra field -->
+                                <?php if ($otpExtra) { ?>
+                                        <input id="otpExtra" name="otpExtra" type="password"
+                                               placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
+                                <?php } ?>
+
                                 <br><br>
                                 <input id="submitButton" tabindex="1" class="rc-button rc-button-submit" type="submit"
                                        name="Submit"
