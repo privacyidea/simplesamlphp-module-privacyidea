@@ -65,6 +65,7 @@ if (step > "1")
 {
     disable("username");
     disable("password");
+    disable("otpExtra");
 } else
 {
     disable("otp");
@@ -175,8 +176,8 @@ function doWebAuthn()
     try
     {
         const requestjson = JSON.parse(requestStr);
-
         const webAuthnSignResponse = window.pi_webauthn.sign(requestjson);
+
         webAuthnSignResponse.then((webauthnresponse) =>
         {
             const response = JSON.stringify(webauthnresponse);
@@ -252,7 +253,7 @@ function sign_u2f_request(signRequest)
     })
 }
 
-if (document.getElementById("privacyidea-hide-alternate").content == "true") {
+if (document.getElementById("privacyidea-hide-alternate").content === "true") {
     document.getElementById("AlternateLoginOptions").classList.add("hidden");
 }
 
