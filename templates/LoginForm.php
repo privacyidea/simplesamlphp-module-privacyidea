@@ -178,7 +178,7 @@ if ($this->data['errorCode'] !== NULL)
                                        placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
 
                                 <br><br>
-                                <input id="submitButton" tabindex="1" class="rc-button rc-button-submit" type="submit"
+                                <input id="submitButton" tabindex="4" class="rc-button rc-button-submit" type="submit"
                                        name="Submit"
                                        value="<?php echo htmlspecialchars($this->t('{login:login_button}'), ENT_QUOTES) ?>"/>
                                 <br><br>

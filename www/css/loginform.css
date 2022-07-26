@@ -28,10 +28,6 @@ label[for=otp] {
 	font-weight: bold;
 }
 
-#otp:focus {
-	margin: 25px 15px 7px;
-}
-
 #submitButton {
 	width:210px;
 	margin:0 15px 7px;
