@@ -162,19 +162,20 @@ if ($this->data['errorCode'] !== NULL)
                                 <label for="password" class="sr-only">
                                     <?php echo $this->t('{privacyidea:privacyidea:password}'); ?>
                                 </label>
-                                <input id="password" name="password" tabindex="1" type="password" value="" class="text"
+                                <input id="password" name="password" tabindex="2" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
-
-                                <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES)?></strong>
-                                <br>
-                                <input id="otp" name="otp" type="password"
-                                       placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
 
                                 <!-- OTP extra field -->
                                 <?php if ($otpExtra) { ?>
-                                        <input id="otpExtra" name="otpExtra" type="password"
-                                               placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
+                                    <br>
+                                    <input id="otpExtra" name="otpExtra" tabindex="3" type="password" value="" class="text"
+                                           placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
                                 <?php } ?>
+
+                                <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?></strong>
+                                <br>
+                                <input id="otp" name="otp" type="password"
+                                       placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
 
                                 <br><br>
                                 <input id="submitButton" tabindex="1" class="rc-button rc-button-submit" type="submit"
@@ -210,7 +211,7 @@ if ($this->data['errorCode'] !== NULL)
 
                                 <!-- Additional input to persist the message -->
                                 <input type="hidden" name="message"
-                                       value="<?php echo htmlspecialchars(@$this->data['message'] ?: "" , ENT_QUOTES)?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?>"/>
 
                                 <?php
                                 // If enrollToken load QR Code

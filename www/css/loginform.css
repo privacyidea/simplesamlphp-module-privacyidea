@@ -8,7 +8,7 @@
 	margin: 15px;
 }
 
-#username[type=text], #password, #otp {
+#username[type=text], #password, #otp, #otpExtra {
 	width:322px;
 }
 
@@ -16,7 +16,7 @@
 	margin:25px 15px 15px;
 }
 
-#password {
+#password, #otpExtra {
 	margin:15px;
 }
 
