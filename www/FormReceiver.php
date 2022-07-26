@@ -4,7 +4,7 @@ SimpleSAML_Session::getSessionFromRequest()->deleteData("privacyidea:privacyidea
 if (empty($stateId))
 {
     SimpleSAML_Logger::error("stateId empty in FormReceiver.");
-    throw new \Exception("State information lost!");
+    throw new Exception("State information lost!");
 }
 $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
 

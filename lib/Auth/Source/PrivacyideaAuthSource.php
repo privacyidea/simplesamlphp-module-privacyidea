@@ -94,7 +94,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
         // SSO check if authentication should be skipped
         if (array_key_exists('SSO', $this->authSourceConfig) &&
-            $this->authSourceConfig['SSO'] == true &&
+            $this->authSourceConfig['SSO'] &&
             sspmod_privacyidea_Auth_Utils::checkForValidSSO($state))
         {
             $session = SimpleSAML_Session::getSessionFromRequest();
@@ -121,6 +121,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
         $state['privacyidea:privacyidea:ui']['otpFieldHint'] = @$this->authSourceConfig['otpFieldHint'] ?: "";
         $state['privacyidea:privacyidea:ui']['passFieldHint'] = @$this->authSourceConfig['passFieldHint'] ?: "";
+        $state['privacyidea:privacyidea:ui']['otpExtra'] = @$this->authSourceConfig['otpExtra'] ?: false;
         $state['privacyidea:privacyidea:ui']['loadCounter'] = "1";
 
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
@@ -267,7 +268,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $completeAttributes = self::mergeAttributes($userAttributes, $detailAttributes, $authSourceConfig);
             $state['Attributes'] = $completeAttributes;
 
-            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'] == true)
+            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'])
             {
                 /*
                  * In order to be able to register a logout handler for the session (mandatory for SSO to work),
@@ -400,6 +401,23 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         if (!is_null($sid['url']))
         {
             SimpleSAML_Utilities::checkURLAllowed($sid['url']);
+        }
+    }
+
+    /**
+     * Check whether the OTP should have its own field in UI.
+     *
+     * @return bool 'true' || 'false' Whether the OTP is in an extra field.
+     */
+    public function getOtpExtra()
+    {
+        if ($this->authSourceConfig['otpExtra'] === 'true')
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }

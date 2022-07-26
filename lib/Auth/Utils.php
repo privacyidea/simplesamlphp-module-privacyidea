@@ -81,6 +81,8 @@ class sspmod_privacyidea_Auth_Utils
         elseif ($formParams['mode'] == "u2f")
         {
             $u2fSignResponse = $formParams['u2fSignResponse'];
+            SimpleSAML_Logger::error("u2fsignresponse: ".$u2fSignResponse);
+
 
             if (empty($u2fSignResponse))
             {
