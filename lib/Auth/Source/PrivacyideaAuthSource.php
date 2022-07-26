@@ -170,6 +170,11 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         {
             $password = $formParams['pass'];
         }
+        // If otpExtra is set, add it to the password
+        if (!empty($password) && !empty($formParams['otpExtra']))
+        {
+            $password = $password . $formParams['otpExtra'];
+        }
 
         $response = null;
         if ($step == 1)
