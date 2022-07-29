@@ -98,8 +98,9 @@ You need to add the authentication source 'privacyidea' to
 
     /**
      * OTP extra field:
-     * 'false' (default) - one password field for PIN and OTP
-     * 'true' - Password field for password and extra field for OTP
+     * 'false' (default) - one password field for PIN or PIN and OTP together.
+     * 'true' - Password field for PIN and extra field for OTP already on the first step.
+     * Remember: you have to set 'doSendPassword' to 'true' first to have it working!
      */
     'otpextra' => 'false',
 
