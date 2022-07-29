@@ -174,6 +174,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         if (!empty($password) && !empty($formParams['otpExtra']))
         {
             $password = $password . $formParams['otpExtra'];
+            $source->authSourceConfig['doSendPassword'] = 'true';
         }
 
         $response = null;
