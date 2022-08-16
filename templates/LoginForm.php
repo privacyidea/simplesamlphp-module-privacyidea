@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <?php
 
 // Set default scenario if isn't set
@@ -133,7 +135,7 @@ if ($this->data['errorCode'] !== NULL)
                                         if ($this->data['rememberUsernameEnabled'])
                                         {
                                             echo str_repeat("\t", 4);
-                                            echo '<input type="checkbox" id="rememberUsername" tabindex="4" name="rememberUsername"
+                                            echo '<input type="checkbox" id="rememberUsername" tabindex="5" name="rememberUsername"
                                          value="Yes" ';
                                             echo $this->data['rememberUsernameChecked'] ? 'checked="Yes" /> ' : '/> ';
                                             echo htmlspecialchars($this->t('{login:remember_username}'));
@@ -141,7 +143,7 @@ if ($this->data['errorCode'] !== NULL)
                                         if ($this->data['rememberMeEnabled'])
                                         {
                                             echo str_repeat("\t", 4);
-                                            echo '<input type="checkbox" id="rememberMe" tabindex="4" name="rememberMe" value="Yes" ';
+                                            echo '<input type="checkbox" id="rememberMe" tabindex="6" name="rememberMe" value="Yes" ';
                                             echo $this->data['rememberMeChecked'] ? 'checked="Yes" /> ' : '/> ';
                                             echo htmlspecialchars($this->t('{login:remember_me}'));
                                         }
@@ -155,20 +157,15 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="2" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <!-- OTP extra field -->
-                                <?php if (isset($this->data['otpExtra']) && $this->data['otpExtra']) { ?>
-                                    <br>
-                                    <input id="otpExtra" name="otpExtra" tabindex="3" type="password" value="" class="text"
-                                           placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
-                                <?php } ?>
-
                                 <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?></strong>
                                 <br>
-                                <input id="otp" name="otp" type="password"
-                                       placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
+                                <label for="otp" class="sr-only">
+                                    <?php echo $this->t('{privacyidea:privacyidea:otp}'); ?>
+                                </label>
+                                <input id="otp" name="otp" tabindex="3" type="password" value="" class="text" placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
 
                                 <br><br>
-                                <input id="submitButton" tabindex="4" class="rc-button rc-button-submit" type="submit"
+                                <input id="submitButton" tabindex="7" class="rc-button rc-button-submit" type="submit"
                                        name="Submit"
                                        value="<?php echo htmlspecialchars($this->t('{login:login_button}'), ENT_QUOTES) ?>"/>
                                 <br><br>
@@ -224,7 +221,7 @@ if ($this->data['errorCode'] !== NULL)
                                 ?>
                                 <div class="identifier-shown">
                                     <label for="organization"><?php echo htmlspecialchars($this->t('{login:organization}')); ?></label>
-                                    <select id="organization" name="organization" tabindex="3">
+                                    <select id="organization" name="organization" tabindex="4">
                                         <?php
                                         if (array_key_exists('selectedOrg', $this->data))
                                         {
@@ -304,6 +301,7 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
+    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['otpExtra']) && $this->data['otpExtra']) {echo str_replace('"', "", $this->data['otpExtra']);} ?>">
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="<?php echo (
         !$this->data['pushAvailable']
         && (!isset($this->data['u2fSignRequest']) || ($this->data['u2fSignRequest']) == "")
