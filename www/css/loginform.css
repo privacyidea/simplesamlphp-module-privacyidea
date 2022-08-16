@@ -8,7 +8,7 @@
 	margin: 15px;
 }
 
-#username[type=text], #password, #otp, #otpExtra {
+#username[type=text], #password, #otp {
 	width:322px;
 }
 
@@ -16,16 +16,16 @@
 	margin:25px 15px 15px;
 }
 
-#password, #otpExtra {
+#password {
 	margin:15px;
+}
+
+#otp {
+	margin-left:15px;
 }
 
 #message {
 	display: block;
-}
-
-label[for=otp] {
-	font-weight: bold;
 }
 
 #submitButton {
