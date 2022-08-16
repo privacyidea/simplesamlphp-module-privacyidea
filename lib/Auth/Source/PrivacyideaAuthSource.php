@@ -174,7 +174,6 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         if (!empty($password) && !empty($formParams['otpExtra']))
         {
             $password = $password . $formParams['otpExtra'];
-            $source->authSourceConfig['doSendPassword'] = 'true';
         }
 
         $response = null;
@@ -198,8 +197,10 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                     }
                 }
             }
-            elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
-                && $source->authSourceConfig['doSendPassword'] === 'true')
+            elseif ((array_key_exists("doSendPassword", $source->authSourceConfig)
+                    && $source->authSourceConfig['doSendPassword'] === 'true')
+                || (array_key_exists("otpExtra", $source->authSourceConfig)
+                    && $source->authSourceConfig['otpExtra'] === 'true'))
             {
                 if (!empty($username))
                 {
@@ -407,23 +408,6 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         if (!is_null($sid['url']))
         {
             SimpleSAML_Utilities::checkURLAllowed($sid['url']);
-        }
-    }
-
-    /**
-     * Check whether the OTP should have its own field in UI.
-     *
-     * @return bool 'true' || 'false' Whether the OTP is in an extra field.
-     */
-    public function getOtpExtra()
-    {
-        if ($this->authSourceConfig['otpExtra'] === 'true')
-        {
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 }
