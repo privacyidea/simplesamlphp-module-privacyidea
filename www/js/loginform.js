@@ -59,18 +59,24 @@ function t(key) {
     return JSON.parse(document.getElementById("privacyidea-translations").content)[key];
 }
 
+// Handle step
 const step = document.getElementById("privacyidea-step").content;
 
 if (step > "1")
 {
     disable("username");
     disable("password");
-    disable("otpExtra");
 } else
 {
     disable("otp");
     disable("message");
     disable("AlternateLoginOptions");
+}
+
+// Handle otp extra field
+if (document.getElementById("privacyidea-otp-extra").content === "true")
+{
+    enable("otp");
 }
 
 // Set alternate token button visibility
