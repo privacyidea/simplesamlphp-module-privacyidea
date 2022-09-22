@@ -340,7 +340,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
             foreach ($concatenationArr as $item)
             {
-                $concatenationValues[] = $userAttributes->$item;
+                $concatenationValues[] = $userAttributes[$item] ?? $item;
             }
 
             $concatenationString = implode(" ", $concatenationValues);
