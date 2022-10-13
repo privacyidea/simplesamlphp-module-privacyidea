@@ -100,7 +100,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             $stateId = $this->enrollToken($stateId, $username);
         }
 
-        // Check if triggerChallenge or a call with a static pass to /validate/check should be done
+        // Check if triggerChallenge call should be done
+        $challenged = false;
         if (!empty($this->authProcConfig['doTriggerChallenge']) && $this->authProcConfig['doTriggerChallenge'] === 'true')
         {
             // Call /validate/triggerchallenge with the service account from the configuration to trigger all token of the user
@@ -123,11 +124,15 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
                 if ($response != null)
                 {
+                    $challenged = !empty($response->multiChallenge);
                     $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
                 }
             }
         }
-        elseif (!empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
+
+        // Check if call with a static pass to /validate/check should be done
+        if (!$challenged
+            && !empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
             // Call /validate/check with a static pass from the configuration
             // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
