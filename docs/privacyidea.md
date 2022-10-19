@@ -209,7 +209,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         'doEnrollToken'     => 'true',
         
         /**
-         *  A type of token that will be enrolled by the doEnrollToken option.
+         *  The type of token that will be enrolled by the doEnrollToken option.
          *  You can select a time based otp (totp), an event based otp (hotp) or an u2f (u2f)
          */
         'tokenType'         => 'totp',
@@ -217,7 +217,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         /**
          *  You can enable or disable trigger challenge.
          *  The value have to be a string.
-         *  NOTE: This has to be enabled for token challenges to work properly.
+         *  NOTE: This has to be enabled for challenge-response token to work properly.
          */
         'doTriggerChallenge' => 'true',
         
@@ -257,7 +257,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          *  If you want to use passOnNoToken or passOnNoUser, you can decide, if this module should send a password to
          *  privacyIDEA. If passOnNoToken is activated and the user does not have a token, he will be passed by privacyIDEA.
          *  NOTE: Do not use it with privacyidea:tokenEnrollment.
-         *  NOTE: This will not trigger if the user has tokens that must be challenged.
+         *  NOTE: This will not trigger if the user has challenge-response token that were triggered before.
          */
         'tryFirstAuthentication' => 'true',
 
