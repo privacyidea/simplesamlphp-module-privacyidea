@@ -101,7 +101,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
 
         // Check if triggerChallenge call should be done
-        $challenged = false;
+        $triggered = false;
         if (!empty($this->authProcConfig['doTriggerChallenge']) && $this->authProcConfig['doTriggerChallenge'] === 'true')
         {
             // Call /validate/triggerchallenge with the service account from the configuration to trigger all token of the user
@@ -124,14 +124,14 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
                 if ($response != null)
                 {
-                    $challenged = !empty($response->multiChallenge);
+                    $triggered = !empty($response->multiChallenge);
                     $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
                 }
             }
         }
 
         // Check if call with a static pass to /validate/check should be done
-        if (!$challenged
+        if (!$triggered
             && !empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
             // Call /validate/check with a static pass from the configuration
