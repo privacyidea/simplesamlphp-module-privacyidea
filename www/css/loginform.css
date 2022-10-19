@@ -20,16 +20,12 @@
 	margin:15px;
 }
 
+#otp {
+	margin-left:15px;
+}
+
 #message {
 	display: block;
-}
-
-label[for=otp] {
-	font-weight: bold;
-}
-
-#otp:focus {
-	margin: 25px 15px 7px;
 }
 
 #submitButton {

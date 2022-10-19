@@ -94,7 +94,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
         // SSO check if authentication should be skipped
         if (array_key_exists('SSO', $this->authSourceConfig) &&
-            $this->authSourceConfig['SSO'] == true &&
+            $this->authSourceConfig['SSO'] &&
             sspmod_privacyidea_Auth_Utils::checkForValidSSO($state))
         {
             $session = SimpleSAML_Session::getSessionFromRequest();
@@ -121,6 +121,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
         $state['privacyidea:privacyidea:ui']['otpFieldHint'] = @$this->authSourceConfig['otpFieldHint'] ?: "";
         $state['privacyidea:privacyidea:ui']['passFieldHint'] = @$this->authSourceConfig['passFieldHint'] ?: "";
+        $state['privacyidea:privacyidea:ui']['otpExtra'] = @$this->authSourceConfig['otpExtra'] ?: false;
         $state['privacyidea:privacyidea:ui']['loadCounter'] = "1";
 
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
@@ -169,6 +170,11 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         {
             $password = $formParams['pass'];
         }
+        // If otpExtra is set, add it to the password
+        if (!empty($password) && !empty($formParams['otpExtra']))
+        {
+            $password = $password . $formParams['otpExtra'];
+        }
 
         $response = null;
         if ($step == 1)
@@ -191,8 +197,10 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                     }
                 }
             }
-            elseif (array_key_exists("doSendPassword", $source->authSourceConfig)
-                && $source->authSourceConfig['doSendPassword'] === 'true')
+            elseif ((array_key_exists("doSendPassword", $source->authSourceConfig)
+                    && $source->authSourceConfig['doSendPassword'] === 'true')
+                || (array_key_exists("otpExtra", $source->authSourceConfig)
+                    && $source->authSourceConfig['otpExtra'] === 'true'))
             {
                 if (!empty($username))
                 {
@@ -267,7 +275,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $completeAttributes = self::mergeAttributes($userAttributes, $detailAttributes, $authSourceConfig);
             $state['Attributes'] = $completeAttributes;
 
-            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'] == true)
+            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'])
             {
                 /*
                  * In order to be able to register a logout handler for the session (mandatory for SSO to work),
