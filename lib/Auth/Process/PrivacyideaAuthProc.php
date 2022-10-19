@@ -151,6 +151,10 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
         // This is AuthProcFilter, so step 1 (username+password) is already done. Set the step to 2
         $state['privacyidea:privacyidea:ui']['step'] = 2;
+        if (!empty($this->authProcConfig['otpFieldHint']))
+        {
+            $state['privacyidea:privacyidea:ui']['otpFieldHint'] = $this->authProcConfig['otpFieldHint'] ?: "";
+        }
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
         $url = SimpleSAML_Module::getModuleURL('privacyidea/FormBuilder.php');
