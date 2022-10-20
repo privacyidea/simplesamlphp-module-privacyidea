@@ -301,12 +301,13 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
-    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['otpExtra']) && $this->data['otpExtra']) {echo str_replace('"', "", $this->data['otpExtra']);} ?>">
-    <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="<?php echo (
-        !$this->data['pushAvailable']
-        && (!isset($this->data['u2fSignRequest']) || ($this->data['u2fSignRequest']) == "")
-        && (!isset($this->data['webAuthnSignRequest']) || ($this->data['webAuthnSignRequest']) == "")
-    ) ? 'true' : 'false'; ?>">
+    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (!empty($this->data['otpExtra']) && $this->data['otpExtra']) {echo str_replace('"', "", $this->data['otpExtra']);} ?>">
+    <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="
+        <?php
+        if(!empty($this->data['pushAvailable']))
+        {echo (!$this->data['pushAvailable'] && empty($this->data['u2fSignRequest']) && empty($this->data['webAuthnSignRequest'])) ? 'true' : 'false';}
+        ?>
+    ">
 
     <meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
     $translations = [];
