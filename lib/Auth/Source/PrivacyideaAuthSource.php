@@ -90,7 +90,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
     public function authenticate(&$state)
     {
         assert('array' === gettype($state));
-        SimpleSAML_Logger::debug("privacyIDEA AuthSource authenticate");
+        SimpleSAML_Logger::info("privacyIDEA AuthSource authenticate");
 
         // SSO check if authentication should be skipped
         if (array_key_exists('SSO', $this->authSourceConfig) &&
@@ -99,7 +99,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         {
             $session = SimpleSAML_Session::getSessionFromRequest();
             $attributes = $session->getData('privacyidea:privacyidea', 'attributes');
-            SimpleSAML_Logger("privacyIDEA: SSO retrieved attributes from session: " . print_r($attributes, true));
+            //SimpleSAML_Logger::debug("privacyIDEA: SSO retrieved attributes from session: " . print_r($attributes, true));
             $state['Attributes'] = $attributes;
             SimpleSAML_Auth_Source::completeAuth($state);
         }
@@ -171,16 +171,16 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $password = $formParams['pass'];
         }
         // If otpExtra is set, add it to the password
-        if (!empty($password) && !empty($formParams['otpExtra']))
+        if (!empty($password) && !empty($formParams['otpExtra']) && $formParams['otpExtra'] === 'true')
         {
-            $password = $password . $formParams['otpExtra'];
+            $password = $password.$formParams['otp'];
         }
 
         $response = null;
         if ($step == 1)
         {
             $state['privacyidea:privacyidea']['username'] = $username;
-            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea'); // todo unused
 
             if (array_key_exists("doTriggerChallenge", $source->authSourceConfig)
                 && $source->authSourceConfig["doTriggerChallenge"] === 'true')
@@ -198,9 +198,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                 }
             }
             elseif ((array_key_exists("doSendPassword", $source->authSourceConfig)
-                    && $source->authSourceConfig['doSendPassword'] === 'true')
-                || (array_key_exists("otpExtra", $source->authSourceConfig)
-                    && $source->authSourceConfig['otpExtra'] === 'true'))
+                    && $source->authSourceConfig['doSendPassword'] === 'true'))
             {
                 if (!empty($username))
                 {
@@ -236,7 +234,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
         if ($response != null)
         {
-            $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response, $source->authSourceConfig);
+            $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response, $source->authSourceConfig); // todo 3 parameters
         }
 
         $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');

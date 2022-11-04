@@ -190,6 +190,9 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="step" type="hidden" name="step"
                                        value="<?php echo htmlspecialchars(@$this->data['step'] ?: 2, ENT_QUOTES) ?>"/>
 
+                                <input id="otpExtra" type="hidden" name="otpExtra"
+                                       value="<?php echo htmlspecialchars(@$this->data['otpExtra'] ?: "true", ENT_QUOTES) ?>"/>
+
                                 <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse" value=""/>
                                 <input id="u2fSignResponse" type="hidden" name="u2fSignResponse" value=""/>
                                 <input id="origin" type="hidden" name="origin" value=""/>
