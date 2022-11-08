@@ -190,9 +190,6 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="step" type="hidden" name="step"
                                        value="<?php echo htmlspecialchars(@$this->data['step'] ?: 2, ENT_QUOTES) ?>"/>
 
-                                <input id="otpExtra" type="hidden" name="otpExtra"
-                                       value="<?php echo htmlspecialchars(@$this->data['otpExtra'] ?: "true", ENT_QUOTES) ?>"/>
-
                                 <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse" value=""/>
                                 <input id="u2fSignResponse" type="hidden" name="u2fSignResponse" value=""/>
                                 <input id="origin" type="hidden" name="origin" value=""/>
@@ -304,7 +301,8 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
-    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['otpExtra']) && $this->data['otpExtra']) {echo str_replace('"', "", $this->data['otpExtra']);} ?>">
+    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['otpExtra']) && $this->data['otpExtra']) {echo true;} ?>">
+    <meta id="privacyidea-do-not-send-pass" name="privacyidea-do-not-send-pass" content="<?php if (isset($this->data['doNotSendPass']) && $this->data['doNotSendPass']) {echo true;} ?>">
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="<?php echo (
         !$this->data['pushAvailable']
         && (!isset($this->data['u2fSignRequest']) || ($this->data['u2fSignRequest']) == "")

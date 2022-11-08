@@ -79,6 +79,13 @@ if (document.getElementById("privacyidea-otp-extra").content === "true")
     enable("otp");
 }
 
+// Handle doNotSendPass
+if (document.getElementById("privacyidea-do-not-send-pass").content === "true")
+{
+    disable("password");
+    disable("otp");
+}
+
 // Set alternate token button visibility
 if (value("webAuthnSignRequest") === "")
 {
