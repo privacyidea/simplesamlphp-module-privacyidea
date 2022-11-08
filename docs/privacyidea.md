@@ -69,7 +69,7 @@ You need to add the authentication source 'privacyidea' to
      * Set doNotSendPass to 'true' to send a request to validate/check with the username
      * and an empty pass prior to the login.
      * This can be used to trigger challenges depending on the configuration in privacyIDEA 
-     * and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
+     * and requires no service account. If 'doTriggerChallenge' is enabled, this setting will only hide the pass field.
      * The value have to be a string.
      * Optional.
      */
