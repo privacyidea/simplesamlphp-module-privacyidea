@@ -83,7 +83,10 @@ if (document.getElementById("privacyidea-otp-extra").content === "true")
 if (document.getElementById("privacyidea-do-not-send-pass").content === "true")
 {
     disable("password");
-    disable("otp");
+    if (step === "1")
+    {
+        disable("otp");
+    }
 }
 
 // Set alternate token button visibility
