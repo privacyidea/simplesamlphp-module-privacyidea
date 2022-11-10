@@ -16,7 +16,7 @@ else
 }
 
 // Set the right text shown in otp/pass field(s)
-if (isset($this->data['otpFieldHint']))
+if (!empty($this->data['otpFieldHint']))
 {
     $otpHint = $this->data['otpFieldHint'];
 }
@@ -24,7 +24,7 @@ else
 {
     $otpHint = $this->t('{privacyidea:privacyidea:otp}');
 }
-if (isset($this->data['passFieldHint']))
+if (!empty($this->data['passFieldHint']))
 {
     $passHint = $this->data['passFieldHint'];
 }
