@@ -29,14 +29,14 @@ You need to add the authentication source 'privacyidea' to
 
     /**
      * Check if the hostname matches the name in the certificate.
-     * The value have to be a string.
+     * The value has to be a string.
      * Optional. Default: true.
      */
     'sslVerifyHost' => 'true',
 
     /**
      * Check if the certificate is valid, signed by a trusted CA.
-     * The value have to be a string.
+     * The value has to be a string.
      * Optional. Default: true.
      */
     'sslVerifyPeer' => 'true',
@@ -69,7 +69,7 @@ You need to add the authentication source 'privacyidea' to
      * Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
      * using the configured service account. 
      * This setting takes precedence over 'doSendPassword'.
-     * The value have to be a string.
+     * The value has to be a string.
      * Optional.
      */
     'doTriggerChallenge' => 'false',
@@ -79,7 +79,7 @@ You need to add the authentication source 'privacyidea' to
      * and an empty pass prior to the login. 
      * This can be used to trigger challenges depending on the configuration in privacyIDEA 
      * and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
-     * The value have to be a string.
+     * The value has to be a string.
      * Optional.
      */
     'doSendPassword' => 'false',
@@ -205,14 +205,14 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
 
         /**
          * Check if the hostname matches the name in the certificate.
-         * The value have to be a string.
+         * The value has to be a string.
          * Optional. Default: true.
          */
         'sslVerifyHost'     => 'true',
 
         /**
          * Check if the certificate is valid, signed by a trusted CA.
-         * The value have to be a string.
+         * The value has to be a string.
          * Optional. Default: true.
          */
         'sslVerifyPeer'     => 'true',
@@ -239,7 +239,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          * Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
          * using the configured service account. 
          * This setting takes precedence over 'doSendPassword'.
-         * The value have to be a string.
+         * The value has to be a string.
          * Optional.
          */
         'doTriggerChallenge' => 'false',
@@ -249,7 +249,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          * and an empty pass prior to the login. 
          * This can be used to trigger challenges depending on the configuration in privacyIDEA 
          * and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
-         * The value have to be a string.
+         * The value has to be a string.
          * Optional.
          */
         'doSendPassword' => 'false',
@@ -280,7 +280,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         
         /**
          * You can add this option, if you want to enroll tokens for users, who do not have one yet.
-         * The value have to be a string.
+         * The value has to be a string.
          * Optional.
          */
         'doEnrollToken'     => 'false',
@@ -329,7 +329,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         /**
          * If you want to selectively disable the privacyIDEA authentication using
          * the entityID and/or SAML attributes, you may enable this.
-         * Value have to be a string.
+         * Value has to be a string.
          * Optional.
          */
         'checkEntityID'        => 'true',
