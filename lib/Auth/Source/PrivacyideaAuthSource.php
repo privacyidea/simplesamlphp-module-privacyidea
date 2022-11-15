@@ -121,8 +121,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
         $state['privacyidea:privacyidea:ui']['otpFieldHint'] = @$this->authSourceConfig['otpFieldHint'] ?: "";
         $state['privacyidea:privacyidea:ui']['passFieldHint'] = @$this->authSourceConfig['passFieldHint'] ?: "";
-        $state['privacyidea:privacyidea:ui']['otpExtra'] = @$this->authSourceConfig['otpExtra'] ?: false;
-        $state['privacyidea:privacyidea:ui']['doNotSendPass'] = @$this->authSourceConfig['doNotSendPass'] ?: false;
+        $state['privacyidea:privacyidea:ui']['authSourceMode'] = @$this->authSourceConfig['authSourceMode'] ?: "";
         $state['privacyidea:privacyidea:ui']['loadCounter'] = "1";
 
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
@@ -171,12 +170,6 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         {
             $password = $formParams['pass'];
         }
-        // If otpExtra is set, add it to the password
-        if (!empty($formParams['otp']) && array_key_exists('otpExtra', $source->authSourceConfig)
-                && $source->authSourceConfig['otpExtra'] === 'true')
-        {
-            $password = $password.$formParams['otp'];
-        }
 
         $response = null;
         if ($step == 1)
@@ -185,35 +178,11 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
             if (!empty($username))
             {
-                if (array_key_exists('doTriggerChallenge', $source->authSourceConfig)
-                    && $source->authSourceConfig['doTriggerChallenge'] === 'true')
+                if (!array_key_exists('authSourceMode', $source->authSourceConfig))
                 {
-                    if ($source->pi->serviceAccountAvailable())
-                    {
-                        try
-                        {
-                            $response = $source->pi->triggerChallenge($username);
-                        }
-                        catch (Exception $e)
-                        {
-                            sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
-                        }
-                    }
-                }
-                elseif ((array_key_exists('doNotSendPass', $source->authSourceConfig)
-                    && $source->authSourceConfig['doNotSendPass'] === 'true'))
-                {
-                    try
-                    {
-                        $response = $source->pi->validateCheck($username, "");
-                    }
-                    catch (Exception $e)
-                    {
-                        sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
-                    }
-                }
-                else
-                {
+                    SimpleSAML_Logger::error("privacyIDEA: Authsource mode not found in the config file. 
+                        Please add the 'authSourceMode' with one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'.
+                        Until then, the login mask contains per default 1 user field and 1 pass field.");
                     try
                     {
                         $response = $source->pi->validateCheck($username, $password);
@@ -223,8 +192,57 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                         sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
                     }
                 }
+                else
+                {
+                    $authSourceMode = $source->authSourceConfig['authSourceMode'];
+                    if ($authSourceMode === 'triggerChallenge')
+                    {
+                        if ($source->pi->serviceAccountAvailable())
+                        {
+                            try
+                            {
+                                $response = $source->pi->triggerChallenge($username);
+                            }
+                            catch (Exception $e)
+                            {
+                                sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                            }
+                        }
+                    }
+                    elseif ($authSourceMode === 'sendPass' || $authSourceMode === 'otpExtra')
+                    {
+                        // In 'otpExtra' mode, the pass and otp values are combined.
+                        if (!empty($formParams['otp']))
+                        {
+                            $password = $password.$formParams['otp'];
+                        }
+
+                        try
+                        {
+                            $response = $source->pi->validateCheck($username, $password);
+                        }
+                        catch (Exception $e)
+                        {
+                            sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                        }
+                    }
+                    else
+                    {
+                        SimpleSAML_Logger::error("privacyIDEA: Invalid authsource mode. Please set the 'authSourceMode' to 
+                        one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'.
+                        Until then, the login mask contains per default 1 user field and 1 pass field.");
+                        try
+                        {
+                            $response = $source->pi->validateCheck($username, $password);
+                        }
+                        catch (Exception $e)
+                        {
+                            sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                        }
+                    }
+                }
             }
-            // Save the state at the end of step
+            // Save the state at the end of step 1
             $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
         }
         elseif ($step > 1)
