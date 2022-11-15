@@ -79,8 +79,8 @@ if (document.getElementById("privacyidea-otp-extra").content === "true")
     enable("otp");
 }
 
-// Handle doNotSendPass
-if (document.getElementById("privacyidea-do-not-send-pass").content === "true")
+// Hide pass field if redundant
+if (document.getElementById("privacyidea-hide-pass-field").content === "true")
 {
     disable("password");
     if (step === "1")

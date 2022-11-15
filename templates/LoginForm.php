@@ -301,8 +301,8 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
-    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['otpExtra']) && $this->data['otpExtra'] === "true") {echo "true";} ?>">
-    <meta id="privacyidea-do-not-send-pass" name="privacyidea-do-not-send-pass" content="<?php if (isset($this->data['doNotSendPass']) && $this->data['doNotSendPass'] === "true") {echo "true";} ?>">
+    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['authSourceMode']) && $this->data['authSourceMode'] === "otpExtra") {echo "true";} ?>">
+    <meta id="privacyidea-hide-pass-field" name="privacyidea-hide-pass-field" content="<?php if (isset($this->data['authSourceMode']) && $this->data['authSourceMode'] === "triggerChallenge") {echo "true";} ?>">
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="<?php echo (
         !$this->data['pushAvailable']
         && (!isset($this->data['u2fSignRequest']) || ($this->data['u2fSignRequest']) == "")
