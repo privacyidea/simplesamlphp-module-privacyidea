@@ -180,9 +180,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             {
                 if (!array_key_exists('authSourceMode', $source->authSourceConfig))
                 {
-                    SimpleSAML_Logger::error("privacyIDEA: Authsource mode not found in the config file. 
-                        Please add the 'authSourceMode' with one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'.
-                        Until then, the login mask contains per default 1 user field and 1 pass field.");
+                    SimpleSAML_Logger::error("privacyIDEA: Authsource mode not found in the config file. Please add the 'authSourceMode' with one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'. Until then, the login mask contains per default 1 user field and 1 pass field.");
                     try
                     {
                         $response = $source->pi->validateCheck($username, $password);
@@ -228,9 +226,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                     }
                     else
                     {
-                        SimpleSAML_Logger::error("privacyIDEA: Invalid authsource mode. Please set the 'authSourceMode' to 
-                        one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'.
-                        Until then, the login mask contains per default 1 user field and 1 pass field.");
+                        SimpleSAML_Logger::error("privacyIDEA: Invalid authsource mode. Please set the 'authSourceMode' to one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'. Until then, the login mask contains per default 1 user field and 1 pass field.");
                         try
                         {
                             $response = $source->pi->validateCheck($username, $password);
