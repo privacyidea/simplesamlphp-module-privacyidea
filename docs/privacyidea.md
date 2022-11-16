@@ -49,13 +49,13 @@ You need to add the authentication source 'privacyidea' to
     
     /**
      * Here you need to enter the username of your service account from privacyIDEA server.
-     * Needed if 'doTriggerChallenge' => 'true'.
+     * Required if 'authSourceMode' => 'triggerChallenge'.
      */
     'serviceAccount'    => 'service',
 
     /**
      * Enter here the password for your service account.
-     * Needed if 'doTriggerChallenge' => 'true'.
+     * Required if 'authSourceMode' => 'triggerChallenge'.
      */
     'servicePass'       => 'service',
     
@@ -66,23 +66,15 @@ You need to add the authentication source 'privacyidea' to
     'serviceRealm'      => 'service',
     
     /**
-     * Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
-     * using the configured service account. 
-     * This setting takes precedence over 'doSendPassword'.
-     * The value has to be a string.
-     * Optional.
+     * Set here the authsource mode to one of the following:
+     * 'sendPass' - (default) Login mask will contain the username field and 1 pass field.
+     * 'triggerChallenge' - Login mask will contain only the username field. This mode triggers
+     * challenges prior to the login using the configured service account (required).
+     * 'otpExtra' - Login mask will contain the username field, password field (e.g. PIN)
+     * and one extra field to attach the OTP already on the first step.
+     * Required.
      */
-    'doTriggerChallenge' => 'false',
-    
-    /**
-     * Set doSendPassword to 'true' to send a request to validate/check with the username
-     * and an empty pass prior to the login. 
-     * This can be used to trigger challenges depending on the configuration in privacyIDEA 
-     * and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
-     * The value has to be a string.
-     * Optional.
-     */
-    'doSendPassword' => 'false',
+    'authSourceMode'      => 'sendPass',
     
     /**
      * Set custom hints for the OTP and password fields which will replace the placeholders.
@@ -94,6 +86,7 @@ You need to add the authentication source 'privacyidea' to
      * Set SSO to 'true' if you want to use single sign on.
      * All information required for SSO will be saved in the session.
      * After logging out, the SSO data will be removed from the session.
+     * The value has to be a string.
      * Optional.
      */
     'SSO' => 'false',
@@ -107,14 +100,6 @@ You need to add the authentication source 'privacyidea' to
      * Optional.
      */
     'preferredTokenType' => '',
-
-    /**
-     * OTP extra field:
-     * 'false' (default) - one password field for PIN or PIN and OTP together.
-     * 'true' - Password field for PIN and extra field for OTP already on the first step.
-     * Optional.
-     */
-    'otpExtra' => 'false',
 
     /**
      * This is the translation from privacyIDEA attribute names to 
