@@ -252,7 +252,7 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          * The value has to be a string.
          * Optional.
          */
-        'doSendPassword' => 'false',
+        'doSendPassword' => 'true',
         
         /**
          * Set this to 'true' if you want to use single sign on.
@@ -264,11 +264,10 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         
         /**
          * Set preferredTokenType to your favourite token type.
-         * If the choosen token is triggered, it will be used to authenticate directly
+         * If the chosen token is triggered, it will be used to authenticate directly
          * without having to press the button for the type.
-         * Possible values are: push, webauthn or u2f.
-         * When left empty, defaults to showing an input field for OTPs.
-         * Optional.
+         * Possible values are: otp, push, webauthn or u2f.
+         * Optional. Default is otp.
          */
         'preferredTokenType' => '',
         
@@ -287,13 +286,13 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         
         /**
          * The type of token that will be enrolled by the doEnrollToken option.
-         * You can select a time based otp (totp), an event based otp (hotp) or an u2f (u2f).
+         * You can select a time based otp (totp) or an event based otp (hotp).
          */
         'tokenType'         => 'totp',
 
         /**
          * Other authproc filters can disable 2FA if you want to.
-         * If privacyIDEA should listen to the setting, you have to enter the state's path and key.
+         * If privacyIDEA should consider this setting, you have to enter the state's path and key.
          * The value of this key will be set by a previous auth proc filter.
          * privacyIDEA will only be disabled, if the value of the key is set to false,
          * in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
