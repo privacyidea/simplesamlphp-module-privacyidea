@@ -21,61 +21,71 @@ You need to add the authentication source 'privacyidea' to
 'example-privacyidea' => array(
     'privacyidea:PrivacyideaAuthSource',
 
-    /* 
+    /**
      * The URI (including protocol and port) of the privacyidea server
      * Required.
      */
     'privacyideaServerURL' => 'https://your.server.com',
 
-    /*
+    /**
      * Check if the hostname matches the name in the certificate.
-     * The value have to be a string.
-     * Optional.
+     * The value has to be a string.
+     * Optional. Default: true.
      */
-    'sslVerifyHost' => 'false',
+    'sslVerifyHost' => 'true',
 
-    /*
+    /**
      * Check if the certificate is valid, signed by a trusted CA.
-     * The value have to be a string.
-     * Optional.
+     * The value has to be a string.
+     * Optional. Default: true.
      */
-    'sslVerifyPeer' => 'false',
+    'sslVerifyPeer' => 'true',
         
-    /*
+    /**
      * The realm where the user is located in.
      * Optional.
      */
     'realm' => '',
     
     /**
-     *  Here you need to enter the username of your service account
+     * Here you need to enter the username of your service account from privacyIDEA server.
+     * Needed if 'doTriggerChallenge' => 'true'.
      */
     'serviceAccount'    => 'service',
 
     /**
-     *  Enter here the password for your service account
+     * Enter here the password for your service account.
+     * Needed if 'doTriggerChallenge' => 'true'.
      */
     'servicePass'       => 'service',
     
     /**
-     *  Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
-     *  using the configured service account. 
-     *  This setting takes precedence over 'doSendPassword'.
-     *  The value have to be a string.
+     * Enter here the realm for your service account.
+     * Optional.
      */
-    'doTriggerChallenge' => 'true',
+    'serviceRealm'      => 'service',
     
     /**
-     *  Set doSendPassword to 'true' to send a request to validate/check with the username
-     *  and an empty pass prior to the login. 
-     *  This can be used to trigger challenges depending on the configuration in privacyIDEA 
-     *  and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
-     *  The value have to be a string.
+     * Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
+     * using the configured service account. 
+     * This setting takes precedence over 'doSendPassword'.
+     * The value has to be a string.
+     * Optional.
      */
-    'doSendPassword' => 'true',
+    'doTriggerChallenge' => 'false',
     
     /**
-     * Set custom hints for the OTP and password fields
+     * Set doSendPassword to 'true' to send a request to validate/check with the username
+     * and an empty pass prior to the login. 
+     * This can be used to trigger challenges depending on the configuration in privacyIDEA 
+     * and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
+     * The value has to be a string.
+     * Optional.
+     */
+    'doSendPassword' => 'false',
+    
+    /**
+     * Set custom hints for the OTP and password fields which will replace the placeholders.
      */
     'otpFieldHint' => 'OTP',
     'passFieldHint' => 'Password',
@@ -84,6 +94,7 @@ You need to add the authentication source 'privacyidea' to
      * Set SSO to 'true' if you want to use single sign on.
      * All information required for SSO will be saved in the session.
      * After logging out, the SSO data will be removed from the session.
+     * Optional.
      */
     'SSO' => 'false',
     
@@ -93,6 +104,7 @@ You need to add the authentication source 'privacyidea' to
      * without having to press the button for the type.
      * Possible values are: push, webauthn or u2f.
      * When left empty, defaults to showing an input field for OTPs.
+     * Optional.
      */
     'preferredTokenType' => '',
 
@@ -100,10 +112,11 @@ You need to add the authentication source 'privacyidea' to
      * OTP extra field:
      * 'false' (default) - one password field for PIN or PIN and OTP together.
      * 'true' - Password field for PIN and extra field for OTP already on the first step.
+     * Optional.
      */
-    'otpextra' => 'false',
+    'otpExtra' => 'false',
 
-    /*
+    /**
      * This is the translation from privacyIDEA attribute names to 
      * SAML attribute names.
      * Optional.
@@ -117,15 +130,15 @@ You need to add the authentication source 'privacyidea' to
         'mobile' => 'mobilePhone'
     ),
 
-    /*
+    /**
      * You are able to concatenate attributes like the given and surname.
      * Optional.
      */
     'concatenationmap' => array(
-        'givenname,surname' => 'fullName',
+        'givenname,surname' => 'fullName'
     ),
 
-    /*
+    /**
      * Here the detail attributes can be edited.
      * If they should not be listed, just remove them.
      * Optional.
@@ -165,154 +178,190 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
 'authproc' => array(
 
     /**
-     *  Configuration for the privacyIDEA server.
+     * Configuration for the privacyIDEA server.
      */
     20 => array(
         'class'             => 'privacyidea:PrivacyideaAuthProc',
 
         /**
-         *  Enter the URL to your privacyIDEA instance
+         * Enter the URL to your privacyIDEA instance.
+         * Required.
          */
         'privacyideaServerURL' => 'https://your.privacyidea.server',
         
         /**
-         *  Enter the realm, where your users are stored (remove it or set it to '' to use default)
+         * Enter the realm, where your users are stored.
+         * Optional.
          */
         'realm'             => 'realm1',
 
         /**
-         *  The uidKey is the username's attribute key.
-         *  You can choose a single one or multiple ones. The first set will be used.
+         * The uidKey is the username's attribute key.
+         * You can choose a single one or multiple ones. The first set will be used.
+         * Example: 'uidKey' => array('uid', 'userName', 'uName').
+         * Required.
          */
         'uidKey'            => 'uid',
-        //  'uidKey'        => array('uid', 'userName', 'uName'),
 
         /**
-         *  Check if the hostname matches the name in the certificate.
-         *  The value have to be a string.
+         * Check if the hostname matches the name in the certificate.
+         * The value has to be a string.
+         * Optional. Default: true.
          */
         'sslVerifyHost'     => 'true',
 
         /**
-         *  Check if the certificate is valid, signed by a trusted CA
-         *  The value have to be a string.
+         * Check if the certificate is valid, signed by a trusted CA.
+         * The value has to be a string.
+         * Optional. Default: true.
          */
         'sslVerifyPeer'     => 'true',
 
         /**
-         *  Here you need to enter the username of your service account
+         * Here you need to enter the username of your service account from privacyIDEA server.
+         * Needed if 'doTriggerChallenge' => 'true'.
          */
         'serviceAccount'    => 'service',
 
         /**
-         *  Enter here the password for your service account
+         * Enter here the password for your service account.
+         * Needed if 'doTriggerChallenge' => 'true'.
          */
         'servicePass'       => 'service',
         
         /**
-         *  You can add this option, if you want to enroll tokens for users, who do not have one yet.
-         *  The value have to be a string.
+         * Enter here the realm for your service account.
+         * Optional.
          */
-        'doEnrollToken'     => 'true',
-        
-        /**
-         *  The type of token that will be enrolled by the doEnrollToken option.
-         *  You can select a time based otp (totp), an event based otp (hotp) or an u2f (u2f)
-         */
-        'tokenType'         => 'totp',
+        'serviceRealm'      => 'service',
          
         /**
-         *  You can enable or disable trigger challenge.
-         *  The value have to be a string.
-         *  NOTE: This has to be enabled for challenge-response token to work properly.
+         * Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
+         * using the configured service account. 
+         * This setting takes precedence over 'doSendPassword'.
+         * The value has to be a string.
+         * Optional.
          */
-        'doTriggerChallenge' => 'true',
+        'doTriggerChallenge' => 'false',
+        
+        /**
+         * Set doSendPassword to 'true' to send a request to validate/check with the username
+         * and an empty pass prior to the login. 
+         * This can be used to trigger challenges depending on the configuration in privacyIDEA 
+         * and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
+         * The value has to be a string.
+         * Optional.
+         */
+        'doSendPassword' => 'true',
         
         /**
          * Set this to 'true' if you want to use single sign on.
          * All information required for SSO will be saved in the session.
          * After logging out, the SSO data will be removed from the session.
+         * Optional.
          */
         'SSO' => 'false',
         
         /**
          * Set preferredTokenType to your favourite token type.
-         * If the choosen token is triggered, it will be used to authenticate directly
+         * If the chosen token is triggered, it will be used to authenticate directly
          * without having to press the button for the type.
-         * Possible values are: push, webauthn or u2f.
-         * When left empty, defaults to showing an input field for OTPs.
+         * Possible values are: otp, push, webauthn or u2f.
+         * Optional. Default is otp.
          */
         'preferredTokenType' => '',
         
         /**
          * Set custom hints for the OTP and password fields
          */
-        'otpFieldHint' => 'OTP'
-        'passFieldHint' => 'Password'
+        'otpFieldHint' => 'OTP',
+        'passFieldHint' => 'Password',
+        
+        /**
+         * You can add this option, if you want to enroll tokens for users, who do not have one yet.
+         * The value has to be a string.
+         * Optional.
+         */
+        'doEnrollToken'     => 'false',
+        
+        /**
+         * The type of token that will be enrolled by the doEnrollToken option.
+         * You can select a time based otp (totp) or an event based otp (hotp).
+         */
+        'tokenType'         => 'totp',
 
         /**
-         *  Other authproc filters can disable 2FA if you want to.
-         *  If privacyIDEA should listen to the setting, you have to enter the state's path and key.
-         *  The value of this key will be set by a previous auth proc filter.
-         *  privacyIDEA will only be disabled, if the value of the key is set to false,
-         *  in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
+         * Other authproc filters can disable 2FA if you want to.
+         * If privacyIDEA should consider this setting, you have to enter the state's path and key.
+         * The value of this key will be set by a previous auth proc filter.
+         * privacyIDEA will only be disabled, if the value of the key is set to false,
+         * in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
+         * Optional.
          */
         'enabledPath'       => '',
         'enabledKey'        => '',
 
         /**
-         *  If you want to use passOnNoToken or passOnNoUser, you can decide, if this module should send a password to
-         *  privacyIDEA. If passOnNoToken is activated and the user does not have a token, he will be passed by privacyIDEA.
-         *  NOTE: Do not use it with privacyidea:tokenEnrollment.
-         *  NOTE: This will not trigger if the user has challenge-response token that were triggered before.
+         * If you want to use passOnNoToken or passOnNoUser, you can decide, if this module should send a password to
+         * privacyIDEA. If passOnNoToken is activated and the user does not have a token, he will be passed by privacyIDEA.
+         * NOTE: Do not use it with privacyidea:tokenEnrollment.
+         * NOTE: This will not trigger if the user has challenge-response token that were triggered before.
+         * Optional.
          */
-        'tryFirstAuthentication' => 'true',
+        'tryFirstAuthentication' => 'false',
 
         /**
-         *  You can decide, which password should be used for tryFirstAuthentication
+         * You can decide, which password should be used for tryFirstAuthentication
+         * Optional.
          */
-        'tryFirstAuthPass' => 'simpleSAMLphp'
+        'tryFirstAuthPass' => 'simpleSAMLphp',
 
         /**
-         *  
-         *  You can exclude clients with specified ip addresses.
-         *  Enter a range like "10.0.0.0-10.2.0.0" or a single ip like "192.168.178.2"
-         *  The selected ip addresses do not need 2FA
+         * You can exclude clients with specified ip addresses.
+         * Enter a range like "10.0.0.0-10.2.0.0" or a single ip like "192.168.178.2"
+         * The selected ip addresses do not need 2FA.
+         * Optional.
          */
         'excludeClientIPs'  => array("10.0.0.0-10.2.0.0", "192.168.178.2"),
 
 
         /**
-         *  Check Entity ID is optional. If you want to selectively disable the privacyIDEA authentication using
-         *  the entityID and/or SAML attributes, you may enable this filter.
-         *  Value have to be string.
+         * If you want to selectively disable the privacyIDEA authentication using
+         * the entityID and/or SAML attributes, you may enable this.
+         * Value has to be a string.
+         * Optional.
          */
         'checkEntityID'        => 'true',
      
         /**
-         *  Depending on excludeEntityIDs and includeAttributes the filter will set the state variable 
-         *  $state[$setPath][$setPath] to true or false.
-         *  To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
-         *  that they equal enabledPath and enabledKey from privacyidea:privacyidea.
+         * Depending on excludeEntityIDs and includeAttributes this will set the state variable 
+         * $state[$setPath][$setPath] to true or false.
+         * To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
+         * that they equal enabledPath and enabledKey from privacyidea:privacyidea.
+         * Optional.
          */
         'setPath'              => 'privacyIDEA',
         'setKey'               => 'enabled',
+        
         /**
-         *  The requesting SAML provider's entityID will be tested against this list of regular expressions.
-         *  If there is a match, the filter will set the specified state variable to false and thereby disables 
-         *  privacyIDEA for this entityID The first matching expression will take precedence.
+         * The requesting SAML provider's entityID will be tested against this list of regular expressions.
+         * If there is a match, the filter will set the specified state variable to false and thereby disables 
+         * privacyIDEA for this entityID The first matching expression will take precedence.
+         * Optional.
          */
         'excludeEntityIDs' => array(
             '/http(s)\/\/conditional-no2fa-provider.de\/(.*)/',
             '/http(.*)no2fa-provider.de/'
         ),
+        
         /**
-         *  Per value in excludeEntityIDs, you may specify another set of regular expressions to match the 
-         *  attributes in the SAML request. If there is a match in any attribute value, this filter will 
-         *  set the state variable to true and thereby enable privacyIDEA where it would be normally disabled
-         *  due to the matching entityID. This may be used to enable 2FA at this entityID only for privileged
-         *  accounts.
-         *  The key in includeAttributes must be identical to a value in excludeEntityIDs to have an effect!
+         * Per value in excludeEntityIDs, you may specify another set of regular expressions to match the 
+         * attributes in the SAML request. If there is a match in any attribute value, this filter will 
+         * set the state variable to true and thereby enable privacyIDEA where it would be normally disabled
+         * due to the matching entityID. This may be used to enable 2FA at this entityID only for privileged
+         * accounts.
+         * The key in includeAttributes must be identical to a value in excludeEntityIDs to have an effect!
+         * Optional.
          */
         'includeAttributes' => array(
             '/http(s)\/\/conditional-no2fa-provider.de\/(.*)/' => array(
