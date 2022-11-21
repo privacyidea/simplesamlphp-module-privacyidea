@@ -123,11 +123,11 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         $state['privacyidea:privacyidea:ui']['loadCounter'] = "1";
         if(!empty($this->authSourceConfig['otpFieldHint']))
         {
-            $state['privacyidea:privacyidea:ui']['otpFieldHint'] = $this->authSourceConfig['otpFieldHint'] ?: "";
+            $state['privacyidea:privacyidea:ui']['otpFieldHint'] = $this->authSourceConfig['otpFieldHint'];
         }
         if(!empty($this->authSourceConfig['passFieldHint']))
         {
-            $state['privacyidea:privacyidea:ui']['passFieldHint'] = $this->authSourceConfig['passFieldHint'] ?: "";
+            $state['privacyidea:privacyidea:ui']['passFieldHint'] = $this->authSourceConfig['passFieldHint'];
         }
 
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
