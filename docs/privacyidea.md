@@ -249,10 +249,10 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         
         /**
          * Set preferredTokenType to your favourite token type.
-         * If the choosen token is triggered, it will be used to authenticate directly
+         * If the chosen token is triggered, it will be used to authenticate directly
          * without having to press the button for the type.
          * Possible values are: push, webauthn or u2f.
-         * When left empty, defaults to showing an input field for OTPs.
+         * When left empty, defaults to showing an OTP input field.
          * Optional.
          */
         'preferredTokenType' => '',

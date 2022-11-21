@@ -16,7 +16,7 @@ else
 }
 
 // Set the right text shown in otp/pass field(s)
-if (isset($this->data['otpFieldHint']))
+if (!empty($this->data['otpFieldHint']))
 {
     $otpHint = $this->data['otpFieldHint'];
 }
@@ -24,7 +24,7 @@ else
 {
     $otpHint = $this->t('{privacyidea:privacyidea:otp}');
 }
-if (isset($this->data['passFieldHint']))
+if (!empty($this->data['passFieldHint']))
 {
     $passHint = $this->data['passFieldHint'];
 }
@@ -301,14 +301,17 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
+    
     <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['authSourceMode']) && $this->data['authSourceMode'] === "otpExtra") {echo "true";} ?>">
     <meta id="privacyidea-hide-pass-field" name="privacyidea-hide-pass-field" content="<?php if (isset($this->data['authSourceMode']) && $this->data['authSourceMode'] === "triggerChallenge") {echo "true";} ?>">
-    <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="<?php echo (
-        !$this->data['pushAvailable']
-        && (!isset($this->data['u2fSignRequest']) || ($this->data['u2fSignRequest']) == "")
-        && (!isset($this->data['webAuthnSignRequest']) || ($this->data['webAuthnSignRequest']) == "")
-    ) ? 'true' : 'false'; ?>">
-
+    
+    <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="
+        <?php
+        if(!empty($this->data['pushAvailable']))
+        {echo (!$this->data['pushAvailable'] && empty($this->data['u2fSignRequest']) && empty($this->data['webAuthnSignRequest'])) ? 'true' : 'false';}
+        ?>
+    ">
+    
     <meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
     $translations = [];
     $translation_keys = [
