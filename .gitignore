@@ -1,3 +1,5 @@
 .idea
 sync.sh
 /lib/php-client
+vendor
+composer.lock
