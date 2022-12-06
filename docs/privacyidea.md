@@ -66,15 +66,15 @@ You need to add the authentication source 'privacyidea' to
     'serviceRealm'      => 'service',
     
     /**
-     * Set here the authsource mode to one of the following:
+     * Choose one of the authentication flows:
      * 'sendPass' - (default) Login mask will contain the username field and 1 pass field.
      * 'triggerChallenge' - Login mask will contain only the username field. This mode triggers
      * challenges prior to the login using the configured service account (required).
-     * 'otpExtra' - Login mask will contain the username field, password field (e.g. PIN)
-     * and one extra field to attach the OTP already on the first step.
+     * 'separateOTP' - Login mask will contain the username field, password field (e.g. PIN)
+     * and one additional field to attach the OTP already on the first step.
      * Required.
      */
-    'authSourceMode'      => 'sendPass',
+    'authenticationFlow'      => 'sendPass',
     
     /**
      * Set custom hints for the OTP and password fields which will replace the placeholders.
