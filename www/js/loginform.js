@@ -73,8 +73,8 @@ if (step > "1")
     disable("AlternateLoginOptions");
 }
 
-// Handle otp extra field
-if (document.getElementById("privacyidea-otp-extra").content === "true")
+// Handle separate OTP field
+if (document.getElementById("privacyidea-separate-otp").content === "true")
 {
     enable("otp");
 }

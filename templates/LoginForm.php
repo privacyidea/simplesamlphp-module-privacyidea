@@ -302,8 +302,8 @@ if (!empty($this->data['links']))
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
     
-    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (isset($this->data['authSourceMode']) && $this->data['authSourceMode'] === "otpExtra") {echo "true";} ?>">
-    <meta id="privacyidea-hide-pass-field" name="privacyidea-hide-pass-field" content="<?php if (isset($this->data['authSourceMode']) && $this->data['authSourceMode'] === "triggerChallenge") {echo "true";} ?>">
+    <meta id="privacyidea-separate-otp" name="privacyidea-separate-otp" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "separateOTP") {echo "true";} ?>">
+    <meta id="privacyidea-hide-pass-field" name="privacyidea-hide-pass-field" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "triggerChallenge") {echo "true";} ?>">
     
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="
         <?php
