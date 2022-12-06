@@ -128,9 +128,9 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         {
             $state['privacyidea:privacyidea:ui']['passFieldHint'] = $this->authSourceConfig['passFieldHint'];
         }
-        if (!empty($this->authSourceConfig['authSourceMode']))
+        if (!empty($this->authSourceConfig['authenticationFlow']))
         {
-            $state['privacyidea:privacyidea:ui']['authSourceMode'] = $this->authSourceConfig['authSourceMode'];
+            $state['privacyidea:privacyidea:ui']['authenticationFlow'] = $this->authSourceConfig['authenticationFlow'];
         }
 
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
@@ -187,9 +187,9 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
             if (!empty($username))
             {
-                if (!array_key_exists('authSourceMode', $source->authSourceConfig))
+                if (!array_key_exists('authenticationFlow', $source->authSourceConfig))
                 {
-                    SimpleSAML_Logger::error("privacyIDEA: Authsource mode not found in the config file. Please add the 'authSourceMode' with one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'. Until then, the login mask contains per default 1 user field and 1 pass field.");
+                    SimpleSAML_Logger::error("privacyIDEA: Authentication flow not found in the config file. Please add the 'authenticationFlow' with one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Until then, the login mask contains per default 1 user field and 1 pass field.");
                     try
                     {
                         $response = $source->pi->validateCheck($username, $password);
@@ -201,8 +201,8 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                 }
                 else
                 {
-                    $authSourceMode = $source->authSourceConfig['authSourceMode'];
-                    if ($authSourceMode === 'triggerChallenge')
+                    $authenticationFlow = $source->authSourceConfig['authenticationFlow'];
+                    if ($authenticationFlow === 'triggerChallenge')
                     {
                         if ($source->pi->serviceAccountAvailable())
                         {
@@ -216,9 +216,9 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                             }
                         }
                     }
-                    elseif ($authSourceMode === 'sendPass' || $authSourceMode === 'otpExtra')
+                    elseif ($authenticationFlow === 'sendPass' || $authenticationFlow === 'separateOTP')
                     {
-                        // In 'otpExtra' mode, the pass and otp values are combined.
+                        // In 'separateOTP' flow, the pass and otp values are combined.
                         if (!empty($formParams['otp']))
                         {
                             $password = $password . $formParams['otp'];
@@ -235,7 +235,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                     }
                     else
                     {
-                        SimpleSAML_Logger::error("privacyIDEA: Invalid authsource mode. Please set the 'authSourceMode' to one of the following values: 'sendPass', 'triggerChallenge' or 'otpExtra'. Until then, the login mask contains per default 1 user field and 1 pass field.");
+                        SimpleSAML_Logger::error("privacyIDEA: Invalid authentication flow. Please set the 'authenticationFlow' to one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Until then, the login mask contains per default 1 user field and 1 pass field.");
                         try
                         {
                             $response = $source->pi->validateCheck($username, $password);
