@@ -175,7 +175,7 @@ if ($this->data['errorCode'] !== NULL)
                                        value="<?php echo htmlspecialchars(@$this->data['mode'] ?: "otp", ENT_QUOTES) ?>"/>
 
                                 <input id="pushAvailable" type="hidden" name="pushAvailable"
-                                       value="<?php echo htmlspecialchars(@$this->data['pushAvailable'] ?: "", ENT_QUOTES) ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['pushAvailable'] ?: "0", ENT_QUOTES) ?>"/>
 
                                 <input id="otpAvailable" type="hidden" name="otpAvailable"
                                        value="<?php echo htmlspecialchars(@$this->data['otpAvailable'] ?: "1", ENT_QUOTES) ?>"/>

@@ -108,7 +108,7 @@ if (value("otpAvailable") !== "1")
 
 if (value("pushAvailable") === "0" && value("webAuthnSignRequest") === "" && value("u2fSignRequest") === "")
 {
-    disable("alternateTokenDiv");
+    disable("AlternateLoginOptions");
 }
 
 if (value("mode") === "otp")
@@ -266,7 +266,7 @@ function sign_u2f_request(signRequest)
 }
 
 if (document.getElementById("privacyidea-hide-alternate").content === "true") {
-    document.getElementById("AlternateLoginOptions").classList.add("hidden");
+    disable("AlternateLoginOptions");
 }
 
 document.addEventListener("DOMContentLoaded", (event) => {

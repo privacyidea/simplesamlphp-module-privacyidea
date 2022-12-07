@@ -131,8 +131,8 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
 
         // Check if call with a static pass to /validate/check should be done
-        if (!$triggered
-            && !empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
+        if (!$triggered && !empty($this->authProcConfig['tryFirstAuthentication'])
+            && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
             // Call /validate/check with a static pass from the configuration
             // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
