@@ -219,25 +219,25 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          * Optional.
          */
         'serviceRealm'      => 'service',
-         
-        /**
-         * Set doTriggerChallenge to 'true' to trigger challenges prior to the login 
-         * using the configured service account. 
-         * This setting takes precedence over 'doSendPassword'.
-         * The value has to be a string.
-         * Optional.
-         */
-        'doTriggerChallenge' => 'false',
         
         /**
-         * Set doSendPassword to 'true' to send a request to validate/check with the username
-         * and an empty pass prior to the login. 
-         * This can be used to trigger challenges depending on the configuration in privacyIDEA 
-         * and requires no service account. If 'doTriggerChallenge' is enabled, this setting has no effect.
-         * The value has to be a string.
-         * Optional.
+         * Password which should be used if the authentication flow is set to: 'alternativeProcess'.
+         * NOTE: Needed only by 'alternativeProcess'.
          */
-        'doSendPassword' => 'false',
+        'passForAlternativeProcess' => 'topsecret',
+        
+        /**
+         * Choose one of the authentication flows:
+         * 'default' - Default authentication flow.
+         * 'triggerChallenge' - On the first step, the login mask will contain only username field. This flow triggers
+         * challenges prior to the login using the configured service account (required).
+         * 'alternativeProcess' - If you want to use passOnNoToken or passOnNoUser policy, you can decide, if this flow should send a password to
+         * privacyIDEA. If passOnNoToken policy is activated and the user doesn't have any token, he will be passed by the privacyIDEA.
+         * NOTE: Do not use it with 'doEnrollToken'.
+         * NOTE: This won't be processed if the user has challenge-response token that were triggered before.
+         * Required.
+         */
+        'authenticationFlow'      => 'default',
         
         /**
          * Set this to 'true' if you want to use single sign on.
@@ -258,10 +258,9 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         'preferredTokenType' => '',
         
         /**
-         * Set custom hints for the OTP and password fields
+         * Set custom hint for the OTP field. This will replace the default placeholder.
          */
         'otpFieldHint' => 'OTP',
-        'passFieldHint' => 'Password',
         
         /**
          * You can add this option, if you want to enroll tokens for users, who do not have one yet.
@@ -286,21 +285,6 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          */
         'enabledPath'       => '',
         'enabledKey'        => '',
-
-        /**
-         * If you want to use passOnNoToken or passOnNoUser, you can decide, if this module should send a password to
-         * privacyIDEA. If passOnNoToken is activated and the user does not have a token, he will be passed by privacyIDEA.
-         * NOTE: Do not use it with privacyidea:tokenEnrollment.
-         * NOTE: This will not trigger if the user has challenge-response token that were triggered before.
-         * Optional.
-         */
-        'tryFirstAuthentication' => 'false',
-
-        /**
-         * You can decide, which password should be used for tryFirstAuthentication
-         * Optional.
-         */
-        'tryFirstAuthPass' => 'simpleSAMLphp',
 
         /**
          * You can exclude clients with specified ip addresses.
