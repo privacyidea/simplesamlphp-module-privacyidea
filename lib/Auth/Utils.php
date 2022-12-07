@@ -331,7 +331,7 @@ class sspmod_privacyidea_Auth_Utils
             if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
             {
                 // Write data for SSO if enabled
-                if (array_key_exists('SSO', $config) && $config['SSO'] == true)
+                if (array_key_exists('SSO', $config) && $config['SSO'])
                 {
                     sspmod_privacyidea_Auth_Utils::tryWriteSSO();
                 }

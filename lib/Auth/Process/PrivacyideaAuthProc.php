@@ -102,51 +102,60 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
         // Check if triggerChallenge call should be done
         $triggered = false;
-        if (!empty($this->authProcConfig['doTriggerChallenge']) && $this->authProcConfig['doTriggerChallenge'] === 'true')
+        if (!empty($this->authProcConfig['authenticationFlow']))
         {
-            // Call /validate/triggerchallenge with the service account from the configuration to trigger all token of the user
-            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-            if (!$this->pi->serviceAccountAvailable())
+            if ($this->authProcConfig['authenticationFlow'] === 'triggerChallenge')
             {
-                SimpleSAML_Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
-            }
-            else
-            {
-                $response = null;
-                try
+                // Call /validate/triggerchallenge with the service account from the configuration to trigger all token of the user
+                $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+                if (!$this->pi->serviceAccountAvailable())
                 {
-                    $response = $this->pi->triggerChallenge($username);
+                    SimpleSAML_Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
                 }
-                catch (Exception $e)
+                else
                 {
-                    sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
-                }
+                    $response = null;
+                    try
+                    {
+                        $response = $this->pi->triggerChallenge($username);
+                    }
+                    catch (Exception $e)
+                    {
+                        sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                    }
 
-                if ($response != null)
+                    if ($response != null)
+                    {
+                        $triggered = !empty($response->multiChallenge);
+                        $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
+                    }
+                }
+            }
+
+            // Check if call with a static pass to /validate/check should be done
+            if (!$triggered && !empty($this->authProcConfig['authenticationFlow'])
+                && $this->authProcConfig['authenticationFlow'] === 'alternativeProcess'
+                && isset($this->authProcConfig['passForAlternativeProcess']))
+            {
+                SimpleSAML_Logger::debug("privacyIDEA: No user or Token. Running alternative process...");
+
+                // Call /validate/check with a static pass from the configuration
+                // This could already end the authentication with the "passOnNoToken" policy, or it triggers the challenges
+                $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, array('otp' => $this->authProcConfig['passForAlternativeProcess']));
+                if (empty($response->multiChallenge) && $response->value)
                 {
-                    $triggered = !empty($response->multiChallenge);
+                    SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+                }
+                elseif (!empty($response->multiChallenge))
+                {
                     $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
                 }
             }
         }
-
-        // Check if call with a static pass to /validate/check should be done
-        if (!$triggered && !empty($this->authProcConfig['tryFirstAuthentication'])
-            && $this->authProcConfig['tryFirstAuthentication'] === 'true')
+        else
         {
-            // Call /validate/check with a static pass from the configuration
-            // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
-            $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, array('otp' => $this->authProcConfig['tryFirstAuthPass']));
-            if (empty($response->multiChallenge) && $response->value)
-            {
-                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
-            }
-            elseif (!empty($response->multiChallenge))
-            {
-                $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
-            }
+            SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in config. Processing default one...");
         }
-
         $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
 
         // This is AuthProcFilter, so step 1 (username+password) is already done. Set the step to 2
