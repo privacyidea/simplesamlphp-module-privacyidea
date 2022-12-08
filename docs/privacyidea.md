@@ -201,7 +201,16 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
          * Optional. Default: true.
          */
         'sslVerifyPeer'     => 'true',
-
+        
+        /**
+         * Choose one of the authentication flows:
+         * 'default' - Default authentication flow.
+         * 'triggerChallenge' - On the first step, the login mask will contain only username field. This flow triggers
+         * challenges prior to the login using the configured service account (required).
+         * Required.
+         */
+        'authenticationFlow'      => 'default',
+        
         /**
          * Here you need to enter the username of your service account from privacyIDEA server.
          * Needed if 'doTriggerChallenge' => 'true'.
@@ -221,23 +230,19 @@ If you want to use privacyIDEA as an auth process filter, add the configuration 
         'serviceRealm'      => 'service',
         
         /**
-         * Password which should be used if the authentication flow is set to: 'alternativeProcess'.
-         * NOTE: Needed only by 'alternativeProcess'.
-         */
-        'passForAlternativeProcess' => 'topsecret',
-        
-        /**
-         * Choose one of the authentication flows:
-         * 'default' - Default authentication flow.
-         * 'triggerChallenge' - On the first step, the login mask will contain only username field. This flow triggers
-         * challenges prior to the login using the configured service account (required).
-         * 'alternativeProcess' - If you want to use passOnNoToken or passOnNoUser policy, you can decide, if this flow should send a password to
+         * If you want to use passOnNoToken or passOnNoUser policy, you can decide, if this flow should send a password to
          * privacyIDEA. If passOnNoToken policy is activated and the user doesn't have any token, he will be passed by the privacyIDEA.
          * NOTE: Do not use it with 'doEnrollToken'.
          * NOTE: This won't be processed if the user has challenge-response token that were triggered before.
-         * Required.
+         * Optional.
          */
-        'authenticationFlow'      => 'default',
+        'tryFirstAuthentication' => 'false',
+        
+        /**
+         * Password which should be used if the authentication flow is set to: 'alternativeProcess'.
+         * NOTE: Needed only by 'alternativeProcess'.
+         */
+        'tryFirstAuthPass' => 'secret',
         
         /**
          * Set this to 'true' if you want to use single sign on.
