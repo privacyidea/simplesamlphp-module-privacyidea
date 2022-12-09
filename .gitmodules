@@ -1,6 +1,0 @@
-[submodule "www/js/webauthn-client"]
-	path = www/js/webauthn-client
-	url = https://github.com/privacyidea/webauthn-client.git
-[submodule "privacyIDEA-PHP-Client"]
-	path = lib/php-client
-	url = https://github.com/privacyidea/php-client.git
