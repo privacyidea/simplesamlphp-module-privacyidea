@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 <?php
 
 // Set default scenario if isn't set
