@@ -204,6 +204,7 @@ if ($this->data['errorCode'] !== NULL)
                                 {
                                     echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
                                     ?>
+                                    <br><br>
                                     <div class="tokenQR">
                                         <?php echo '<img src="' . $this->data['tokenQR'] . '" />'; ?>
                                     </div>

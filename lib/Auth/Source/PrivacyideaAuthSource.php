@@ -235,7 +235,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                     }
                     else
                     {
-                        SimpleSAML_Logger::error("privacyIDEA: Invalid authentication flow. Please set the 'authenticationFlow' to one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Until then, the login mask contains per default 1 user field and 1 pass field.");
+                        SimpleSAML_Logger::error("privacyIDEA: Invalid authentication flow. Please set 'authenticationFlow' to one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Fallback to default (sendPass)");
                         try
                         {
                             $response = $source->pi->validateCheck($username, $password);

@@ -22,7 +22,7 @@ You need to add the authentication source 'privacyidea' to
     'privacyidea:PrivacyideaAuthSource',
 
     /**
-     * The URI (including protocol and port) of the privacyidea server
+     * The URI (including protocol and port) of the privacyidea server.
      * Required.
      */
     'privacyideaServerURL' => 'https://your.server.com',
