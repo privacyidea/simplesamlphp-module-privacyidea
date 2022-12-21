@@ -93,7 +93,7 @@ You need to add the authentication source 'privacyidea' to
     
     /**
      * Set preferredTokenType to your favourite token type.
-     * If the choosen token is triggered, it will be used to authenticate directly
+     * If the chosen token is triggered, it will be used to authenticate directly
      * without having to press the button for the type.
      * Possible values are: push, webauthn or u2f.
      * When left empty, defaults to showing an input field for OTPs.

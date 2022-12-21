@@ -133,7 +133,7 @@ var pi_webauthn = navigator.credentials ? window.pi_webauthn || {} : null;
     /**
      * Encode a binary into base64.
      *
-     * This will take a binary ArrrayBufferLike and encode it into base64.
+     * This will take a binary ArrayBufferLike and encode it into base64.
      *
      * Adapted from Base64 / binary data / UTF-8 strings utilities (#2)
      *
@@ -448,7 +448,7 @@ var pi_webauthn = navigator.credentials ? window.pi_webauthn || {} : null;
      * @type {object}
      * @property {string} challenge - The challenge from privacyIDEA.
      * @property {{id: string, type: PublicKeyCredentialType, transports: AuthenticatorTransport[]}[]} allowCredentials - Creds to try.
-     * @property {string} rpId - The relying party id the credential was created with.
+     * @property {string} rpId - The upon party id the credential was created with.
      * @property {UserVerificationRequirement} userVerification - Option to discourage, or require user verification.
      * @property {number} [timeout=60000] - Timeout in milliseconds.
      *
