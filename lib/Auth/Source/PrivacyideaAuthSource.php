@@ -216,7 +216,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                             }
                         }
                     }
-                    elseif ($authenticationFlow === 'sendPass' || $authenticationFlow === 'separateOTP')
+                    elseif ($authenticationFlow === 'sendPassword' || $authenticationFlow === 'separateOTP')
                     {
                         // In 'separateOTP' flow, the pass and otp values are combined.
                         if (!empty($formParams['otp']))
