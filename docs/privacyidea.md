@@ -9,15 +9,15 @@ You can use this plugin in two different ways:
     <li> AuthProc: This module does just one step of the authentication, the second factor against privacyIDEA
 </ol>
 
-NOTE: This plugin is enabled by default when installed, you do not need to enable it manually. 
-Just add the configuration to the corresponding file as explained in the following:
+NOTE: This plugin is enabled by default when installed, you do not need to enable it manually. Just add the
+configuration to the corresponding file as explained in the following:
 
 AuthSource
 ==========
 
-Add the configuration to `config/authsources.php`. 
-*example-privacyidea* is the name used to identify this module, it can be changed to your liking.
-The following is a template configuration:
+Add the configuration to `config/authsources.php`.
+*example-privacyidea* is the name used to identify this module, it can be changed to your liking. The following is a
+template configuration:
 
 ```PHP
 'example-privacyidea' => array(
@@ -122,8 +122,7 @@ The following is a template configuration:
 
 User attributes
 ---------------
-/* add notice for privacyidea policy here */ 
-Currently, privacyIDEA will return the following attributes by default.
+/* add notice for privacyidea policy here */ Currently, privacyIDEA will return the following attributes by default.
 They can then be mapped to SAML attributes:
 
 - username: The login name
@@ -153,12 +152,12 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
     20 => array(
         'class'             => 'privacyidea:PrivacyideaAuthProc',
 
-        /**
-         * Enter the URL to your privacyIDEA instance. Required.
-         */
+       /**
+        * The URL of the privacyidea server. Required.
+        */
         'privacyideaServerURL' => 'https://your.privacyidea.server',
         
-        /**
+       /**
         * Optionally set the privacyidea realm.
         */
         'realm' => '',
@@ -172,59 +171,41 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
         'uidKey' => 'uid',
 
         /**
-         * Check if the hostname matches the name in the certificate.
-         * The value has to be a string.
-         * Optional. Default: true.
+         * Optionally disable SSL verification. This should always be enabled in a productive environment!
+         * Values should be 'true' or 'false'. Default is 'true'.      
          */
-        'sslVerifyHost'     => 'true',
-
-        /**
-         * Check if the certificate is valid, signed by a trusted CA.
-         * The value has to be a string.
-         * Optional. Default: true.
-         */
-        'sslVerifyPeer'     => 'true',
+        'sslVerifyHost' => 'true',
+        'sslVerifyPeer' => 'true',
         
         /**
          * Choose one of the authentication flows:
          * 'default' - Default authentication flow.
-         * 'triggerChallenge' - On the first step, the login mask will contain only username field. This flow triggers
-         * challenges prior to the login using the configured service account (required).
+         * 'triggerChallenge' - Before the login interface is shown, the filter will attempt to trigger challenge-response
+         * token with the specified serviceAccount
          * Required.
          */
-        'authenticationFlow'      => 'default',
+        'authenticationFlow' => 'default',
         
         /**
-         * Here you need to enter the username of your service account from privacyIDEA server.
-         * Needed if 'doTriggerChallenge' => 'true'.
+         * Specify the username and password of your service account from privacyIDEA server.
+         * Only required if 'authSourceMode' => 'triggerChallenge'.
          */
-        'serviceAccount'    => 'service',
-
-        /**
-         * Enter here the password for your service account.
-         * Needed if 'doTriggerChallenge' => 'true'.
-         */
-        'servicePass'       => 'service',
+        'serviceAccount' => 'service',
+        'servicePass' => 'service',
         
         /**
-         * Enter here the realm for your service account.
-         * Optional.
+         * Optionally set the realm for your service account.
          */
-        'serviceRealm'      => 'service',
+        'serviceRealm' => '',
         
         /**
-         * If you want to use passOnNoToken or passOnNoUser policy, you can decide, if this flow should send a password to
-         * privacyIDEA. If passOnNoToken policy is activated and the user doesn't have any token, he will be passed by the privacyIDEA.
-         * NOTE: Do not use it with 'doEnrollToken'.
+         * If you want to use the passOnNoToken or passOnNoUser policy in privacyidea, you can set this to 'true' and specify
+         * a static pass which will be sent before the actual authentication to trigger the policies in privacyidea. 
+         * NOTE: Not compatible it with 'doEnrollToken'.
          * NOTE: This won't be processed if the user has challenge-response token that were triggered before.
          * Optional.
          */
         'tryFirstAuthentication' => 'false',
-        
-        /**
-         * Password which should be used if the authentication flow is set to: 'alternativeProcess'.
-         * NOTE: Needed only by 'alternativeProcess'.
-         */
         'tryFirstAuthPass' => 'secret',
         
         /**
@@ -236,32 +217,26 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
         'SSO' => 'false',
         
         /**
-         * Set preferredTokenType to your favourite token type.
+         * Optionally set a preferred token type.
          * If the chosen token is triggered, it will be used to authenticate directly
          * without having to press the button for the type.
-         * Possible values are: push, webauthn or u2f.
-         * When left empty, defaults to showing an OTP input field.
-         * Optional.
+         * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'
          */
         'preferredTokenType' => '',
         
         /**
-         * Set custom hint for the OTP field. This will replace the default placeholder.
+         * Custom hint for the OTP field.
          */
         'otpFieldHint' => 'OTP',
         
         /**
-         * You can add this option, if you want to enroll tokens for users, who do not have one yet.
-         * The value has to be a string.
+         * Enable this if a token should be enrolled for users that do not have one.
+         * The value has to be 'true' or 'false'.
+         * Possible token types are 'hotp', 'totp' or 'u2f'
          * Optional.
          */
-        'doEnrollToken'     => 'false',
-        
-        /**
-         * The type of token that will be enrolled by the doEnrollToken option.
-         * You can select a time based otp (totp), an event based otp (hotp) or an u2f (u2f).
-         */
-        'tokenType'         => 'totp',
+        'doEnrollToken' => 'false',
+        'tokenType' => 'totp',
 
         /**
          * Other authproc filters can disable this filter.
@@ -271,8 +246,8 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
          * Optional.
          */
-        'enabledPath'       => '',
-        'enabledKey'        => '',
+        'enabledPath' => '',
+        'enabledKey' => '',
 
         /**
          * You can exclude clients with specified ip addresses.
@@ -280,7 +255,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * The selected ip addresses do not need 2FA.
          * Optional.
          */
-        'excludeClientIPs'  => array("10.0.0.0-10.2.0.0", "192.168.178.2"),
+        'excludeClientIPs' => array("10.0.0.0-10.2.0.0", "192.168.178.2"),
 
 
         /**
@@ -289,7 +264,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * Value has to be a 'true' or 'false'.
          * Optional.
          */
-        'checkEntityID'        => 'true',
+        'checkEntityID' => 'true',
      
         /**
          * Depending on excludeEntityIDs and includeAttributes this will set the state variable 
@@ -298,8 +273,8 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * that they equal enabledPath and enabledKey from privacyidea:privacyidea.
          * Optional.
          */
-        'setPath'              => 'privacyIDEA',
-        'setKey'               => 'enabled',
+        'setPath' => 'privacyIDEA',
+        'setKey' => 'enabled',
         
         /**
          * The requesting SAML provider's entityID will be tested against this list of regular expressions.
