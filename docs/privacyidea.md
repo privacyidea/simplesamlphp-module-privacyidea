@@ -85,9 +85,20 @@ template configuration:
     'preferredTokenType' => '',
 
     /**
-     * This is the translation from privacyIDEA attribute names to 
-     * SAML attribute names.
-     * Optional.
+     * ! REQUIRED SERVER-SIDE ACTION !
+     * To confirm the authentication, simpleSAMLphp needs some more info, than this,
+     * what privacyIDEA is sending from default in the response. To adjust and complete the server response,
+     * go to the server settings, add a policy from scope: “authorization”, and in “Action” check as follows:
+     * setting actions → add_resolver_in_response
+     * setting actions → add_user_in_response
+     * miscellaneous → application_tokentype
+     * These attributes are required to identify the user and trust the authentication which was fully
+     * provided by the external services like the privacyIDEA.
+     */
+
+    /**
+     * Translation from privacyIDEA attribute names to the SAML attribute names.
+     * Required.
      */
     'attributemap' => array(
         'username' => 'samlLoginName',
@@ -97,6 +108,11 @@ template configuration:
         'phone' => 'telePhone',
         'mobile' => 'mobilePhone'
     ),
+    
+    /**
+     * To concatenate or edit the attributes mentioned above, you can use next 2 options.
+     * If they should not be used, feel free to remove them.
+     */
 
     /**
      * You are able to concatenate attributes like the given and surname.
@@ -108,7 +124,6 @@ template configuration:
 
     /**
      * Here the detail attributes can be edited.
-     * If they should not be listed, just remove them.
      * Optional.
      */
     'detailmap' => array(
