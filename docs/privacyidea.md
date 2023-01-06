@@ -85,18 +85,6 @@ template configuration:
     'preferredTokenType' => '',
 
     /**
-     * ! REQUIRED SERVER-SIDE ACTION !
-     * To confirm the authentication, simpleSAMLphp needs some more info, than this,
-     * what privacyIDEA is sending from default in the response. To adjust and complete the server response,
-     * go to the server settings, add a policy from scope: “authorization”, and in “Action” check as follows:
-     * setting actions → add_resolver_in_response
-     * setting actions → add_user_in_response
-     * miscellaneous → application_tokentype
-     * These attributes are required to identify the user and trust the authentication which was fully
-     * provided by the external services like the privacyIDEA.
-     */
-
-    /**
      * Translation from privacyIDEA attribute names to the SAML attribute names.
      * Required.
      */
@@ -137,8 +125,15 @@ template configuration:
 
 User attributes
 ---------------
-/* add notice for privacyidea policy here */ Currently, privacyIDEA will return the following attributes by default.
-They can then be mapped to SAML attributes:
+To complete the authentication with SAML in AuthSource mode, SAML expects user attributes to be returned.
+These attributes will be received from privacyIDEA upon completing the authentication.
+However, this has to be enabled by creating a policy in privacyIDEA with the following values:
+Scope:  authorization
+Actions from section "setting_actions": "add_resolver_in_response", "add_user_in_response"
+Actions from section "miscellaneous": "application_tokentype
+
+The attributes can then be mapped to SAML attributes using the "attributemap" setting described in the config template above.
+Examples for those attributes are:
 
 - username: The login name
 - surname: The real world name of the user as it is retrieved from the user source

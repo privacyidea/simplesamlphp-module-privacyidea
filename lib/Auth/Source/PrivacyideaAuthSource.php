@@ -388,7 +388,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $attributes[$mappedKey] = array($concatenationString);
         }
 
-        SimpleSAML_Logger::debug("privacyIDEA: Returning following attributes: " . print_r($attributes, True));
+        SimpleSAML_Logger::debug("privacyIDEA: Attributes returned: " . print_r($attributes, True));
         return $attributes;
     }
 
