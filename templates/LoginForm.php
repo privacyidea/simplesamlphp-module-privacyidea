@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 <?php
 
 // Set default scenario if isn't set
@@ -175,7 +173,7 @@ if ($this->data['errorCode'] !== NULL)
                                        value="<?php echo htmlspecialchars(@$this->data['mode'] ?: "otp", ENT_QUOTES) ?>"/>
 
                                 <input id="pushAvailable" type="hidden" name="pushAvailable"
-                                       value="<?php echo htmlspecialchars(@$this->data['pushAvailable'] ?: "", ENT_QUOTES) ?>"/>
+                                       value="<?php echo htmlspecialchars(@$this->data['pushAvailable'] ?: "0", ENT_QUOTES) ?>"/>
 
                                 <input id="otpAvailable" type="hidden" name="otpAvailable"
                                        value="<?php echo htmlspecialchars(@$this->data['otpAvailable'] ?: "1", ENT_QUOTES) ?>"/>
@@ -206,6 +204,7 @@ if ($this->data['errorCode'] !== NULL)
                                 {
                                     echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
                                     ?>
+                                    <br><br>
                                     <div class="tokenQR">
                                         <?php echo '<img src="' . $this->data['tokenQR'] . '" />'; ?>
                                     </div>
@@ -301,14 +300,17 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
-    <meta id="privacyidea-otp-extra" name="privacyidea-otp-extra" content="<?php if (!empty($this->data['otpExtra']) && $this->data['otpExtra']) {echo str_replace('"', "", $this->data['otpExtra']);} ?>">
+    
+    <meta id="privacyidea-separate-otp" name="privacyidea-separate-otp" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "separateOTP") {echo "true";} ?>">
+    <meta id="privacyidea-hide-pass-field" name="privacyidea-hide-pass-field" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "triggerChallenge") {echo "true";} ?>">
+    
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="
         <?php
         if(!empty($this->data['pushAvailable']))
         {echo (!$this->data['pushAvailable'] && empty($this->data['u2fSignRequest']) && empty($this->data['webAuthnSignRequest'])) ? 'true' : 'false';}
         ?>
     ">
-
+    
     <meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
     $translations = [];
     $translation_keys = [

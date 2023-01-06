@@ -94,45 +94,52 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
+        // Check if triggerChallenge call should be done
+        $triggered = false;
+        if (!empty($this->authProcConfig['authenticationFlow']))
+        {
+            if ($this->authProcConfig['authenticationFlow'] === 'triggerChallenge')
+            {
+                // Call /validate/triggerchallenge with the service account from the configuration to trigger all token of the user
+                $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+                if (!$this->pi->serviceAccountAvailable())
+                {
+                    SimpleSAML_Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
+                }
+                else
+                {
+                    $response = null;
+                    try
+                    {
+                        $response = $this->pi->triggerChallenge($username);
+                    }
+                    catch (Exception $e)
+                    {
+                        sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                    }
+
+                    if ($response != null)
+                    {
+                        $triggered = !empty($response->multiChallenge);
+                        $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
+                    }
+                }
+            }
+        }
+        else
+        {
+            SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in config. Processing default one...");
+        }
+
         // Check if it should be controlled that user has no tokens and a new token should be enrolled.
-        if (!empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
+        if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
         {
             $stateId = $this->enrollToken($stateId, $username);
         }
 
-        // Check if triggerChallenge call should be done
-        $triggered = false;
-        if (!empty($this->authProcConfig['doTriggerChallenge']) && $this->authProcConfig['doTriggerChallenge'] === 'true')
-        {
-            // Call /validate/triggerchallenge with the service account from the configuration to trigger all token of the user
-            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-            if (!$this->pi->serviceAccountAvailable())
-            {
-                SimpleSAML_Logger::error('privacyIDEA: service account or password is not set in config. Cannot to do trigger challenge.');
-            }
-            else
-            {
-                $response = null;
-                try
-                {
-                    $response = $this->pi->triggerChallenge($username);
-                }
-                catch (Exception $e)
-                {
-                    sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
-                }
-
-                if ($response != null)
-                {
-                    $triggered = !empty($response->multiChallenge);
-                    $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
-                }
-            }
-        }
-
         // Check if call with a static pass to /validate/check should be done
-        if (!$triggered
-            && !empty($this->authProcConfig['tryFirstAuthentication']) && $this->authProcConfig['tryFirstAuthentication'] === 'true')
+        if (!$triggered && !empty($this->authProcConfig['tryFirstAuthentication'])
+            && $this->authProcConfig['tryFirstAuthentication'] === 'true')
         {
             // Call /validate/check with a static pass from the configuration
             // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
@@ -182,7 +189,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
         else
         {
-            $genkey = 1;
+            $genkey = "1";
             $type = $this->authProcConfig['tokenType'];
             $description = "Enrolled with simpleSAMLphp";
 

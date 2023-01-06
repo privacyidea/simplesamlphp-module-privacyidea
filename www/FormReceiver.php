@@ -34,7 +34,6 @@ else
 $formParams = array(
     "username" => $username,
     "pass" => array_key_exists('password', $_REQUEST) ? $_REQUEST['password'] : "",
-    "otpExtra" => array_key_exists('otpExtra', $_REQUEST) ? $_REQUEST['otpExtra'] : "",
     "otp" => array_key_exists('otp', $_REQUEST) ? $_REQUEST['otp'] : "",
     "mode" => array_key_exists('mode', $_REQUEST) ? $_REQUEST['mode'] : "otp",
     "pushAvailable" => array_key_exists('pushAvailable', $_REQUEST) ? $_REQUEST['pushAvailable'] : "false",

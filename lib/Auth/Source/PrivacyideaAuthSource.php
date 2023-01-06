@@ -90,7 +90,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
     public function authenticate(&$state)
     {
         assert('array' === gettype($state));
-        SimpleSAML_Logger::debug("privacyIDEA AuthSource authenticate");
+        SimpleSAML_Logger::info("privacyIDEA AuthSource authenticate");
 
         // SSO check if authentication should be skipped
         if (array_key_exists('SSO', $this->authSourceConfig) &&
@@ -99,7 +99,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         {
             $session = SimpleSAML_Session::getSessionFromRequest();
             $attributes = $session->getData('privacyidea:privacyidea', 'attributes');
-            SimpleSAML_Logger("privacyIDEA: SSO retrieved attributes from session: " . print_r($attributes, true));
+            //SimpleSAML_Logger::debug("privacyIDEA: SSO retrieved attributes from session: " . print_r($attributes, true));
             $state['Attributes'] = $attributes;
             SimpleSAML_Auth_Source::completeAuth($state);
         }
@@ -119,15 +119,18 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = "";
         $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = "";
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
-        $state['privacyidea:privacyidea:ui']['otpExtra'] = @$this->authSourceConfig['otpExtra'] ?: false;
         $state['privacyidea:privacyidea:ui']['loadCounter'] = "1";
-        if(!empty($this->authSourceConfig['otpFieldHint']))
+        if (!empty($this->authSourceConfig['otpFieldHint']))
         {
             $state['privacyidea:privacyidea:ui']['otpFieldHint'] = $this->authSourceConfig['otpFieldHint'];
         }
-        if(!empty($this->authSourceConfig['passFieldHint']))
+        if (!empty($this->authSourceConfig['passFieldHint']))
         {
             $state['privacyidea:privacyidea:ui']['passFieldHint'] = $this->authSourceConfig['passFieldHint'];
+        }
+        if (!empty($this->authSourceConfig['authenticationFlow']))
+        {
+            $state['privacyidea:privacyidea:ui']['authenticationFlow'] = $this->authSourceConfig['authenticationFlow'];
         }
 
         $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
@@ -176,40 +179,17 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         {
             $password = $formParams['pass'];
         }
-        // If otpExtra is set, add it to the password
-        if (!empty($password) && !empty($formParams['otpExtra']))
-        {
-            $password = $password . $formParams['otpExtra'];
-        }
 
         $response = null;
         if ($step == 1)
         {
             $state['privacyidea:privacyidea']['username'] = $username;
-            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
 
-            if (array_key_exists("doTriggerChallenge", $source->authSourceConfig)
-                && $source->authSourceConfig["doTriggerChallenge"] === 'true')
+            if (!empty($username))
             {
-                if (!empty($username) && $source->pi->serviceAccountAvailable())
+                if (!array_key_exists('authenticationFlow', $source->authSourceConfig))
                 {
-                    try
-                    {
-                        $response = $source->pi->triggerChallenge($username);
-                    }
-                    catch (Exception $e)
-                    {
-                        sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
-                    }
-                }
-            }
-            elseif ((array_key_exists("doSendPassword", $source->authSourceConfig)
-                    && $source->authSourceConfig['doSendPassword'] === 'true')
-                || (array_key_exists("otpExtra", $source->authSourceConfig)
-                    && $source->authSourceConfig['otpExtra'] === 'true'))
-            {
-                if (!empty($username))
-                {
+                    SimpleSAML_Logger::error("privacyIDEA: Authentication flow not found in the config file. Please add the 'authenticationFlow' with one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Until then, the login mask contains per default 1 user field and 1 pass field.");
                     try
                     {
                         $response = $source->pi->validateCheck($username, $password);
@@ -219,8 +199,55 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                         sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
                     }
                 }
+                else
+                {
+                    $authenticationFlow = $source->authSourceConfig['authenticationFlow'];
+                    if ($authenticationFlow === 'triggerChallenge')
+                    {
+                        if ($source->pi->serviceAccountAvailable())
+                        {
+                            try
+                            {
+                                $response = $source->pi->triggerChallenge($username);
+                            }
+                            catch (Exception $e)
+                            {
+                                sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                            }
+                        }
+                    }
+                    elseif ($authenticationFlow === 'sendPassword' || $authenticationFlow === 'separateOTP')
+                    {
+                        // In 'separateOTP' flow, the pass and otp values are combined.
+                        if (!empty($formParams['otp']))
+                        {
+                            $password = $password . $formParams['otp'];
+                        }
+
+                        try
+                        {
+                            $response = $source->pi->validateCheck($username, $password);
+                        }
+                        catch (Exception $e)
+                        {
+                            sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                        }
+                    }
+                    else
+                    {
+                        SimpleSAML_Logger::error("privacyIDEA: Invalid authentication flow. Please set 'authenticationFlow' to one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Fallback to default (sendPass)");
+                        try
+                        {
+                            $response = $source->pi->validateCheck($username, $password);
+                        }
+                        catch (Exception $e)
+                        {
+                            sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                        }
+                    }
+                }
             }
-            // Save the state at the end of step
+            // Save the state at the end of step 1
             $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
         }
         elseif ($step > 1)
@@ -242,7 +269,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
         if ($response != null)
         {
-            $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response, $source->authSourceConfig);
+            $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
         }
 
         $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');

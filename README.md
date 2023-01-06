@@ -1,9 +1,9 @@
 # privacyIDEA simpleSAMLphp Plugin
 
-This plugin adds flexible, enterprise-grade two factor authentication 
+This plugin adds flexible, enterprise-grade two-factor authentication 
 to simplesSAMLphp. 
 
-It enables simpleSAMLphp to do two factor authentication against 
+It enables simpleSAMLphp to do two-factor authentication against 
 a [privacyIDEA server](https://github.com/privacyidea/privacyidea), 
 that runs in your network. Users can authenticate with normal OTP tokens, 
 Challenge Response tokens like EMail and SMS or using WebAuthn and U2F devices.

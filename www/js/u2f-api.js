@@ -36,7 +36,7 @@ u2f.EXTENSION_ID = 'kmendfapggjehodndflmmgagdbamhnfd';
 
 
 /**
- * Message types for messsages to/from the extension
+ * Message types for messages to/from the extension
  * @const
  * @enum {string}
  */
@@ -336,7 +336,7 @@ u2f.formatSignRequest_ =
     };
 
 /**
- * Format and return a register request compliant with the JS API version supported by the extension..
+ * Format and return a register request compliant with the JS API version supported by the extension.
  * @param {Array<u2f.SignRequest>} signRequests
  * @param {Array<u2f.RegisterRequest>} signRequests
  * @param {number} timeoutSeconds
@@ -669,7 +669,7 @@ u2f.responseHandler_ = function (message)
 /**
  * Dispatches an array of sign requests to available U2F tokens.
  * If the JS API version supported by the extension is unknown, it first sends a
- * message to the extension to find out the supported API version and then it sends
+ * message to the extension to find out the supported API version, and then it sends
  * the sign request.
  * @param {string=} appId
  * @param {string=} challenge
@@ -721,7 +721,7 @@ u2f.sendSignRequest = function (appId, challenge, registeredKeys, callback, opt_
  * Dispatches register requests to available U2F tokens. An array of sign
  * requests identifies already registered tokens.
  * If the JS API version supported by the extension is unknown, it first sends a
- * message to the extension to find out the supported API version and then it sends
+ * message to the extension to find out the supported API version, and then it sends
  * the register request.
  * @param {string=} appId
  * @param {Array<u2f.RegisterRequest>} registerRequests
