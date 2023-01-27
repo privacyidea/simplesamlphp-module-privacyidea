@@ -18,7 +18,7 @@ To use the Google theme for login, you need to:
    to your ``config.php`` file.
 
 
-2. Setup a directory ``/css`` in the webserver pointing to: ``/usr/share/simplesamlephp/modules/privacyidea/themes/google/css``. 
+2. Set up a directory ``/css`` in the webserver pointing to: ``/usr/share/simplesamlephp/modules/privacyidea/themes/google/css``. 
 
 
 On Apache you can paste the following to /etc/apache2/sites-available/foo-saml.conf:
