@@ -292,7 +292,18 @@ class sspmod_privacyidea_Auth_Utils
             $triggeredToken = $response->triggeredTokenTypes();
             if (!empty($response->preferredClientMode))
             {
-                $state['privacyidea:privacyidea:ui']['mode'] = $response->preferredClientMode;
+                if ($response->preferredClientMode == "interactive")
+                {
+                    $state['privacyidea:privacyidea:ui']['mode'] = "otp";
+                }
+                elseif ($response->preferredClientMode == "poll")
+                {
+                    $state['privacyidea:privacyidea:ui']['mode'] = "push";
+                }
+                else
+                {
+                    $state['privacyidea:privacyidea:ui']['mode'] = $response->preferredClientMode;
+                }
             }
             else
             {
@@ -309,7 +320,6 @@ class sspmod_privacyidea_Auth_Utils
                     }
                 }
             }
-
 
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredToken);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
