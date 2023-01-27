@@ -288,20 +288,28 @@ class sspmod_privacyidea_Auth_Utils
 
         if (!empty($response->multiChallenge))
         {
-            // Authentication not complete, new challenges where triggered. Prepare the state for the next step
+            // Authentication not complete, new challenges where triggered. Prepare the state for the next step.
             $triggeredToken = $response->triggeredTokenTypes();
-            // Preferred token type
-            if ($config !== null && array_key_exists("preferredTokenType", $config))
+            if (!empty($response->preferredClientMode))
             {
-                $preferred = $config['preferredTokenType'];
-                if (!empty($preferred))
+                $state['privacyidea:privacyidea:ui']['mode'] = $response->preferredClientMode;
+            }
+            else
+            {
+                // Preferred token type
+                if ($config !== null && array_key_exists("preferredTokenType", $config))
                 {
-                    if (in_array($preferred, $triggeredToken))
+                    $preferred = $config['preferredTokenType'];
+                    if (!empty($preferred))
                     {
-                        $state['privacyidea:privacyidea:ui']['mode'] = $preferred;
+                        if (in_array($preferred, $triggeredToken))
+                        {
+                            $state['privacyidea:privacyidea:ui']['mode'] = $preferred;
+                        }
                     }
                 }
             }
+
 
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredToken);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
