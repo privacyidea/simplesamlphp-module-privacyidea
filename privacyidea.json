@@ -1,7 +1,7 @@
 {
 	"id"			: "privacyidea",
 	"name"			: "privacyidea",
-	"descr"			: "Authenticate users with multiple factors like OTP against the authentication backend privacyIDEA.",
+	"description"	: "Authenticate users with multiple factors like OTP against the authentication backend privacyIDEA.",
 	"definition"	: "privacyidea.json",
 	"branch"		: "1.6",
 	"dependencies"	: ["saml"],
@@ -27,6 +27,9 @@
 		{"name": "Christian Kreutzer",
 		 "role": "Developer"},
 		{"name": "Robin-73",
-		 "role": "Developer"}
+		 "role": "Developer"},
+		{"name": "Lukas Matusiewicz",
+		 "role": "Developer",
+		 "email": "lukas.matusiewicz@netknights.it"}
 	]
 }
