@@ -1,6 +1,7 @@
 <?php
 
 require_once((dirname(__FILE__, 2)) . '/PILogger.php');
+require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
 
 /**
  * This authentication processing filter allows you to add a second step
