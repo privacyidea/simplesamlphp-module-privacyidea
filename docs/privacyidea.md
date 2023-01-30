@@ -233,7 +233,10 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * Optionally set a preferred token type.
          * If the chosen token is triggered, it will be used to authenticate directly
          * without having to press the button for the type.
-         * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'
+         * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
+         *
+         * NOTE: From privacyIDEA v3.8.1 this option is replaced by the 'preferred client mode'
+         * set on the server side.
          */
         'preferredTokenType' => '',
         
