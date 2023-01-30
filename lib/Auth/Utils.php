@@ -305,19 +305,22 @@ class sspmod_privacyidea_Auth_Utils
                 {
                     $state['privacyidea:privacyidea:ui']['mode'] = $response->preferredClientMode;
                 }
-                SimpleSAML_Logger::debug("privacyIDEA: Client mode is set to: " . $state['privacyidea:privacyidea:ui']['mode']);
+                SimpleSAML_Logger::debug("privacyIDEA: Preferred client mode: " . $state['privacyidea:privacyidea:ui']['mode']);
             }
             elseif ($config !== null && array_key_exists("preferredTokenType", $config))
             {
                 $preferred = $config['preferredTokenType'];
                 if (!empty($preferred))
                 {
-                    if (in_array($preferred, $triggeredTokens))
+                    // Specify the allowed values
+                    $allowedTypes = array("otp", "push", "webauthn", "u2f");
+                    if (in_array($preferred, $allowedTypes) && in_array($preferred, $triggeredTokens))
                     {
                         $state['privacyidea:privacyidea:ui']['mode'] = $preferred;
+                        SimpleSAML_Logger::debug("privacyIDEA: Preferred token type: " . $state['privacyidea:privacyidea:ui']['mode']);
                     }
+                    SimpleSAML_Logger::debug("privacyIDEA: Preferred token type - illegal value. Fallback to default: " . $state['privacyidea:privacyidea:ui']['mode']);
                 }
-                SimpleSAML_Logger::debug("privacyIDEA: Preferred token type: " . $state['privacyidea:privacyidea:ui']['mode']);
             }
 
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
