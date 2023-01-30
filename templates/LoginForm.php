@@ -194,9 +194,17 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="loadCounter" type="hidden" name="loadCounter"
                                        value="<?php echo htmlspecialchars(@$this->data['loadCounter'] ?: 1, ENT_QUOTES) ?>"/>
 
-                                <!-- Additional input to persist the message -->
+                                <!-- Additional input to persist the message and images -->
                                 <input type="hidden" name="message"
                                        value="<?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imageOTP"
+                                       value="<?php echo htmlspecialchars(@$this->data['imageOTP'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imagePush"
+                                       value="<?php echo htmlspecialchars(@$this->data['imagePush'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imageU2F"
+                                       value="<?php echo htmlspecialchars(@$this->data['imageU2F'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imageWebauthn"
+                                       value="<?php echo htmlspecialchars(@$this->data['imageWebauthn'] ?: "", ENT_QUOTES) ?>"/>
 
                                 <?php
                                 // If enrollToken load QR Code
