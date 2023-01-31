@@ -77,7 +77,7 @@ elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsourc
 
     if ($source == NULL)
     {
-        SimpleSAML_Logger::error('Could not find authentication source with ID: ' . $state["privacyidea:privacyidea"]["AuthId"]);
+        SimpleSAML_Logger::error("Could not find authentication source with ID: " . $state["privacyidea:privacyidea"]["AuthId"]);
     }
 
     $tpl->data['username'] = $username;
@@ -107,6 +107,7 @@ if (!empty($state['privacyidea:privacyidea:ui']))
     foreach ($state['privacyidea:privacyidea:ui'] as $key => $value)
     {
         $tpl->data[$key] = $value;
+        SimpleSAML_Logger::error("key: " . $key . "; value: " . $value); //todo rm
     }
 }
 

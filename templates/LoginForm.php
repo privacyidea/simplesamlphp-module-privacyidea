@@ -159,19 +159,19 @@ if ($this->data['errorCode'] !== NULL)
                                 <?php
                                 if ($this->data['mode'] === "otp" && !empty($this->data['imageOTP']))
                                 {?>
-                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imageOTP'] ?>"><br><br><?php
+                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src=<?php echo $this->data['imageOTP'] ?>><br><br><?php
                                 }
                                 elseif ($this->data['mode'] === "push" && !empty($this->data['imagePush']))
                                 {?>
-                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imagePush'] ?>"><br><br><?php
+                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src="<?php echo $this->data['imagePush'] ?>"><br><br><?php
                                 }
                                 elseif ($this->data['mode'] === "u2f" && !empty($this->data['imageU2F']))
                                 {?>
-                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imageU2F'] ?>"><br><br><?php
+                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src="<?php echo $this->data['imageU2F'] ?>"><br><br><?php
                                 }
                                 elseif ($this->data['mode'] === "webauthn" && !empty($this->data['imageWebauthn']))
                                 {?>
-                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imageWebauthn'] ?>"><br><br><?php
+                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src="<?php echo $this->data['imageWebauthn'] ?>"><br><br><?php
                                 }
                                 ?>
 
