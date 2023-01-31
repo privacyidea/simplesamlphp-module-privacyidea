@@ -155,6 +155,26 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="2" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
+                                <!-- Show the image if available -->
+                                <?php
+                                if ($this->data['mode'] === "otp" && !empty($this->data['imageOTP']))
+                                {?>
+                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imageOTP'] ?>"><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "push" && !empty($this->data['imagePush']))
+                                {?>
+                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imagePush'] ?>"><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "u2f" && !empty($this->data['imageU2F']))
+                                {?>
+                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imageU2F'] ?>"><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "webauthn" && !empty($this->data['imageWebauthn']))
+                                {?>
+                                    <br><br><img style="text-align: center;" alt="challenge_img" src="<? $this->data['imageWebauthn'] ?>"><br><br><?php
+                                }
+                                ?>
+
                                 <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?></strong>
                                 <br>
                                 <label for="otp" class="sr-only">
