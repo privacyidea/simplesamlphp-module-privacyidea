@@ -45,6 +45,10 @@ $formParams = array(
     "u2fSignRequest" => array_key_exists('u2fSignRequest', $_REQUEST) ? $_REQUEST['u2fSignRequest'] : "",
     "u2fSignResponse" => array_key_exists('u2fSignResponse', $_REQUEST) ? $_REQUEST['u2fSignResponse'] : "",
     "message" => array_key_exists('message', $_REQUEST) ? $_REQUEST['message'] : "",
+    "imageOTP" => array_key_exists('imageOTP', $_REQUEST) ? $_REQUEST['imageOTP'] : "",
+    "imagePush" => array_key_exists('imagePush', $_REQUEST) ? $_REQUEST['imagePush'] : "",
+    "imageU2F" => array_key_exists('imageU2F', $_REQUEST) ? $_REQUEST['imageU2F'] : "",
+    "imageWebauthn" => array_key_exists('imageWebauthn', $_REQUEST) ? $_REQUEST['imageWebauthn'] : "",
     "loadCounter" => array_key_exists('loadCounter', $_REQUEST) ? $_REQUEST['loadCounter'] : 1
 );
 
