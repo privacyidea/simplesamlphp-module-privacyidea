@@ -244,6 +244,9 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * The value has to be 'true' or 'false'.
          * Possible token types are 'hotp', 'totp' or 'u2f'
          * Optional.
+         * 
+         * NOTE: Up from privacyIDEA v3.8.1, we recommend using the 'enroll via challenge'
+         * policy instead of this feature.
          */
         'doEnrollToken' => 'false',
         'tokenType' => 'totp',
