@@ -107,7 +107,6 @@ if (!empty($state['privacyidea:privacyidea:ui']))
     foreach ($state['privacyidea:privacyidea:ui'] as $key => $value)
     {
         $tpl->data[$key] = $value;
-        SimpleSAML_Logger::error("key: " . $key . "; value: " . $value); //todo rm
     }
 }
 

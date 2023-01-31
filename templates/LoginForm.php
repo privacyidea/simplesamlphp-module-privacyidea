@@ -184,7 +184,6 @@ if ($this->data['errorCode'] !== NULL)
                                 </label>
                                 <input id="otp" name="otp" tabindex="3" type="password" value="" class="text" placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
 
-                                <!-- todo rm the unused class. test it then! -->
                                 <br><br>
                                 <input id="submitButton" tabindex="7" class="rc-button rc-button-submit" type="submit"
                                        name="Submit"
@@ -331,17 +330,17 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
-    
+
     <meta id="privacyidea-separate-otp" name="privacyidea-separate-otp" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "separateOTP") {echo "true";} ?>">
     <meta id="privacyidea-hide-pass-field" name="privacyidea-hide-pass-field" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "triggerChallenge") {echo "true";} ?>">
-    
+
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="
         <?php
         if(!empty($this->data['pushAvailable']))
         {echo (!$this->data['pushAvailable'] && empty($this->data['u2fSignRequest']) && empty($this->data['webAuthnSignRequest'])) ? 'true' : 'false';}
         ?>
     ">
-    
+
     <meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
     $translations = [];
     $translation_keys = [
