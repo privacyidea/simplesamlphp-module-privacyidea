@@ -1,6 +1,6 @@
 <?php
 
-require_once((dirname(__FILE__, 2)) . '/php-client/src/Client-Autoloader.php');
+//require_once((dirname(__FILE__, 2)) . '/php-client/src/Client-Autoloader.php');
 
 class PILogger implements PILog
 {
