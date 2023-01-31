@@ -18,7 +18,7 @@ It is recommended to install this package using [composer](https://getcomposer.o
 Please check the [documentation](https://github.com/privacyidea/simplesamlphp-module-privacyidea/blob/master/docs/privacyidea.md)
 
 ## Customization (Themes)
-Please check the [documentation](https://github.com/privacyidea/simplesamlphp-module-privacyidea/blob/master/docs/README.md)
+Please check the [documentation](https://github.com/privacyidea/simplesamlphp-module-privacyidea/blob/master/docs/pi-themes.md)
 
 ## Logfiles
 The saml log can be read with `journalctl -f`. If you encounter any problems that are not logged as errors, set the logging level of saml to debug by editing `{samlDir}/config/config.php`. Search for `logging.level` and set it so `SimpleSAML\Logger::DEBUG`. Alternatively, the apache error log can be checked for errors. It is located at `/var/log/apache2/error.log`
