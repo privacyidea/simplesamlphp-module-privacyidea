@@ -148,6 +148,30 @@ if ($this->data['errorCode'] !== NULL)
                                     }
                                 } ?>
 
+                                <!-- Show the image if available -->
+                                <?php
+                                if ($this->data['mode'] === "otp" && !empty($this->data['imageOTP']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src=<?php echo $this->data['imageOTP'] ?>><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "push" && !empty($this->data['imagePush']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src="<?php echo $this->data['imagePush'] ?>"><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "u2f" && !empty($this->data['imageU2F']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src="<?php echo $this->data['imageU2F'] ?>"><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "webauthn" && !empty($this->data['imageWebauthn']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src="<?php echo $this->data['imageWebauthn'] ?>"><br><br><?php
+                                }
+                                ?>
+
+                                <!-- Show the messages -->
+                                <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?></strong>
+                                <br>
+
                                 <!-- Pass and OTP fields -->
                                 <label for="password" class="sr-only">
                                     <?php echo $this->t('{privacyidea:privacyidea:password}'); ?>
@@ -155,33 +179,12 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="2" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <!-- Show the image if available -->
-                                <?php
-                                if ($this->data['mode'] === "otp" && !empty($this->data['imageOTP']))
-                                {?>
-                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src=<?php echo $this->data['imageOTP'] ?>><br><br><?php
-                                }
-                                elseif ($this->data['mode'] === "push" && !empty($this->data['imagePush']))
-                                {?>
-                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src="<?php echo $this->data['imagePush'] ?>"><br><br><?php
-                                }
-                                elseif ($this->data['mode'] === "u2f" && !empty($this->data['imageU2F']))
-                                {?>
-                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src="<?php echo $this->data['imageU2F'] ?>"><br><br><?php
-                                }
-                                elseif ($this->data['mode'] === "webauthn" && !empty($this->data['imageWebauthn']))
-                                {?>
-                                    <br><br><img style="text-align: center; margin: 10px 0 10px;" alt="challenge_img" src="<?php echo $this->data['imageWebauthn'] ?>"><br><br><?php
-                                }
-                                ?>
-
-                                <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?></strong>
-                                <br>
                                 <label for="otp" class="sr-only">
                                     <?php echo $this->t('{privacyidea:privacyidea:otp}'); ?>
                                 </label>
                                 <input id="otp" name="otp" tabindex="3" type="password" value="" class="text" placeholder="<?php echo htmlspecialchars($otpHint, ENT_QUOTES) ?>">
 
+                                <!-- todo rm the unused class. test it then! -->
                                 <br><br>
                                 <input id="submitButton" tabindex="7" class="rc-button rc-button-submit" type="submit"
                                        name="Submit"
