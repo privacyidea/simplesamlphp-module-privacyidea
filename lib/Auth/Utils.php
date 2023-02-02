@@ -1,6 +1,7 @@
 <?php
 
 require_once('PILogger.php');
+//require_once((dirname(__FILE__, 2)) . '/php-client/src/Client-Autoloader.php');
 
 class sspmod_privacyidea_Auth_Utils
 {
@@ -288,31 +289,51 @@ class sspmod_privacyidea_Auth_Utils
 
         if (!empty($response->multiChallenge))
         {
-            // Authentication not complete, new challenges where triggered. Prepare the state for the next step
-            $triggeredToken = $response->triggeredTokenTypes();
-            // Preferred token type
-            if ($config !== null && array_key_exists("preferredTokenType", $config))
+            // Authentication not complete, new challenges were triggered. Prepare the state for the next step.
+            $triggeredTokens = $response->triggeredTokenTypes();
+            if (!empty($response->preferredClientMode))
+            {
+                if ($response->preferredClientMode === "interactive")
+                {
+                    $state['privacyidea:privacyidea:ui']['mode'] = "otp";
+                }
+                elseif ($response->preferredClientMode === "poll")
+                {
+                    $state['privacyidea:privacyidea:ui']['mode'] = "push";
+                }
+                else
+                {
+                    $state['privacyidea:privacyidea:ui']['mode'] = $response->preferredClientMode;
+                }
+                SimpleSAML_Logger::debug("privacyIDEA: Preferred client mode: " . $state['privacyidea:privacyidea:ui']['mode']);
+            }
+            elseif ($config !== null && array_key_exists("preferredTokenType", $config))
             {
                 $preferred = $config['preferredTokenType'];
                 if (!empty($preferred))
                 {
-                    if (in_array($preferred, $triggeredToken))
+                    // Specify the allowed values
+                    $allowedTypes = array("otp", "push", "webauthn", "u2f");
+                    if (in_array($preferred, $allowedTypes) && in_array($preferred, $triggeredTokens))
                     {
                         $state['privacyidea:privacyidea:ui']['mode'] = $preferred;
+                        SimpleSAML_Logger::debug("privacyIDEA: Preferred token type: " . $state['privacyidea:privacyidea:ui']['mode']);
                     }
+                    SimpleSAML_Logger::debug("privacyIDEA: Preferred token type - illegal value. Fallback to default: " . $state['privacyidea:privacyidea:ui']['mode']);
                 }
             }
-
+            
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredToken);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true;
+            
             $state['privacyidea:privacyidea:ui']['message'] = $response->messages;
 
-            if (in_array("webauthn", $triggeredToken))
+            if (in_array("webauthn", $triggeredTokens))
             {
                 $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = $response->webAuthnSignRequest();
             }
 
-            if (in_array("u2f", $triggeredToken))
+            if (in_array("u2f", $triggeredTokens))
             {
                 $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $response->u2fSignRequest();
             }

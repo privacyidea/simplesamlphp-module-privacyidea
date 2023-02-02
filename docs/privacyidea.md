@@ -80,7 +80,9 @@ template configuration:
      * Optionally set a preferred token type.
      * If the chosen token is triggered, it will be used to authenticate directly
      * without having to press the button for the type.
-     * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'
+     * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
+     * 
+     * NOTE: If the 'preferred_client_mode' is set on the server side, this option will be ignored.
      */
     'preferredTokenType' => '',
 
@@ -230,7 +232,9 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * Optionally set a preferred token type.
          * If the chosen token is triggered, it will be used to authenticate directly
          * without having to press the button for the type.
-         * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'
+         * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
+         *
+         * NOTE: If the 'preferred_client_mode' is set on the server side, this option will be ignored.
          */
         'preferredTokenType' => '',
         
