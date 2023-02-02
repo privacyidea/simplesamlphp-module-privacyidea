@@ -322,9 +322,10 @@ class sspmod_privacyidea_Auth_Utils
                     SimpleSAML_Logger::debug("privacyIDEA: Preferred token type - illegal value. Fallback to default: " . $state['privacyidea:privacyidea:ui']['mode']);
                 }
             }
-
-            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
-            $state['privacyidea:privacyidea:ui']['otpAvailable'] = true; // Always show otp field
+            
+            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredToken);
+            $state['privacyidea:privacyidea:ui']['otpAvailable'] = true;
+            
             $state['privacyidea:privacyidea:ui']['message'] = $response->messages;
 
             if (in_array("webauthn", $triggeredTokens))
@@ -338,6 +339,30 @@ class sspmod_privacyidea_Auth_Utils
             }
 
             $state['privacyidea:privacyidea']['transactionID'] = $response->transactionID;
+
+            // Search for the image
+            foreach ($response->multiChallenge as $challenge)
+            {
+                if (!empty($challenge->image))
+                {
+                    if (!empty($challenge->clientMode) && $challenge->clientMode === "interactive")
+                    {
+                        $state['privacyidea:privacyidea:ui']['imageOTP'] = $challenge->image;
+                    }
+                    elseif (!empty($challenge->clientMode) && $challenge->clientMode === "poll")
+                    {
+                        $state['privacyidea:privacyidea:ui']['imagePush'] = $challenge->image;
+                    }
+                    elseif (!empty($challenge->clientMode) && $challenge->clientMode === "u2f")
+                    {
+                        $state['privacyidea:privacyidea:ui']['imageU2F'] = $challenge->image;
+                    }
+                    elseif (!empty($challenge->clientMode) && $challenge->clientMode === "webauthn")
+                    {
+                        $state['privacyidea:privacyidea:ui']['imageWebauthn'] = $challenge->image;
+                    }
+                }
+            }
         }
         elseif ($response->value)
         {

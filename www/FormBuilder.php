@@ -77,7 +77,7 @@ elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsourc
 
     if ($source == NULL)
     {
-        SimpleSAML_Logger::error('Could not find authentication source with ID: ' . $state["privacyidea:privacyidea"]["AuthId"]);
+        SimpleSAML_Logger::error("Could not find authentication source with ID: " . $state["privacyidea:privacyidea"]["AuthId"]);
     }
 
     $tpl->data['username'] = $username;

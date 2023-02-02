@@ -148,6 +148,30 @@ if ($this->data['errorCode'] !== NULL)
                                     }
                                 } ?>
 
+                                <!-- Show the image if available -->
+                                <?php
+                                if ($this->data['mode'] === "otp" && !empty($this->data['imageOTP']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src=<?php echo $this->data['imageOTP'] ?>><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "push" && !empty($this->data['imagePush']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src="<?php echo $this->data['imagePush'] ?>"><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "u2f" && !empty($this->data['imageU2F']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src="<?php echo $this->data['imageU2F'] ?>"><br><br><?php
+                                }
+                                elseif ($this->data['mode'] === "webauthn" && !empty($this->data['imageWebauthn']))
+                                {?>
+                                    <br><img class="images" alt="challenge_img" src="<?php echo $this->data['imageWebauthn'] ?>"><br><br><?php
+                                }
+                                ?>
+
+                                <!-- Show the messages -->
+                                <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?></strong>
+                                <br>
+
                                 <!-- Pass and OTP fields -->
                                 <label for="password" class="sr-only">
                                     <?php echo $this->t('{privacyidea:privacyidea:password}'); ?>
@@ -155,8 +179,6 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="password" name="password" tabindex="2" type="password" value="" class="text"
                                        placeholder="<?php echo htmlspecialchars($passHint, ENT_QUOTES) ?>"/>
 
-                                <strong id="message"><?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?></strong>
-                                <br>
                                 <label for="otp" class="sr-only">
                                     <?php echo $this->t('{privacyidea:privacyidea:otp}'); ?>
                                 </label>
@@ -194,9 +216,17 @@ if ($this->data['errorCode'] !== NULL)
                                 <input id="loadCounter" type="hidden" name="loadCounter"
                                        value="<?php echo htmlspecialchars(@$this->data['loadCounter'] ?: 1, ENT_QUOTES) ?>"/>
 
-                                <!-- Additional input to persist the message -->
+                                <!-- Additional input to persist the message and images -->
                                 <input type="hidden" name="message"
                                        value="<?php echo htmlspecialchars(@$this->data['message'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imageOTP"
+                                       value="<?php echo htmlspecialchars(@$this->data['imageOTP'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imagePush"
+                                       value="<?php echo htmlspecialchars(@$this->data['imagePush'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imageU2F"
+                                       value="<?php echo htmlspecialchars(@$this->data['imageU2F'] ?: "", ENT_QUOTES) ?>"/>
+                                <input type="hidden" name="imageWebauthn"
+                                       value="<?php echo htmlspecialchars(@$this->data['imageWebauthn'] ?: "", ENT_QUOTES) ?>"/>
 
                                 <?php
                                 // If enrollToken load QR Code
@@ -300,17 +330,17 @@ if (!empty($this->data['links']))
     </script>
 
     <meta id="privacyidea-step" name="privacyidea-step" content="<?php echo $this->data['step'] ?>">
-    
+
     <meta id="privacyidea-separate-otp" name="privacyidea-separate-otp" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "separateOTP") {echo "true";} ?>">
     <meta id="privacyidea-hide-pass-field" name="privacyidea-hide-pass-field" content="<?php if (isset($this->data['authenticationFlow']) && $this->data['authenticationFlow'] === "triggerChallenge") {echo "true";} ?>">
-    
+
     <meta id="privacyidea-hide-alternate" name="privacyidea-hide-alternate" content="
         <?php
         if(!empty($this->data['pushAvailable']))
         {echo (!$this->data['pushAvailable'] && empty($this->data['u2fSignRequest']) && empty($this->data['webAuthnSignRequest'])) ? 'true' : 'false';}
         ?>
     ">
-    
+
     <meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
     $translations = [];
     $translation_keys = [

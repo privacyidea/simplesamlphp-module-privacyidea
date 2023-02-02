@@ -1,3 +1,7 @@
+.login {
+	text-align: center !important;
+}
+
 .error-dialog {
 	border-left: 1px solid #e8e8e8;
 	border-bottom: 1px solid #e8e8e8;
@@ -9,38 +13,34 @@
 }
 
 #username[type=text], #password, #otp {
-	width:322px;
+	width: 322px;
 }
 
 #username[type=text] {
-	margin:25px 15px 15px;
+	margin: 25px 15px 15px;
 }
 
-#password {
-	margin:15px;
-}
-
-#otp {
-	margin-left:15px;
+#password, #otp {
+	margin: 15px;
+	text-align: center;
 }
 
 #message {
-	display: block;
+	margin: 25px 50px 60px 50px;
 }
 
 #submitButton {
-	width:210px;
-	margin:0 15px 7px;
+	width: 210px;
 }
 
 #AlternateLoginOptions {
-	margin-top:35px;
+	margin-top: 45px;
 	padding-bottom: 2em;
 }
 
 #useWebAuthnButton, #usePushButton, #useOTPButton, #useU2FButton {
-	width:140px;
-	margin:15px 10px 7px;
+	width: 120px;
+	margin: 15px 10px 7px;
 }
 
 #useOTPButton {
