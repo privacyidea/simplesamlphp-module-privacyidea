@@ -289,7 +289,7 @@ class sspmod_privacyidea_Auth_Utils
 
         if (!empty($response->multiChallenge))
         {
-            // Authentication not complete, new challenges where triggered. Prepare the state for the next step.
+            // Authentication not complete, new challenges were triggered. Prepare the state for the next step.
             $triggeredTokens = $response->triggeredTokenTypes();
             if (!empty($response->preferredClientMode))
             {
