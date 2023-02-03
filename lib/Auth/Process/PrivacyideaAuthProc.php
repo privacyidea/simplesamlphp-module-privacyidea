@@ -127,6 +127,21 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                 }
             }
         }
+        elseif ($this->authProcConfig['authenticationFlow'] === 'sendStaticPass')
+        {
+            // Call /validate/check with a static pass from the configuration
+            // This could already end up the authentication if the "passOnNoToken" policy is set.
+            // Otherwise, it triggers the challenges.
+            $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']));
+            if (empty($response->multiChallenge) && $response->value)
+            {
+                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
+            }
+            elseif (!empty($response->multiChallenge))
+            {
+                $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
+            }
+        }
         else
         {
             SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in config. Processing default one...");
@@ -136,23 +151,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
         {
             $stateId = $this->enrollToken($stateId, $username);
-        }
-
-        // Check if call with a static pass to /validate/check should be done
-        if (!$triggered && !empty($this->authProcConfig['tryFirstAuthentication'])
-            && $this->authProcConfig['tryFirstAuthentication'] === 'true')
-        {
-            // Call /validate/check with a static pass from the configuration
-            // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
-            $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, array('otp' => $this->authProcConfig['tryFirstAuthPass']));
-            if (empty($response->multiChallenge) && $response->value)
-            {
-                SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
-            }
-            elseif (!empty($response->multiChallenge))
-            {
-                $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
-            }
         }
 
         $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
