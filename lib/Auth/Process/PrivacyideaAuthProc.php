@@ -144,7 +144,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         }
         else
         {
-            SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in config. Processing default one...");
+            SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in the config. Fallback to default...");
         }
 
         // Check if it should be controlled that user has no tokens and a new token should be enrolled.
