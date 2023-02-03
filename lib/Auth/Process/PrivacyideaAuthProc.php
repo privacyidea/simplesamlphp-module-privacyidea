@@ -189,7 +189,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         else
         {
             $genkey = "1";
-            $type = $this->authProcConfig['tokenType'];
+            $type = $this->authProcConfig['typeOfTokenToEnroll'];
             $description = "Enrolled with simpleSAMLphp";
 
             $response = $this->pi->enrollToken($username, $genkey, $type, $description);

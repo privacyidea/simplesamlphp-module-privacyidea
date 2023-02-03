@@ -24,42 +24,54 @@ template configuration:
     'privacyidea:PrivacyideaAuthSource',
 
     /**
-     * The URL of the privacyidea server. Required.
+     * The URL of the privacyidea server.
+     * Required.
      */
     'privacyideaServerURL' => 'https://your.server.com',
 
     /**
-     * Optionally disable SSL verification. This should always be enabled in a productive environment!
-     * Values should be 'true' or 'false'. Default is 'true'.      
+     * Disable SSL verification.
+     * Values should be 'true' or 'false'. Default is 'true'.
+     * 
+     * NOTE: This should always be enabled in a productive environment!
+     * 
+     * Optional.
      */
     'sslVerifyHost' => 'true',
     'sslVerifyPeer' => 'true',
         
     /**
-     * Optionally set the privacyidea realm.
+     * Set the privacyidea realm.
+     * Optional.
      */
     'realm' => '',
     
     /**
      * Specify the username and password of your service account from privacyIDEA server.
-     * Only required if 'authSourceMode' => 'triggerChallenge'.
+     * Required by the 'triggerChallenge' authentication flow.
      */
-    'serviceAccount'    => 'service',
-    'servicePass'       => 'service',
+    'serviceAccount' => '',
+    'servicePass' => '',
     
     /**
-     * Optionally set the realm for your service account.
+     * Specify the realm for your service account.
+     * Optional (by the 'triggerChallenge' authentication flow).
      */
-    'serviceRealm'      => '',
+    'serviceRealm' => '',
     
     /**
-     * Required. Set one of the following authentication flows:
+     * Choose one of the following authentication flows:
+     * 
      * 'sendPassword' - (default) Login interface will contain the username input and a single password/OTP input.
+     * 
      * 'triggerChallenge' - Login interface will contain only the username input. This mode triggers
      * challenges prior to the login using the configured service account (required).
+     * 
      * 'separateOTP' - Login interface will contain 3 inputs for username, password and OTP.
+     *
+     * Required.
      */
-    'authenticationFlow'      => 'sendPassword',
+    'authenticationFlow' => 'sendPassword',
     
     /**
      * Set custom hints for the OTP and password fields.
@@ -72,6 +84,7 @@ template configuration:
      * All information required for SSO will be saved in the session.
      * After logging out, the SSO data will be removed from the session.
      * The value has to be 'true' or 'false', default is 'false'.
+     * 
      * Optional.
      */
     'SSO' => 'false',
@@ -82,12 +95,14 @@ template configuration:
      * without having to press the button for the type.
      * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
      * 
-     * NOTE: If the 'preferred_client_mode' is set on the server side, this option will be ignored.
+     * NOTE: If the 'preferred client mode' is set on the server side, this option will be ignored.
+     * 
+     * Optional.
      */
     'preferredTokenType' => '',
 
     /**
-     * Translation from privacyIDEA attribute names to the SAML attribute names.
+     * Translation from privacyIDEA attribute names to the SAML attribute names. 
      * Required.
      */
     'attributemap' => array(
@@ -159,101 +174,116 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
 'authproc' => array(
 
     /**
-     * Configuration for the privacyIDEA server.
+     * Configuration for the privacyIDEA.
      */
     20 => array(
         'class'             => 'privacyidea:PrivacyideaAuthProc',
 
-       /**
-        * The URL of the privacyidea server. Required.
-        */
+        /**
+         * The URL of the privacyidea server.
+         * Required.
+         */
         'privacyideaServerURL' => 'https://your.privacyidea.server',
         
-       /**
-        * Optionally set the privacyidea realm.
-        */
+        /**
+         * Set the privacyidea realm.
+         * Optional.
+         */
         'realm' => '',
 
         /**
          * The uidKey is the username's attribute key.
          * You can choose a single one or multiple ones. The first set will be used.
          * Example: 'uidKey' => array('uid', 'userName', 'uName').
+         * 
          * Required.
          */
         'uidKey' => 'uid',
 
         /**
-         * Optionally disable SSL verification. This should always be enabled in a productive environment!
-         * Values should be 'true' or 'false'. Default is 'true'.      
+         * Disable SSL verification.
+         * Values should be 'true' or 'false'. Default is 'true'.
+         * NOTE: This should always be enabled in a productive environment!
+         * 
+         * Optional.
          */
         'sslVerifyHost' => 'true',
         'sslVerifyPeer' => 'true',
+               
+        /**
+         * Specify the static password for the 'sendStaticPass' authentication flow.
+         * Required by the 'sendStaticPass' authentication flow.
+         */
+        'staticPass' => '',
         
         /**
-         * Choose one of the authentication flows:
+         * Specify the username and password of your service account from privacyIDEA server.
+         * Required by the 'triggerChallenge' authentication flow.
+         */
+        'serviceAccount' => '',
+        'servicePass' => '',
+        
+        /**
+         * Choose one of the following authentication flows:
+         * 
          * 'default' - Default authentication flow.
+         * 
+         * 'sendStaticPass' - If you want to use the passOnNoToken or passOnNoUser policy in privacyidea,
+         * you can use this flow, and specify a static pass which will be sent before the actual
+         * authentication to trigger the policies in privacyidea.
+         * NOTE: This 'sendStaticPass' isn't combinable with 'doEnrollToken' option.
+         * NOTE: This won't be processed if the user has a challenge-response token that were triggered before.
+         * 
          * 'triggerChallenge' - Before the login interface is shown, the filter will attempt to trigger challenge-response
-         * token with the specified serviceAccount
+         * token with the specified serviceAccount.
+         * 
          * Required.
          */
         'authenticationFlow' => 'default',
         
         /**
-         * Specify the username and password of your service account from privacyIDEA server.
-         * Only required if 'authSourceMode' => 'triggerChallenge'.
-         */
-        'serviceAccount' => 'service',
-        'servicePass' => 'service',
-        
-        /**
-         * Optionally set the realm for your service account.
+         * Set the realm for your service account.
+         * Optional (by the 'triggerChallenge' authentication flow).
          */
         'serviceRealm' => '',
-        
-        /**
-         * If you want to use the passOnNoToken or passOnNoUser policy in privacyidea, you can set this to 'true' and specify
-         * a static pass which will be sent before the actual authentication to trigger the policies in privacyidea. 
-         * NOTE: Not compatible it with 'doEnrollToken'.
-         * NOTE: This won't be processed if the user has challenge-response token that were triggered before.
-         * Optional.
-         */
-        'tryFirstAuthentication' => 'false',
-        'tryFirstAuthPass' => 'secret',
         
         /**
          * Set this to 'true' if you want to use single sign on.
          * All information required for SSO will be saved in the session.
          * After logging out, the SSO data will be removed from the session.
+         * 
          * Optional.
          */
         'SSO' => 'false',
         
         /**
-         * Optionally set a preferred token type.
+         * Set a preferred token type.
          * If the chosen token is triggered, it will be used to authenticate directly
          * without having to press the button for the type.
          * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
-         *
-         * NOTE: If the 'preferred_client_mode' is set on the server side, this option will be ignored.
+         * NOTE: If the 'preferred client mode' is set on the server side, this option will be ignored.
+         * 
+         * Optional.
          */
         'preferredTokenType' => '',
         
         /**
          * Custom hint for the OTP field.
          */
-        'otpFieldHint' => 'OTP',
+        'otpFieldHint' => 'Please enter the OTP!',
         
         /**
          * Enable this if a token should be enrolled for users that do not have one.
          * The value has to be 'true' or 'false'.
-         * Possible token types are 'hotp', 'totp' or 'u2f'
-         * Optional.
+         * Possible token types are 'hotp', 'totp' or 'u2f'.
          * 
          * NOTE: Up from privacyIDEA v3.8.1, we recommend using the 'enroll via challenge'
          * policy instead of this feature.
+         * 
+         * Optional.
          */
         'doEnrollToken' => 'false',
-        'tokenType' => 'totp',
+        'typeOfTokenToEnroll' => 'totp',
 
         /**
          * Other authproc filters can disable this filter.
@@ -261,6 +291,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * The value of this key has to be set by a previous auth proc filter.
          * privacyIDEA will only be disabled, if the value of the key is set to false,
          * in any other situation (e.g. the key is not set or does not exist), privacyIDEA will be enabled.
+         * 
          * Optional.
          */
         'enabledPath' => '',
@@ -270,6 +301,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * You can exclude clients with specified ip addresses.
          * Enter a range like "10.0.0.0-10.2.0.0" or a single ip like "192.168.178.2"
          * The selected ip addresses do not need 2FA.
+         * 
          * Optional.
          */
         'excludeClientIPs' => array("10.0.0.0-10.2.0.0", "192.168.178.2"),
@@ -279,6 +311,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * If you want to selectively disable the privacyIDEA authentication using
          * the entityID and/or SAML attributes, you may enable this.
          * Value has to be a 'true' or 'false'.
+         * 
          * Optional.
          */
         'checkEntityID' => 'true',
@@ -288,6 +321,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * $state[$setPath][$setPath] to true or false.
          * To selectively enable or disable privacyIDEA, make sure that you specify setPath and setKey such
          * that they equal enabledPath and enabledKey from privacyidea:privacyidea.
+         * 
          * Optional.
          */
         'setPath' => 'privacyIDEA',
@@ -297,6 +331,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * The requesting SAML provider's entityID will be tested against this list of regular expressions.
          * If there is a match, the filter will set the specified state variable to false and thereby disables 
          * privacyIDEA for this entityID The first matching expression will take precedence.
+         * 
          * Optional.
          */
         'excludeEntityIDs' => array(
@@ -311,6 +346,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * due to the matching entityID. This may be used to enable 2FA at this entityID only for privileged
          * accounts.
          * The key in includeAttributes must be identical to a value in excludeEntityIDs to have an effect!
+         * 
          * Optional.
          */
         'includeAttributes' => array(
