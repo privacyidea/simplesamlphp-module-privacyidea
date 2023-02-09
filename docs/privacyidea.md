@@ -242,18 +242,6 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
          * Custom hint for the OTP field.
          */
         'otpFieldHint' => 'OTP',
-        
-        /**
-         * Enable this if a token should be enrolled for users that do not have one.
-         * The value has to be 'true' or 'false'.
-         * Possible token types are 'hotp', 'totp' or 'u2f'
-         * Optional.
-         * 
-         * NOTE: Up from privacyIDEA v3.8.1, we recommend using the 'enroll via challenge'
-         * policy instead of this feature.
-         */
-        'doEnrollToken' => 'false',
-        'tokenType' => 'totp',
 
         /**
          * Other authproc filters can disable this filter.
