@@ -322,10 +322,10 @@ class sspmod_privacyidea_Auth_Utils
                     SimpleSAML_Logger::debug("privacyIDEA: Preferred token type - illegal value. Fallback to default: " . $state['privacyidea:privacyidea:ui']['mode']);
                 }
             }
-            
-            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredToken);
+
+            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true;
-            
+
             $state['privacyidea:privacyidea:ui']['message'] = $response->messages;
 
             if (in_array("webauthn", $triggeredTokens))
