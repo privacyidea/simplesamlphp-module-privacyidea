@@ -323,7 +323,7 @@ class sspmod_privacyidea_Auth_Utils
                 }
             }
             
-            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredToken);
+            $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true;
             
             $state['privacyidea:privacyidea:ui']['message'] = $response->messages;

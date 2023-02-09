@@ -127,24 +127,12 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
                 }
             }
         }
-        else
-        {
-            SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in config. Processing default one...");
-        }
-
-        // Check if it should be controlled that user has no tokens and a new token should be enrolled.
-        if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
-        {
-            $stateId = $this->enrollToken($stateId, $username);
-        }
-
-        // Check if call with a static pass to /validate/check should be done
-        if (!$triggered && !empty($this->authProcConfig['tryFirstAuthentication'])
-            && $this->authProcConfig['tryFirstAuthentication'] === 'true')
+        elseif ($this->authProcConfig['authenticationFlow'] === 'sendStaticPass')
         {
             // Call /validate/check with a static pass from the configuration
-            // This could already end the authentication with the "passOnNoToken" policy, or it could trigger challenges
-            $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, array('otp' => $this->authProcConfig['tryFirstAuthPass']));
+            // This could already end up the authentication if the "passOnNoToken" policy is set.
+            // Otherwise, it triggers the challenges.
+            $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']));
             if (empty($response->multiChallenge) && $response->value)
             {
                 SimpleSAML_Auth_ProcessingChain::resumeProcessing($state);
@@ -153,6 +141,16 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             {
                 $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
             }
+        }
+        else
+        {
+            SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in the config. Fallback to default...");
+        }
+
+        // Check if it should be controlled that user has no tokens and a new token should be enrolled.
+        if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
+        {
+            $stateId = $this->enrollToken($stateId, $username);
         }
 
         $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
@@ -191,7 +189,7 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
         else
         {
             $genkey = "1";
-            $type = $this->authProcConfig['tokenType'];
+            $type = $this->authProcConfig['typeOfTokenToEnroll'];
             $description = "Enrolled with simpleSAMLphp";
 
             $response = $this->pi->enrollToken($username, $genkey, $type, $description);
