@@ -132,12 +132,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
             SimpleSAML_Logger::error("privacyidea: Authentication flow is not set in config. Processing default one...");
         }
 
-        // Check if it should be controlled that user has no tokens and a new token should be enrolled.
-        if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
-        {
-            $stateId = $this->enrollToken($stateId, $username);
-        }
-
         // Check if call with a static pass to /validate/check should be done
         if (!$triggered && !empty($this->authProcConfig['tryFirstAuthentication'])
             && $this->authProcConfig['tryFirstAuthentication'] === 'true')
@@ -167,51 +161,6 @@ class sspmod_privacyidea_Auth_Process_PrivacyideaAuthProc extends SimpleSAML_Aut
 
         $url = SimpleSAML_Module::getModuleURL('privacyidea/FormBuilder.php');
         SimpleSAML_Utilities::redirectTrustedURL($url, array('stateId' => $stateId));
-    }
-
-    /**
-     * This function check if user has a token and if not - help to enroll a new one in UI.
-     * @param string $stateId
-     * @param string $username
-     * @return string
-     * @throws PIBadRequestException
-     */
-    private function enrollToken($stateId, $username)
-    {
-        assert('string' === gettype($username));
-        assert('string' === gettype($stateId));
-
-        $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
-
-        // Error if no serviceAccount or servicePass
-        if ($this->pi->serviceAccountAvailable() === false)
-        {
-            SimpleSAML_Logger::error("privacyIDEA: service account for token enrollment is not set!");
-        }
-        else
-        {
-            $genkey = "1";
-            $type = $this->authProcConfig['tokenType'];
-            $description = "Enrolled with simpleSAMLphp";
-
-            $response = $this->pi->enrollToken($username, $genkey, $type, $description);
-
-            if (!empty($response->errorMessage))
-            {
-                SimpleSAML_Logger::error("privacyIDEA: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
-                $state['privacyidea:privacyidea']['errorCode'] = $response->errorCode;
-                $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
-            }
-
-            // If we have a response from PI - save QR Code into state to show it soon
-            // and enroll a new token for the user
-            if (!empty($response->detail->googleurl->img))
-            {
-                $state['privacyidea:tokenEnrollment']['tokenQR'] = $response->detail->googleurl->img;
-            }
-            return SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-        }
-        return "";
     }
 
     /**
