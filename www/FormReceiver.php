@@ -153,9 +153,10 @@ else
         if (array_key_exists('rememberMe', $_REQUEST) && $_REQUEST['rememberMe'] === 'Yes')
         {
             $state['RememberMe'] = TRUE;
-            $stateID = State::saveState($state, UserPassBase::STAGEID);
         }
     }
+
+    $stateID = State::saveState($state, UserPassBase::STAGEID);
 
     try
     {

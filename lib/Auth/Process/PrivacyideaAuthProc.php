@@ -188,7 +188,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * @return string
      * @throws PIBadRequestException|NoState
      */
-    private function enrollToken($stateId, $username)
+    private function enrollToken(string $stateId, string $username): string
     {
         assert('string' === gettype($username));
         assert('string' === gettype($stateId));
@@ -228,11 +228,11 @@ class PrivacyideaAuthProc extends ProcessingFilter
 
     /**
      * This is the help function to exclude some IP from 2FA. Only if is set in config.
-     * @param $clientIP
-     * @param $excludeClientIPs
+     * @param string $clientIP
+     * @param array $excludeClientIPs
      * @return bool|void
      */
-    private function matchIP($clientIP, $excludeClientIPs)
+    private function matchIP(string $clientIP, array $excludeClientIPs)
     {
         assert('string' === gettype($clientIP));
         $clientIP = ip2long($clientIP);
@@ -271,7 +271,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * @return string
      * @throws NoState
      */
-    private function checkEntityID($authProcConfig, $stateId)
+    private function checkEntityID(array $authProcConfig, string $stateId): string
     {
         Logger::debug("Checking requesting entity ID for privacyIDEA");
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
@@ -353,7 +353,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * @param array $reg_arr
      * @return array
      */
-    private function strMatchesRegArr($str, $reg_arr)
+    private function strMatchesRegArr(string $str, array $reg_arr): array
     {
         $retArr = array();
 
@@ -379,7 +379,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * @param array $config The config for the PrivacyIDEA server.
      * @return boolean Whether PrivacyIDEA is disabled.
      */
-    public static function isPrivacyIDEADisabled($state, $config)
+    public static function isPrivacyIDEADisabled(array $state, array $config): bool
     {
         if (isset($config['enabledPath']) && isset($config['enabledKey']))
         {
@@ -391,18 +391,18 @@ class PrivacyideaAuthProc extends ProcessingFilter
 
     /**
      * This function allows to show the debug messages from privacyIDEA server
-     * @param $message
+     * @param string $message
      */
-    public function piDebug($message)
+    public function piDebug(string $message)
     {
         Logger::debug($message);
     }
 
     /**
      * This function allows to show the debug messages from privacyIDEA server
-     * @param $message
+     * @param string $message
      */
-    public function piError($message)
+    public function piError(string $message)
     {
         Logger::error($message);
     }

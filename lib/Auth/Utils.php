@@ -21,7 +21,7 @@ class Utils
      * @return PIResponse|null An array containing attributes and detail, or NULL.
      * @throws Exception
      */
-    public static function authenticatePI(array &$state, array $formParams)
+    public static function authenticatePI(array &$state, array $formParams): ?PIResponse
     {
         assert('array' === gettype($state));
         assert('array' === gettype($formParams));
@@ -196,11 +196,11 @@ class Utils
      * module is present, indicating that 2FA was completed before.
      * A boolean is returned to indicate if the login/2FA can be skipped.
      *
-     * @param $state
+     * @param array $state
      * @return boolean true if login/2FA can be skipped, false if not
      * @throws \Exception
      */
-    public static function checkForValidSSO($state)
+    public static function checkForValidSSO(array $state): bool
     {
         Logger::debug("privacyIDEA: checkForValidSSO");
 
@@ -227,7 +227,7 @@ class Utils
      * @return void
      * @throws Exception|\Exception
      */
-    public static function handleLogout()
+    public static function handleLogout(): void
     {
         Logger::debug("privacyIDEA: Logout handler called. Removing SSO data.");
         Session::getSessionFromRequest()->deleteData('privacyidea:privacyidea:sso', "2FA-success");
@@ -239,7 +239,7 @@ class Utils
      * @param array $config
      * @return PrivacyIDEA|null privacyIDEA object or null on error
      */
-    public static function createPrivacyIDEAInstance($config)
+    public static function createPrivacyIDEAInstance(array $config): ?PrivacyIDEA
     {
         if (!empty($config['privacyideaServerURL']))
         {
@@ -295,7 +295,7 @@ class Utils
      * @return string stateId of the modified state
      * @throws Exception|\Exception
      */
-    public static function processPIResponse($stateId, PIResponse $response)
+    public static function processPIResponse(string $stateId, PIResponse $response): string
     {
         assert('string' === gettype($stateId));
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
@@ -424,7 +424,7 @@ class Utils
      * Determine the clients IP-Address.
      * @return string|null The IP-Address of the client.
      */
-    public static function getClientIP()
+    public static function getClientIP(): ?string
     {
         $result = @$_SERVER['HTTP_X_FORWARDED_FOR'] ?: @$_SERVER['REMOTE_ADDR'] ?: @$_SERVER['HTTP_CLIENT_IP'];
         Logger::debug('privacyIDEA: client ip: ' . $result);
@@ -440,7 +440,7 @@ class Utils
      * @param array $state The global state to check the keys against
      * @return array The updated config
      */
-    public static function checkUidKey(array $config, array $state)
+    public static function checkUidKey(array $config, array $state): array
     {
         assert('array' === gettype($config));
         assert('array' === gettype($state));

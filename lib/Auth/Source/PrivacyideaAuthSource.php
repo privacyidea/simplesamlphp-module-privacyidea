@@ -102,7 +102,7 @@ class PrivacyideaAuthSource extends UserPassBase
      * @param array &$state Information about the current authentication.
      * @throws Exception
      */
-    public function authenticate(&$state)
+    public function authenticate(&$state): void
     {
         assert('array' === gettype($state));
         Logger::info("privacyIDEA AuthSource authenticate");
@@ -173,7 +173,7 @@ class PrivacyideaAuthSource extends UserPassBase
      * @param array $formParams
      * @throws Exception
      */
-    public static function authSourceLogin($stateId, $formParams)
+    public static function authSourceLogin(string $stateId, array $formParams)
     {
         assert('array' === gettype($stateId));
         assert('array' === gettype($formParams));
@@ -312,9 +312,9 @@ class PrivacyideaAuthSource extends UserPassBase
      *
      * @param array $state
      * @param PIResponse $piResponse
-     * @param $authSourceConfig
+     * @param array $authSourceConfig
      */
-    public static function checkAuthenticationComplete($state, PIResponse $piResponse, $authSourceConfig)
+    public static function checkAuthenticationComplete(array $state, PIResponse $piResponse, array $authSourceConfig)
     {
         $attributes = $piResponse->detailAndAttributes;
 
@@ -346,12 +346,12 @@ class PrivacyideaAuthSource extends UserPassBase
     /**
      * This function merge all attributes and detail which SimpleSAMLphp needs.
      *
-     * @param $userAttributes
-     * @param $detailAttributes
-     * @param $authSourceConfig
+     * @param array $userAttributes
+     * @param array $detailAttributes
+     * @param array $authSourceConfig
      * @return array
      */
-    protected static function mergeAttributes($userAttributes, $detailAttributes, $authSourceConfig)
+    protected static function mergeAttributes(array $userAttributes, array $detailAttributes, array $authSourceConfig): array
     {
         // Prepare attributes array to return
         $attributes = array();
@@ -452,10 +452,10 @@ class PrivacyideaAuthSource extends UserPassBase
 
     /**
      * Check if url is allowed.
-     * @param $id
+     * @param string $id
      * @throws \SimpleSAML\Error\Exception
      */
-    private static function checkIdLegality($id)
+    private static function checkIdLegality(string $id)
     {
         $sid = State::parseStateID($id);
         if (!is_null($sid['url']))
