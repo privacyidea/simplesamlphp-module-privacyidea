@@ -9,7 +9,7 @@ use SimpleSAML\Module;
 use SimpleSAML\Session;
 use SimpleSAML\XHTML\Template;
 
-Logger::debug("Loading privacyIDEA form..");
+Logger::debug("Loading privacyIDEA form...");
 // Load $state from the earlier position
 $stateId = $_REQUEST['stateId'];
 try
@@ -19,10 +19,12 @@ try
 catch (NoState $e)
 {
     Logger::error("Unable to load state information because stateId is lost");
+    throw $e;
 }
 catch (Exception $e)
 {
     Logger::error("Unable to load state information. " . $e->getMessage());
+    throw $e;
 }
 
 // Find the username
@@ -52,6 +54,7 @@ try
 catch (Exception $e)
 {
     Logger::error("Unable to prepare the login form. " . $e->getMessage());
+    throw $e;
 }
 
 // Prepare error to show in UI
@@ -98,36 +101,35 @@ elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsourc
     try
     {
         $source = Source::getById($state["privacyidea:privacyidea"]["AuthId"]);
+        $tpl->data['username'] = $username;
+        if (method_exists($source, "isRememberMeEnabled"))
+        {
+            $tpl->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
+        }
+        if (method_exists($source, "isRememberMeChecked"))
+        {
+            $tpl->data['rememberMeChecked'] = $source->isRememberMeChecked();
+        }
+        if (method_exists($source, "getLoginLinks"))
+        {
+            $tpl->data['links'] = $source->getLoginLinks();
+        }
+        if (array_key_exists('forcedUsername', $state))
+        {
+            $tpl->data['forceUsername'] = true;
+            $tpl->data['rememberUsernameEnabled'] = false;
+            $tpl->data['rememberUsernameChecked'] = false;
+        }
+        else
+        {
+            $tpl->data['forceUsername'] = false;
+        }
+        $tpl->data['SPMetadata'] = $state['SPMetadata'];
     }
     catch (\SimpleSAML\Error\Exception $e)
     {
-        Logger::error("Unable to access the AuthSource. " . $e->getMessage());
+        Logger::error("Could not find authentication source with ID: " . $state["privacyidea:privacyidea"]["AuthId"] . $e->getMessage());
     }
-
-    if ($source == NULL)
-    {
-        Logger::error("Could not find authentication source with ID: " . $state["privacyidea:privacyidea"]["AuthId"]);
-    }
-
-    $tpl->data['username'] = $username;
-    $tpl->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
-    $tpl->data['rememberMeChecked'] = $source->isRememberMeChecked();
-    $tpl->data['links'] = $source->getLoginLinks();
-
-    if (array_key_exists('forcedUsername', $state))
-    {
-        $tpl->data['forceUsername'] = true;
-        $tpl->data['rememberUsernameEnabled'] = false;
-        $tpl->data['rememberUsernameChecked'] = false;
-    }
-    else
-    {
-        $tpl->data['forceUsername'] = false;
-        $tpl->data['rememberUsernameEnabled'] = $source->getRememberUsernameEnabled();
-        $tpl->data['rememberUsernameChecked'] = $source->getRememberUsernameChecked();
-    }
-
-    $tpl->data['SPMetadata'] = @$state['SPMetadata'];
 }
 
 // Get all the ui data placed in state and set it to $tpl->data for future use in LoginForm.php
