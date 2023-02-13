@@ -1,12 +1,51 @@
 <?php
-$stateId = SimpleSAML_Session::getSessionFromRequest()->getData("privacyidea:privacyidea", "stateId");
-SimpleSAML_Session::getSessionFromRequest()->deleteData("privacyidea:privacyidea", "stateId");
-if (empty($stateId))
+
+use SimpleSAML\Auth\Source;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Error\CannotSetCookie;
+use SimpleSAML\Error\Exception;
+use SimpleSAML\Error\NoState;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\Module\core\Auth\UserPassBase;
+use SimpleSAML\Module\privacyidea\Auth\Source\PrivacyideaAuthSource;
+use SimpleSAML\Module\privacyidea\Auth\Utils;
+use SimpleSAML\Session;
+use SimpleSAML\SessionHandler;
+use SimpleSAML\Utils\HTTP;
+
+try
 {
-    SimpleSAML_Logger::error("stateId empty in FormReceiver.");
-    throw new Exception("State information lost!");
+    $stateID = Session::getSessionFromRequest()->getData("privacyidea:privacyidea", "stateId");
 }
-$state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
+catch (\Exception $e)
+{
+    Logger::error("Unable to reach the state ID from session. " . $e->getMessage());
+    throw $e;
+}
+try
+{
+    Session::getSessionFromRequest()->deleteData("privacyidea:privacyidea", "stateId");
+}
+catch (\Exception $e)
+{
+    Logger::error("Unable to delete the old state ID. " . $e->getMessage());
+    throw $e;
+}
+try
+{
+    $state = State::loadState($stateID, 'privacyidea:privacyidea');
+}
+catch (NoState $e)
+{
+    Logger::error("Lost state data. " . $e->getMessage());
+    throw $e;
+}
+catch (\Exception $e)
+{
+    Logger::error("Unable to load the state. " . $e->getMessage());
+    throw $e;
+}
 
 // Find the username
 if (array_key_exists('username', $_REQUEST))
@@ -57,55 +96,89 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
     // Auth Proc
     try
     {
-        $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, $formParams);
-        $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+        $response = Utils::authenticatePI($state, $formParams);
+        $stateID = State::saveState($state, 'privacyidea:privacyidea');
 
         // If the authentication is successful processPIResponse will not return!
         if (!empty($response))
         {
-            $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
+            $stateID = Utils::processPIResponse($stateID, $response);
         }
-        $url = SimpleSAML_Module::getModuleURL('privacyidea/FormBuilder.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('stateId' => $stateId));
+        $url = Module::getModuleURL('privacyidea/FormBuilder.php');
+        HTTP::redirectTrustedURL($url, array('stateId' => $stateID));
     }
-    catch (Exception $e)
+    catch (\Exception $e)
     {
-        SimpleSAML_Logger::error($e->getMessage());
+        Logger::error($e->getMessage());
     }
 }
 else
 {
     // Auth Source
-    $source = SimpleSAML_Auth_Source::getById($state["privacyidea:privacyidea"]["AuthId"]);
-    if ($source->getRememberUsernameEnabled())
+    try
     {
-        $sessionHandler = SimpleSAML_SessionHandler::getSessionHandler();
-        $params = $sessionHandler->getCookieParams();
-
-        $params['expire'] = time();
-        $params['expire'] += (isset($_REQUEST['rememberUsername']) && $_REQUEST['rememberUsername'] === 'Yes' ? 31536000 : -300);
-        SimpleSAML_Utilities::setCookie($source->getAuthId() . '-username', $username, $params, FALSE);
+        $source = Source::getById($state["privacyidea:privacyidea"]["AuthId"]);
+    }
+    catch (Exception $e)
+    {
+        Logger::error("Unable to load the authsource. SimpleSAML Exception: " . $e->getMessage());
+        throw $e;
     }
 
-    if ($source->isRememberMeEnabled())
+    if (method_exists($source, "getRememberUsernameEnabled") && $source->getRememberUsernameEnabled())
+    {
+        try
+        {
+            $sessionHandler = SessionHandler::getSessionHandler();
+            $params = $sessionHandler->getCookieParams();
+            $params['expire'] = time();
+            $params['expire'] += (isset($_REQUEST['rememberUsername']) && $_REQUEST['rememberUsername'] === 'Yes' ? 31536000 : -300);
+            try
+            {
+                HTTP::setCookie($source->getAuthId() . '-username', $username, $params, FALSE);
+            }
+            catch (CannotSetCookie $e)
+            {
+                Logger::error("Unable to save the username in a cookie. " . $e->getMessage());
+            }
+        }
+        catch (\Exception $e)
+        {
+            Logger::error("Unable to reach the simpleSAML Session Handler. Cannot to save the username. " . $e->getMessage());
+        }
+    }
+
+    if (method_exists($source, "isRememberMeEnabled") && $source->isRememberMeEnabled())
     {
         if (array_key_exists('rememberMe', $_REQUEST) && $_REQUEST['rememberMe'] === 'Yes')
         {
             $state['RememberMe'] = TRUE;
-            $stateId = SimpleSAML_Auth_State::saveState($state, sspmod_core_Auth_UserPassBase::STAGEID);
+            $stateID = State::saveState($state, UserPassBase::STAGEID);
         }
     }
 
     try
     {
-        sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource::authSourceLogin($stateId, $formParams);
+        PrivacyideaAuthSource::authSourceLogin($stateID, $formParams);
     }
-    catch (Exception $e)
+    catch (\Exception $e)
     {
-        SimpleSAML_Logger::error($e->getMessage());
-        $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
-        $state['privacyidea:privacyidea']['errorCode'] = $e->getCode();
-        $state['privacyidea:privacyidea']['errorMessage'] = $e->getMessage();
-        $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+        Logger::error($e->getMessage());
+
+        try
+        {
+            $state = State::loadState($stateID, 'privacyidea:privacyidea');
+            $state['privacyidea:privacyidea']['errorCode'] = $e->getCode();
+            $state['privacyidea:privacyidea']['errorMessage'] = $e->getMessage();
+            $stateID = State::saveState($state, 'privacyidea:privacyidea');
+        }
+        catch (NoState $e)
+        {
+            Logger::error($e->getMessage());
+        }
+        catch (\Exception $e)
+        {
+            Logger::error($e->getMessage());
+        }
     }
 }
