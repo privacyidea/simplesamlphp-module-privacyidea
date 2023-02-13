@@ -1,6 +1,9 @@
 <?php
 
-//require_once((dirname(__FILE__, 2)) . '/php-client/src/Client-Autoloader.php');
+namespace SimpleSAML\Module\privacyidea\Auth;
+
+use PILog;
+use SimpleSAML\Logger;
 
 class PILogger implements PILog
 {
@@ -10,7 +13,7 @@ class PILogger implements PILog
      */
     public function piDebug($message)
     {
-        SimpleSAML_Logger::debug($message);
+        Logger::debug($message);
     }
 
     /**
@@ -19,6 +22,6 @@ class PILogger implements PILog
      */
     public function piError($message)
     {
-        SimpleSAML_Logger::error($message);
+        Logger::error($message);
     }
 }
