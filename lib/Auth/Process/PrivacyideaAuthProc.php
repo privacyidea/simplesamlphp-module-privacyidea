@@ -81,7 +81,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
         {
             $stateId = State::saveState($state, 'privacyidea:privacyidea');
             $stateId = $this->checkEntityID($this->authProcConfig, $stateId);
-            $state = State::loadState($stateId, 'privacyidea:privacyidea');
+            $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
         }
 
         // Check if privacyIDEA is disabled by configuration setting
@@ -167,7 +167,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
             $stateId = $this->enrollToken($stateId, $username);
         }
 
-        $state = State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         // This is AuthProcFilter, so step 1 (username+password) is already done. Set the step to 2
         $state['privacyidea:privacyidea:ui']['step'] = 2;
@@ -193,7 +193,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
         assert('string' === gettype($username));
         assert('string' === gettype($stateId));
 
-        $state = State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         // Error if no serviceAccount or servicePass
         if ($this->pi->serviceAccountAvailable() === false)
@@ -274,7 +274,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
     private function checkEntityID($authProcConfig, $stateId)
     {
         Logger::debug("Checking requesting entity ID for privacyIDEA");
-        $state = State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         $excludeEntityIDs = $authProcConfig['excludeEntityIDs'] ?: array();
         $includeAttributes = $authProcConfig['includeAttributes'] ?: array();

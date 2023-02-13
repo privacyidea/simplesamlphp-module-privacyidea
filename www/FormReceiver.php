@@ -34,7 +34,7 @@ catch (\Exception $e)
 }
 try
 {
-    $state = State::loadState($stateID, 'privacyidea:privacyidea');
+    $state = State::loadState($stateID, 'privacyidea:privacyidea', true);
 }
 catch (NoState $e)
 {
@@ -167,7 +167,7 @@ else
 
         try
         {
-            $state = State::loadState($stateID, 'privacyidea:privacyidea');
+            $state = State::loadState($stateID, 'privacyidea:privacyidea', true);
             $state['privacyidea:privacyidea']['errorCode'] = $e->getCode();
             $state['privacyidea:privacyidea']['errorMessage'] = $e->getMessage();
             $stateID = State::saveState($state, 'privacyidea:privacyidea');

@@ -14,7 +14,7 @@ Logger::debug("Loading privacyIDEA form...");
 $stateId = $_REQUEST['stateId'];
 try
 {
-    $state = State::loadState($stateId, 'privacyidea:privacyidea');
+    $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 }
 catch (NoState $e)
 {

@@ -178,7 +178,7 @@ class PrivacyideaAuthSource extends UserPassBase
         assert('array' === gettype($stateId));
         assert('array' === gettype($formParams));
 
-        $state = State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
         $step = $state['privacyidea:privacyidea:ui']['step'];
 
         $source = Source::getById($state['privacyidea:privacyidea']["AuthId"]);
@@ -290,7 +290,7 @@ class PrivacyideaAuthSource extends UserPassBase
             $stateId = Utils::processPIResponse($stateId, $response);
         }
 
-        $state = State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         // Increase steps counter
         if (empty($state['privacyidea:privacyidea']['errorMessage']))

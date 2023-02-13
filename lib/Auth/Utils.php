@@ -298,7 +298,7 @@ class Utils
     public static function processPIResponse($stateId, PIResponse $response)
     {
         assert('string' === gettype($stateId));
-        $state = State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         $config = $state['privacyidea:privacyidea'];
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
