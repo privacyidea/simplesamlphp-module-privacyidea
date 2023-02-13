@@ -1,14 +1,29 @@
 <?php
 
-SimpleSAML_Logger::debug("Loading privacyIDEA form..");
+use SimpleSAML\Auth\Source;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Configuration;
+use SimpleSAML\Error\NoState;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\Session;
+use SimpleSAML\XHTML\Template;
+
+Logger::debug("Loading privacyIDEA form..");
 // Load $state from the earlier position
 $stateId = $_REQUEST['stateId'];
-if (empty($stateId))
+try
 {
-    SimpleSAML_Logger::error("Unable to load state information because stateId is lost");
-    throw new \Exception("State information lost!");
+    $state = State::loadState($stateId, 'privacyidea:privacyidea');
 }
-$state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
+catch (NoState $e)
+{
+    Logger::error("Unable to load state information because stateId is lost");
+}
+catch (Exception $e)
+{
+    Logger::error("Unable to load state information. " . $e->getMessage());
+}
 
 // Find the username
 if (isset($state['privacyidea:privacyidea']['uidKey']))
@@ -30,7 +45,14 @@ else
 }
 
 // Prepare the form to show
-$tpl = new SimpleSAML_XHTML_Template(SimpleSAML_Configuration::getInstance(), 'privacyidea:LoginForm.php');
+try
+{
+    $tpl = new Template(Configuration::getInstance(), 'privacyidea:LoginForm.php');
+}
+catch (Exception $e)
+{
+    Logger::error("Unable to prepare the login form. " . $e->getMessage());
+}
 
 // Prepare error to show in UI
 $tpl->data['errorCode'] = null;
@@ -49,7 +71,7 @@ if (!empty($state['privacyidea:privacyidea']['errorCode']) || !empty($state['pri
     }
     $tpl->data['errorMessage'] = $state['privacyidea:privacyidea']['errorMessage'];
     $state['privacyidea:privacyidea']['errorMessage'] = "";
-    $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+    $stateId = State::saveState($state, 'privacyidea:privacyidea');
 }
 
 // AuthProc
@@ -73,11 +95,18 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
 elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
 {
     // AuthSource
-    $source = SimpleSAML_Auth_Source::getById($state["privacyidea:privacyidea"]["AuthId"]);
+    try
+    {
+        $source = Source::getById($state["privacyidea:privacyidea"]["AuthId"]);
+    }
+    catch (\SimpleSAML\Error\Exception $e)
+    {
+        Logger::error("Unable to access the AuthSource. " . $e->getMessage());
+    }
 
     if ($source == NULL)
     {
-        SimpleSAML_Logger::error("Could not find authentication source with ID: " . $state["privacyidea:privacyidea"]["AuthId"]);
+        Logger::error("Could not find authentication source with ID: " . $state["privacyidea:privacyidea"]["AuthId"]);
     }
 
     $tpl->data['username'] = $username;
@@ -123,8 +152,15 @@ if (empty($_REQUEST['loadCounter']))
 
 if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
 {
-    $tpl->data['LogoutURL'] = SimpleSAML_Module::getModuleURL('core/authenticate.php', array('as' => $state['Source']['auth'])) . "&logout";
+    $tpl->data['LogoutURL'] = Module::getModuleURL('core/authenticate.php', array('as' => $state['Source']['auth'])) . "&logout";
 }
 
-SimpleSAML_Session::getSessionFromRequest()->setData("privacyidea:privacyidea", "stateId", $stateId);
+try
+{
+    Session::getSessionFromRequest()->setData("privacyidea:privacyidea", "stateId", $stateId);
+}
+catch (Exception $e)
+{
+    Logger::error("No access to request session. " . $e->getMessage());
+}
 $tpl->show();
