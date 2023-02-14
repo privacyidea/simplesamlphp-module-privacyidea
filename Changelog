@@ -1,96 +1,87 @@
-Version 2.1.2 2022-03-23
+Version 3.0.0 02/2023
+ * Simplified the configuration by introducing the Authentication Flow (#164, #166)
+ * Added implementation of the preferred client mode (#167)
+ * Added implementation of the token enrollment via challenge (#171)
+ * Used namespaces to communicate with simpleSAML core (#177)
+ * Fixed uncaught exceptions (#177, #185)
+ * Updated UI (#179)
+
+Version 2.1.2 03/2022
  * Fixed enabledKey
  * Added HTML escaping for values in the login form
 
-Version 2.1.1 2022-03-18
+Version 2.1.1 03/2022
  * Fixed installation with composer
  * Fixed uncaught error when network problems occur
 
-Version 2.1 2022-02-15
+Version 2.1 02/2022
+ * Add SSO
+ * Add preferred token type
 
-  * Add SSO
-  * Add preferred token type
-
-Version 2.0 2021-09-02
-
-  * Support for WebAuthn token
-  * Merged authproc filters into one, which requires only a single configuration file.
-    !!! Check the docs for the updated template of the configuration - the old configuration file does not work with the new version !!!
-  * Added configurable hints to the password and OTP field
+Version 2.0 09/2021
+ * Support for WebAuthn token
+ * Merged authproc filters into one, which requires only a single configuration file.
+   !!! Check the docs for the updated template of the configuration - the old configuration file does not work with the new version !!!
+ * Added configurable hints to the password and OTP field
   
-Version 1.9 2021-03-24
+Version 1.9 03/2021
+ * Refactor Code
+ * Enhance HTML escaping
+ * Add logout button on privacyIDEA form to cancel the process
+ * Authproc Filter Mode
+  * Support SSO for different service providers
+  * Skip privacyIDEA for isPassive requests
+  * Add authproc filter to check entity IDs and user attributes
 
-  * Refactor Code
-  * Enhance HTML escaping
-  * Add logout button on privacyIDEA form to cancel the process
-  * Authproc Filter Mode
-    * Support SSO for different service providers
-    * Skip privacyIDEA for isPassive requests
-    * Add authproc filter to check entity IDs and user attributes
+Version 1.8 02/2019
+ * Add pass on no token
+ * Add multiple uid keys
+ * Add triggerchallenge
+ * Fixed multi challenge
+ * Add token enrollment (totp, hotp and u2f)
+ * Add possibility to disable 2FA for special ip addresses
+ * Add option to disable 2FA
 
-Version 1.8 2019-02-xx
+Version 1.7 11/2018
+ * Support authproc filter. Allow this module to either be used as Authsource or as Authproc Filter.
 
-  * Add pass on no token
-  * Add multiple uid keys
-  * Add triggerchallenge
-  * Fixed multi challenge
-  * Add token enrollment (totp, hotp and u2f)
-  * Add possibility to disable 2FA for special ip addresses
-  * Add option to disable 2FA
+Version 1.6 10/2018
+ * Add support for multi-value attributes like groups or mobile numbers
+ * Return attributes as arrays to simpleSAMLphp
+ * Code cleanup: Replace [] with array()
+ * Remove debugging of attribute values
+ * Use default attribute map, if none is given in the config
+ * Add detailmap, to also map values from the details section (like serial or tokentype) to SAML attributes
+ * Add concatenation, to merge two attributes together
 
-Version 1.7 2018-11-20
+Version 1.5.1 07/2017
+ * Use array as curl parameter to be able to pass a username like user@realm
 
-  * Support authproc filter. Allow this module to either be used as Authsource
-    or as Authproc Filter.
+Version 1.5 03/2017
+ * Add Google like Login Theme
+ * Forward the Client IP to the privacyIDEA server
+ * Allow for enhanced attribute mapping
+ * Improve robustness for encoding
+ * Remove password from Debug log
+ * Remove attributes from POST data screen
+ * Remove loginmode from redirectTrustedUrl
 
-Version 1.6 2018-10-01
-
-  * Add support for multi-value attributes like groups or mobile numbers
-  * Return attributes as arrays to simpleSAMLphp
-  * Code cleanup: Replace [] with array()
-  * Remove debugging of attribute values
-  * Use default attribute map, if none is given in the config
-  * Add detailmap, to also map values from the details section (like serial or tokentype) to SAML attributes
-  * Add concatenation, to merge two attributes together
-
-Version 1.5.1 2017-07-21
-
-  * Use array as curl parameter to be able to pass a username like
-    user@realm
-
-Version 1.5 2017-03-02
-
-  * Add Google like Login Theme
-  * Forward the Client IP to the privacyIDEA server
-  * Allow for enhanced attribute mapping
-  * Improve robustness for encoding
-  * Remove password from Debug log
-  * Remove attributes from POST data screen
-  * Remove loginmode from redirectTrustedUrl
-
-Version 1.4.1 2017-01-18
-
-  * Modify the debug logging. Remove the password.
+Version 1.4.1 01/2017
+ * Modify the debug logging. Remove the password.
   
-Version 1.4 2016-11-01
+Version 1.4 11/2016
+ * Allow different order of login information
+   * 1. username / password+otp
+   * 1. username / password 2. OTP
+   * 1. OTP 2. username / password
+ * Add dutch translation
 
-  * Allow different order of login information
-    * 1. username / password+otp
-    * 1. username / password 2. OTP
-    * 1. OTP 2. username / password
-  * Add dutch translation
+Version 1.3.1 01/2016
+ * Add Layout for Univention Corporate Server
+ * Fix parameter injection
 
-Version 1.3.1 2016-01-07
+Version 1.2 11/2015
+ * Add Login UI that supports Challenge Response and U2F tokens.
 
-  * Add Layout for Univention Corporate Server
-  * Fix parameter injection
-
-Version 1.2 2015-11-25
-
-  * Add Login UI that supports Challenge Response and U2F tokens.
-
-
-Version 1.1 2015-11-05
-
-  * Fix problem with wrong URL path
-
+Version 1.1 11/2015
+ * Fix problem with wrong URL path
