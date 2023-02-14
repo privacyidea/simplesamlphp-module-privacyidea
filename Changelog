@@ -1,5 +1,6 @@
 Version 3.0.0 02/2023
  * Simplified the configuration by introducing the Authentication Flow (#164, #166)
+    !!! Check the docs for the updated template of the configuration - the old configuration file does not work with the new version !!!
  * Added implementation of the preferred client mode (#167)
  * Added implementation of the token enrollment via challenge (#171)
  * Used namespaces to communicate with simpleSAML core (#177)
