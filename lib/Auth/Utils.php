@@ -23,9 +23,6 @@ class Utils
      */
     public static function authenticatePI(array &$state, array $formParams): ?PIResponse
     {
-        assert('array' === gettype($state));
-        assert('array' === gettype($formParams));
-
         Logger::debug("privacyIDEA: Utils::authenticatePI with form data:\n" . http_build_query($formParams, '', ', '));
 
         $state['privacyidea:privacyidea:ui']['mode'] = $formParams['mode'];
@@ -147,12 +144,10 @@ class Utils
     /**
      * @param $exception
      * @param $state
-     * @return void
      */
-    public static function handlePrivacyIDEAException($exception, &$state)
+    public static function handlePrivacyIDEAException($exception, &$state): void
     {
         Logger::error("Exception: " . $exception->getMessage());
-
         $state['privacyidea:privacyidea']['errorCode'] = $exception->getCode();
         $state['privacyidea:privacyidea']['errorMessage'] = $exception->getMessage();
     }
@@ -166,7 +161,7 @@ class Utils
      * @return void
      * @throws \Exception
      */
-    public static function tryWriteSSO()
+    public static function tryWriteSSO(): void
     {
         Logger::debug("privacyIDEA: tryWriteSSO");
 
@@ -207,7 +202,7 @@ class Utils
         // For SSO to be valid, we check 2 things:
         // 1. Valid login of SSP which is not expired
         // 2. Completed 2FA with this module
-        if (is_array($state) && array_key_exists('Expire', $state) && $state['Expire'] > time())
+        if (array_key_exists('Expire', $state) && $state['Expire'] > time())
         {
             Logger::debug("privacyIDEA: Valid login found. Checking for valid 2FA..");
             $session = Session::getSessionFromRequest();
@@ -297,7 +292,6 @@ class Utils
      */
     public static function processPIResponse(string $stateId, PIResponse $response): string
     {
-        assert('string' === gettype($stateId));
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         $config = $state['privacyidea:privacyidea'];
@@ -429,32 +423,5 @@ class Utils
         $result = @$_SERVER['HTTP_X_FORWARDED_FOR'] ?: @$_SERVER['REMOTE_ADDR'] ?: @$_SERVER['HTTP_CLIENT_IP'];
         Logger::debug('privacyIDEA: client ip: ' . $result);
         return $result;
-    }
-
-    /**
-     * Find the first usable uid key.
-     * If the administrator has configured multiple uidKeys,
-     * this will find the first one that exists as an Attribute in
-     * the $state and update the $config to use that key.
-     * @param array $config The authproc configuration to use
-     * @param array $state The global state to check the keys against
-     * @return array The updated config
-     */
-    public static function checkUidKey(array $config, array $state): array
-    {
-        assert('array' === gettype($config));
-        assert('array' === gettype($state));
-
-        if (gettype($config['uidKey']) === "array" && !empty($config['uidKey']))
-        {
-            foreach ($config['uidKey'] as $i)
-            {
-                if (isset($state['Attributes'][$i][0]))
-                {
-                    $config['uidKey'] = $i;
-                }
-            }
-        }
-        return $config;
     }
 }

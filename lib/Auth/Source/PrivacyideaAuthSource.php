@@ -68,9 +68,6 @@ class PrivacyideaAuthSource extends UserPassBase
      */
     public function __construct(array $info, array $config)
     {
-        assert('array' === gettype($info));
-        assert('array' === gettype($config));
-
         parent::__construct($info, $config);
 
         if (!array_key_exists('attributemap', $config))
@@ -105,7 +102,7 @@ class PrivacyideaAuthSource extends UserPassBase
     public function authenticate(&$state): void
     {
         assert('array' === gettype($state));
-        Logger::info("privacyIDEA AuthSource authenticate");
+        Logger::info("privacyIDEA: AuthSource authenticate");
 
         // SSO check if authentication should be skipped
         if (array_key_exists('SSO', $this->authSourceConfig) &&
@@ -123,7 +120,7 @@ class PrivacyideaAuthSource extends UserPassBase
 
         // We are going to need the authID in order to retrieve this authentication source later.
         $state['privacyidea:privacyidea']['AuthId'] = self::getAuthId();
-        Logger::debug("privacyIDEA AuthSource authId: " . $state['privacyidea:privacyidea']['AuthId']);
+        Logger::debug("privacyIDEA: AuthSource AuthId: " . $state['privacyidea:privacyidea']['AuthId']);
         $state['privacyidea:privacyidea']['transactionID'] = "";
         $state['privacyidea:privacyidea']['authenticationMethod'] = "authsource";
 
@@ -173,11 +170,8 @@ class PrivacyideaAuthSource extends UserPassBase
      * @param array $formParams
      * @throws Exception
      */
-    public static function authSourceLogin(string $stateId, array $formParams)
+    public static function authSourceLogin(string $stateId, array $formParams): void
     {
-        assert('array' === gettype($stateId));
-        assert('array' === gettype($formParams));
-
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
         $step = $state['privacyidea:privacyidea:ui']['step'];
 
@@ -314,7 +308,7 @@ class PrivacyideaAuthSource extends UserPassBase
      * @param PIResponse $piResponse
      * @param array $authSourceConfig
      */
-    public static function checkAuthenticationComplete(array $state, PIResponse $piResponse, array $authSourceConfig)
+    public static function checkAuthenticationComplete(array $state, PIResponse $piResponse, array $authSourceConfig): void
     {
         $attributes = $piResponse->detailAndAttributes;
 
@@ -326,7 +320,7 @@ class PrivacyideaAuthSource extends UserPassBase
             $completeAttributes = self::mergeAttributes($userAttributes, $detailAttributes, $authSourceConfig);
             $state['Attributes'] = $completeAttributes;
 
-            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'])
+            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'] === 'true')
             {
                 /*
                  * In order to be able to register a logout handler for the session (mandatory for SSO to work),
@@ -335,7 +329,7 @@ class PrivacyideaAuthSource extends UserPassBase
                  * To be able to do something after Session::doLogin, the LoginCompletedHandler has to be replaced with
                  * an implementation that writes the SSO data and attributes in this case (AuthSource) to the session.
                  */
-                $state['LoginCompletedHandler'] = ['sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource', 'loginCompletedWriteSSO'];
+                $state['LoginCompletedHandler'] = ['SimpleSAML\Module\privacyidea\Auth\Source\PrivacyideaAuthSource', 'loginCompletedWriteSSO'];
             }
 
             // Return control to simpleSAMLphp after successful authentication.
@@ -417,7 +411,7 @@ class PrivacyideaAuthSource extends UserPassBase
      * @param array $state The state after the login has completed.
      * @throws Exception
      */
-    public static function loginCompletedWriteSSO(array $state)
+    public static function loginCompletedWriteSSO(array $state): void
     {
         Logger::debug("privacyIDEA: loginCompletedWriteSSO");
         assert(array_key_exists('\SimpleSAML\Auth\Source.Return', $state));
@@ -448,19 +442,5 @@ class PrivacyideaAuthSource extends UserPassBase
             call_user_func($return, $state);
         }
         assert(false);
-    }
-
-    /**
-     * Check if url is allowed.
-     * @param string $id
-     * @throws \SimpleSAML\Error\Exception
-     */
-    private static function checkIdLegality(string $id)
-    {
-        $sid = State::parseStateID($id);
-        if (!is_null($sid['url']))
-        {
-            HTTP::checkURLAllowed($sid['url']);
-        }
     }
 }

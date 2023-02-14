@@ -7,8 +7,8 @@ use PrivacyIDEA;
 use SimpleSAML\Auth\ProcessingChain;
 use SimpleSAML\Auth\ProcessingFilter;
 use SimpleSAML\Auth\State;
-use SimpleSAML\Error\Exception;
 use SimpleSAML\Error\ConfigurationError;
+use SimpleSAML\Error\Exception;
 use SimpleSAML\Error\NoState;
 use SimpleSAML\Logger;
 use SimpleSAML\Module;
@@ -38,7 +38,6 @@ class PrivacyideaAuthProc extends ProcessingFilter
      */
     public function __construct(array $config, $reserved)
     {
-        assert('array' === gettype($config));
         parent::__construct($config, $reserved);
         $this->authProcConfig = $config;
         $this->pi = Utils::createPrivacyIDEAInstance($config);
@@ -51,14 +50,16 @@ class PrivacyideaAuthProc extends ProcessingFilter
     /**
      * Run the filter.
      *
-     * @param array $state
+     * @param array $request The request state
      * @throws Exception|PIBadRequestException if authentication fails
+     * @throws \Exception
      */
-    public function process(&$state)
+    public function process(&$request): void
     {
         Logger::info("privacyIDEA: Auth Proc Filter - Entering process function.");
-        assert('array' === gettype($state));
+        assert('array' === gettype($request));
 
+        $state = $request;
         // Update state before starting the authentication process
         $state['privacyidea:privacyidea'] = $this->authProcConfig;
         $state['privacyidea:privacyidea']['authenticationMethod'] = "authprocess";
@@ -183,17 +184,14 @@ class PrivacyideaAuthProc extends ProcessingFilter
 
     /**
      * This function check if user has a token and if not - help to enroll a new one in UI.
-     * @param string $stateId
+     * @param string $stateID
      * @param string $username
      * @return string
      * @throws PIBadRequestException|NoState
      */
-    private function enrollToken(string $stateId, string $username): string
+    private function enrollToken(string $stateID, string $username): string
     {
-        assert('string' === gettype($username));
-        assert('string' === gettype($stateId));
-
-        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
+        $state = State::loadState($stateID, 'privacyidea:privacyidea', true);
 
         // Error if no serviceAccount or servicePass
         if ($this->pi->serviceAccountAvailable() === false)
@@ -230,11 +228,10 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * This is the help function to exclude some IP from 2FA. Only if is set in config.
      * @param string $clientIP
      * @param array $excludeClientIPs
-     * @return bool|void
+     * @return bool
      */
-    private function matchIP(string $clientIP, array $excludeClientIPs)
+    private function matchIP(string $clientIP, array $excludeClientIPs): bool
     {
-        assert('string' === gettype($clientIP));
         $clientIP = ip2long($clientIP);
 
         $match = false;
@@ -310,8 +307,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
                             {
                                 $ret = true;
                                 Logger::debug("privacyidea:checkEntityID: Requesting entityID in " .
-                                                         "list, but excluded by at least one attribute regexp \"" . $attrKey .
-                                                         "\" = \"" . $matchedAttrs[0] . "\".");
+                                              "list, but excluded by at least one attribute regexp \"" . $attrKey .
+                                              "\" = \"" . $matchedAttrs[0] . "\".");
                                 break;
                             }
                         }
@@ -319,7 +316,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     else
                     {
                         Logger::debug("privacyidea:checkEntityID: attribute key " .
-                                                 $attrKey . " not contained in request");
+                                      $attrKey . " not contained in request");
                     }
                 }
             }
@@ -327,7 +324,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
         else
         {
             Logger::debug("privacyidea:checkEntityID: Requesting entityID " .
-                                     $requestEntityID . " not matched by any regexp.");
+                          $requestEntityID . " not matched by any regexp.");
         }
 
         $state[$setPath][$setKey][0] = $ret;
@@ -393,7 +390,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * This function allows to show the debug messages from privacyIDEA server
      * @param string $message
      */
-    public function piDebug(string $message)
+    public function piDebug(string $message): void
     {
         Logger::debug($message);
     }
@@ -402,7 +399,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * This function allows to show the debug messages from privacyIDEA server
      * @param string $message
      */
-    public function piError(string $message)
+    public function piError(string $message): void
     {
         Logger::error($message);
     }

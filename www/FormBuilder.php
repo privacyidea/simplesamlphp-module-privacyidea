@@ -101,15 +101,15 @@ elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsourc
     try
     {
         $source = Source::getById($state["privacyidea:privacyidea"]["AuthId"]);
+
         $tpl->data['username'] = $username;
-        if (method_exists($source, "isRememberMeEnabled"))
-        {
-            $tpl->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
-        }
-        if (method_exists($source, "isRememberMeChecked"))
-        {
-            $tpl->data['rememberMeChecked'] = $source->isRememberMeChecked();
-        }
+
+        assert(method_exists($source, "isRememberMeEnabled"));
+        $tpl->data['rememberMeEnabled'] = $source->isRememberMeEnabled();
+
+        assert(method_exists($source, "isRememberMeChecked"));
+        $tpl->data['rememberMeChecked'] = $source->isRememberMeChecked();
+
         if (method_exists($source, "getLoginLinks"))
         {
             $tpl->data['links'] = $source->getLoginLinks();
@@ -123,8 +123,17 @@ elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsourc
         else
         {
             $tpl->data['forceUsername'] = false;
+
+            assert(method_exists($source, "getRememberUsernameEnabled"));
+            $tpl->data['rememberUsernameEnabled'] = $source->getRememberUsernameEnabled();
+
+            assert(method_exists($source, "getRememberUsernameChecked"));
+            $tpl->data['rememberUsernameChecked'] = $source->getRememberUsernameChecked();
         }
-        $tpl->data['SPMetadata'] = $state['SPMetadata'];
+        if (!empty($state['SPMetadata']))
+        {
+            $tpl->data['SPMetadata'] = $state['SPMetadata'];
+        }
     }
     catch (\SimpleSAML\Error\Exception $e)
     {

@@ -125,7 +125,8 @@ else
         throw $e;
     }
 
-    if (method_exists($source, "getRememberUsernameEnabled") && $source->getRememberUsernameEnabled())
+    assert(method_exists($source, "getRememberUsernameEnabled"));
+    if ($source->getRememberUsernameEnabled())
     {
         try
         {
@@ -148,15 +149,15 @@ else
         }
     }
 
-    if (method_exists($source, "isRememberMeEnabled") && $source->isRememberMeEnabled())
+    assert(method_exists($source, "isRememberMeEnabled"));
+    if ($source->isRememberMeEnabled())
     {
         if (array_key_exists('rememberMe', $_REQUEST) && $_REQUEST['rememberMe'] === 'Yes')
         {
             $state['RememberMe'] = TRUE;
+            $stateID = State::saveState($state, UserPassBase::STAGEID);
         }
     }
-
-    $stateID = State::saveState($state, UserPassBase::STAGEID);
 
     try
     {
@@ -173,11 +174,7 @@ else
             $state['privacyidea:privacyidea']['errorMessage'] = $e->getMessage();
             $stateID = State::saveState($state, 'privacyidea:privacyidea');
         }
-        catch (NoState $e)
-        {
-            Logger::error($e->getMessage());
-        }
-        catch (\Exception $e)
+        catch (NoState|\Exception $e)
         {
             Logger::error($e->getMessage());
         }
