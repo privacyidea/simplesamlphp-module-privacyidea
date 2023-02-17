@@ -5,8 +5,8 @@ This module is an authentication module for simpleSAMLphp to use with the privac
 
 You can use this plugin in two different ways:
 <ol>
-    <li> AuthSource: This module does the complete authentication process against privacyIDEA
-    <li> AuthProc: This module does just one step of the authentication, the second factor against privacyIDEA
+    <li> AuthSource: This module does the complete authentication process against privacyIDEA.
+    <li> AuthProc: This module does just one step of the authentication, the second factor against privacyIDEA.
 </ol>
 
 NOTE: This plugin is enabled by default when installed, you do not need to enable it manually. Just add the
@@ -16,8 +16,13 @@ AuthSource
 ==========
 
 Add the configuration to `config/authsources.php`.
-*example-privacyidea* is the name used to identify this module, it can be changed to your liking. The following is a
-template configuration:
+
+In an absolute basic configuration, the following config options will be required to set:
+`privacyideaServerURL`, `authenticationFlow`(set to default), `attributemap`.
+
+NOTE: `example-privacyidea` is the name used to identify this module, it can be changed at your discretion.
+
+The following is a template configuration:
 
 ```PHP
 'example-privacyidea' => array(
@@ -140,14 +145,13 @@ template configuration:
 ),
 ```
 
-User attributes
+User Attributes
 ---------------
 To complete the authentication with SAML in AuthSource mode, SAML expects user attributes to be returned.
 These attributes will be received from privacyIDEA upon completing the authentication.
 However, this has to be enabled by creating a policy in privacyIDEA with the following values:
-Scope:  authorization
-Actions from section "setting_actions": "add_resolver_in_response", "add_user_in_response"
-Actions from section "miscellaneous": "application_tokentype
+Scope: authorization,
+Actions from section "setting_actions": "add_resolver_in_response", "add_user_in_response".
 
 The attributes can then be mapped to SAML attributes using the "attributemap" setting described in the config template above.
 Examples for those attributes are:
@@ -166,9 +170,13 @@ attribute 'groups', you can map that to 'groups' if you include it in the attrib
 AuthProc
 ========
 
-
 If you want to use privacyIDEA as an auth process filter, add the configuration to the metadata file,
 e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
+
+In an absolute basic configuration, the following config options will be required to set:
+`class`, `privacyideaServerURL`, `authenticationFlow`(set to default), `uidKey`.
+
+The following is a template configuration:
 
 ```PHP
 'authproc' => array(
@@ -269,6 +277,7 @@ e.g. `simplesaml/metadata/saml20-idp-hosted.php`.
         
         /**
          * Custom hint for the OTP field.
+         * Optional.
          */
         'otpFieldHint' => 'Please enter the OTP!',
         
