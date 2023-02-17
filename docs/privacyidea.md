@@ -1,12 +1,12 @@
-privacyIDEA Module
+privacyIDEA module
 ==================
 
-This module is an authentication module for the simpleSAMLphp to use with the privacyIDEA authentication server.
+This module is an authentication module for simpleSAMLphp to use with the privacyIDEA authentication server.
 
 You can use this plugin in two different ways:
 <ol>
-    <li> AuthSource: This module does the complete authentication process against the privacyIDEA.
-    <li> AuthProc: This module does just one step of the authentication, the second factor against the privacyIDEA.
+    <li> AuthSource: This module does the complete authentication process against privacyIDEA.
+    <li> AuthProc: This module does just one step of the authentication, the second factor against privacyIDEA.
 </ol>
 
 NOTE: This plugin is enabled by default when installed, you do not need to enable it manually. Just add the
