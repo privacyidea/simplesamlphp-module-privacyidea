@@ -1,4 +1,3 @@
-
 Version 3.0.0 02/2023
  * Simplified the configuration by introducing the Authentication Flow (#164, #166)
     !!! Check the docs for the updated template of the configuration - the old configuration file does not work with the new version !!!
