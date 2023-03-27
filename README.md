@@ -12,7 +12,7 @@ Challenge Response tokens like EMail and SMS or using WebAuthn and U2F devices.
 TiQR is currently not supported.
 
 ## Installation
-It is recommended to install this package using [composer](https://getcomposer.org/). In your saml root dir, execute the following command in a terminal:
+It is recommended to install this package using [composer](https://getcomposer.org/). In your saml root dir, execute the following command in the terminal:
 
 `composer require privacyidea/simplesamlphp-module-privacyidea`
 
