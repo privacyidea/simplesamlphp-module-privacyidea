@@ -141,25 +141,25 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     }
                 }
             }
-        }
-        elseif ($this->authProcConfig['authenticationFlow'] === 'sendStaticPass')
-        {
-            // Call /validate/check with a static pass from the configuration
-            // This could already end up the authentication if the "passOnNoToken" policy is set.
-            // Otherwise, it triggers the challenges.
-            $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']));
-            if (empty($response->multiChallenge) && $response->value)
+            elseif ($this->authProcConfig['authenticationFlow'] === 'sendStaticPass')
             {
-                ProcessingChain::resumeProcessing($state);
+                // Call /validate/check with a static pass from the configuration
+                // This could already end up the authentication if the "passOnNoToken" policy is set.
+                // Otherwise, it triggers the challenges.
+                $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']));
+                if (empty($response->multiChallenge) && $response->value)
+                {
+                    ProcessingChain::resumeProcessing($state);
+                }
+                elseif (!empty($response->multiChallenge))
+                {
+                    $stateId = Utils::processPIResponse($stateId, $response);
+                }
             }
-            elseif (!empty($response->multiChallenge))
+            else
             {
-                $stateId = Utils::processPIResponse($stateId, $response);
+                Logger::error("privacyidea: Authentication flow is not set in the config. Fallback to default...");
             }
-        }
-        else
-        {
-            Logger::error("privacyidea: Authentication flow is not set in the config. Fallback to default...");
         }
 
         // Check if it should be controlled that user has no tokens and a new token should be enrolled.
