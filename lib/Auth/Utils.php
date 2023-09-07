@@ -439,10 +439,16 @@ class Utils
         $headersToForward = array();
         foreach ($arrHeaders as $header)
         {
-            if (!empty($_SERVER[$header]))
+            if (array_key_exists($header, $_SERVER))
             {
-                $temp = implode(',', $_SERVER[$header]);
-                $headersToForward = array_merge($headersToForward, $temp);
+                Logger::debug("Found matching header: " . $header);
+                $value = $_SERVER[$header];
+                if (is_array($_SERVER[$header]))
+                {
+                    $value = implode(',', $_SERVER[$header]);
+                }
+                $header = array($header => $value);
+                $headersToForward = array_push($headersToForward, $header);
             }
             else
             {
