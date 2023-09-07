@@ -189,6 +189,15 @@ class PrivacyideaAuthSource extends UserPassBase
             $password = $formParams['pass'];
         }
 
+        $headersToForward = array();
+        if (!empty($source->authSourceConfig))
+        {
+            if (!empty($source->authSourceConfig['forwardHeaders']))
+            {
+                $headersToForward = Utils::getHeadersToForward($source->authSourceConfig['forwardHeaders']);
+            }
+        }
+
         $response = null;
         if ($step == 1)
         {
@@ -203,7 +212,7 @@ class PrivacyideaAuthSource extends UserPassBase
                         Logger::error("privacyIDEA: Authentication flow not found in the config file. Please add the 'authenticationFlow' with one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Until then, the login mask contains per default 1 user field and 1 pass field.");
                         try
                         {
-                            $response = $source->pi->validateCheck($username, $password);
+                            $response = $source->pi->validateCheck($username, $password, $headersToForward);
                         }
                         catch (Exception $e)
                         {
@@ -219,7 +228,7 @@ class PrivacyideaAuthSource extends UserPassBase
                             {
                                 try
                                 {
-                                    $response = $source->pi->triggerChallenge($username);
+                                    $response = $source->pi->triggerChallenge($username, $headersToForward);
                                 }
                                 catch (Exception $e)
                                 {
@@ -237,7 +246,7 @@ class PrivacyideaAuthSource extends UserPassBase
 
                             try
                             {
-                                $response = $source->pi->validateCheck($username, $password);
+                                $response = $source->pi->validateCheck($username, $password, $headersToForward);
                             }
                             catch (Exception $e)
                             {
@@ -249,7 +258,7 @@ class PrivacyideaAuthSource extends UserPassBase
                             Logger::error("privacyIDEA: Invalid authentication flow. Please set 'authenticationFlow' to one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Fallback to default (sendPass)");
                             try
                             {
-                                $response = $source->pi->validateCheck($username, $password);
+                                $response = $source->pi->validateCheck($username, $password, $headersToForward);
                             }
                             catch (Exception $e)
                             {
@@ -266,7 +275,7 @@ class PrivacyideaAuthSource extends UserPassBase
         {
             try
             {
-                $response = Utils::authenticatePI($state, $formParams);
+                $response = Utils::authenticatePI($state, $formParams, $headersToForward);
             }
             catch (Exception $e)
             {
