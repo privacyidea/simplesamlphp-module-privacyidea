@@ -110,6 +110,12 @@ class PrivacyideaAuthProc extends ProcessingFilter
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
+        $headersToForward = array();
+        if (!empty($this->authProcConfig['forwardHeaders']))
+        {
+            $headersToForward = $this->getHeadersToForward($this->authProcConfig['forwardHeaders']);
+        }
+
         // Check if triggerChallenge call should be done
         $triggered = false;
         if (!empty($this->authProcConfig['authenticationFlow']))
@@ -127,7 +133,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     $response = null;
                     try
                     {
-                        $response = $this->pi->triggerChallenge($username);
+                        $response = $this->pi->triggerChallenge($username, $headersToForward);
                     }
                     catch (\Exception $e)
                     {
@@ -147,7 +153,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
             // Call /validate/check with a static pass from the configuration
             // This could already end up the authentication if the "passOnNoToken" policy is set.
             // Otherwise, it triggers the challenges.
-            $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']));
+            $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']), $headersToForward);
             if (empty($response->multiChallenge) && $response->value)
             {
                 ProcessingChain::resumeProcessing($state);
@@ -165,7 +171,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
         // Check if it should be controlled that user has no tokens and a new token should be enrolled.
         if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
         {
-            $stateId = $this->enrollToken($stateId, $username);
+            $stateId = $this->enrollToken($stateId, $username, $headersToForward);
         }
 
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
@@ -186,10 +192,12 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * This function check if user has a token and if not - help to enroll a new one in UI.
      * @param string $stateID
      * @param string $username
+     * @param array $headersToForward
      * @return string
-     * @throws PIBadRequestException|NoState
+     * @throws NoState
+     * @throws PIBadRequestException
      */
-    private function enrollToken(string $stateID, string $username): string
+    private function enrollToken(string $stateID, string $username, $headersToForward): string
     {
         $state = State::loadState($stateID, 'privacyidea:privacyidea', true);
 
@@ -204,7 +212,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
             $type = $this->authProcConfig['typeOfTokenToEnroll'];
             $description = "Enrolled with simpleSAMLphp";
 
-            $response = $this->pi->enrollToken($username, $genkey, $type, $description);
+            $response = $this->pi->enrollToken($username, $genkey, $type, $description, $headersToForward);
 
             if (!empty($response->errorMessage))
             {
@@ -341,6 +349,33 @@ class PrivacyideaAuthProc extends ProcessingFilter
         }
         Logger::debug("Setting \$state[" . $setPath . "][" . $setKey . "][0] = " . $retStr . ".");
         return $stateId;
+    }
+
+    /**
+     * Search for the wished headers and return all found with their values.
+     *
+     * @param $headers array List of headers to forward.
+     * @return array Headers to forward with their values.
+     */
+    private function getHeadersToForward($headers)
+    {
+        $cleanHeaders = str_replace(' ', '', $headers);
+        $arrHeaders = explode(',', $cleanHeaders);
+
+        $headersToForward = array();
+        foreach ($arrHeaders as $header)
+        {
+            if (!empty($_SERVER[$header]))
+            {
+                $temp = implode(',', $_SERVER[$header]);
+                $headersToForward = array_merge($headersToForward, $temp);
+            }
+            else
+            {
+                Logger::debug("No values for header: " . $header . " found.");
+            }
+        }
+        return $headersToForward;
     }
 
     /**
