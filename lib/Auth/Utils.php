@@ -424,4 +424,31 @@ class Utils
         Logger::debug('privacyIDEA: client ip: ' . $result);
         return $result;
     }
+
+    /**
+     * Search for the wished headers and return all found with their values.
+     *
+     * @param $headers array List of headers to forward.
+     * @return array Headers to forward with their values.
+     */
+    public static function getHeadersToForward($headers)
+    {
+        $cleanHeaders = str_replace(' ', '', $headers);
+        $arrHeaders = explode(',', $cleanHeaders);
+
+        $headersToForward = array();
+        foreach ($arrHeaders as $header)
+        {
+            if (!empty($_SERVER[$header]))
+            {
+                $temp = implode(',', $_SERVER[$header]);
+                $headersToForward = array_merge($headersToForward, $temp);
+            }
+            else
+            {
+                Logger::debug("No values for header: " . $header . " found.");
+            }
+        }
+        return $headersToForward;
+    }
 }
