@@ -93,18 +93,6 @@ The following is a template configuration:
      * Optional.
      */
     'SSO' => 'false',
-    
-    /**
-     * Optionally set a preferred token type.
-     * If the chosen token is triggered, it will be used to authenticate directly
-     * without having to press the button for the type.
-     * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
-     * 
-     * NOTE: If the 'preferred client mode' is set on the server side, this option will be ignored.
-     * 
-     * Optional.
-     */
-    'preferredTokenType' => '',
 
     /**
      * Configure which headers should be forwarded to the privacyIDEA server.
@@ -271,17 +259,6 @@ The following is a template configuration:
          * Optional.
          */
         'SSO' => 'false',
-        
-        /**
-         * Set a preferred token type.
-         * If the chosen token is triggered, it will be used to authenticate directly
-         * without having to press the button for the type.
-         * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
-         * NOTE: If the 'preferred client mode' is set on the server side, this option will be ignored.
-         * 
-         * Optional.
-         */
-        'preferredTokenType' => '',
 
         /**
          * Configure which headers should be forwarded to the privacyIDEA server.
