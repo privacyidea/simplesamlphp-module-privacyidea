@@ -110,6 +110,12 @@ class PrivacyideaAuthProc extends ProcessingFilter
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
+        $headers = array();
+        if (!empty($this->authProcConfig['forwardHeaders']))
+        {
+            $headers = Utils::getHeadersToForward($this->authProcConfig['forwardHeaders']);
+        }
+
         // Check if triggerChallenge call should be done
         $triggered = false;
         if (!empty($this->authProcConfig['authenticationFlow']))
@@ -127,7 +133,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     $response = null;
                     try
                     {
-                        $response = $this->pi->triggerChallenge($username);
+                        $response = $this->pi->triggerChallenge($username, $headers);
                     }
                     catch (\Exception $e)
                     {
@@ -146,7 +152,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
                 // Call /validate/check with a static pass from the configuration
                 // This could already end up the authentication if the "passOnNoToken" policy is set.
                 // Otherwise, it triggers the challenges.
-                $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']));
+                $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']), $headers);
                 if (empty($response->multiChallenge) && $response->value)
                 {
                     ProcessingChain::resumeProcessing($state);

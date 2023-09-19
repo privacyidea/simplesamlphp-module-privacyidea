@@ -21,7 +21,7 @@ class Utils
      * @return PIResponse|null An array containing attributes and detail, or NULL.
      * @throws Exception
      */
-    public static function authenticatePI(array &$state, array $formParams): ?PIResponse
+    public static function authenticatePI(array &$state, array $formParams, array $headers): ?PIResponse
     {
         Logger::debug("privacyIDEA: Utils::authenticatePI with form data:\n" . http_build_query($formParams, '', ', '));
 
@@ -76,7 +76,7 @@ class Utils
                     // If the authentication has been confirmed on the phone, the authentication has to be finalized with a
                     // call to /validate/check with an empty pass
                     // https://privacyidea.readthedocs.io/en/latest/tokens/authentication_modes.html#outofband-mode
-                    $response = $pi->validateCheck($username, "", $transactionID);
+                    $response = $pi->validateCheck($username, "", $transactionID, $headers);
                 }
             }
             catch (\Exception $e)
@@ -96,7 +96,7 @@ class Utils
             {
                 try
                 {
-                    $response = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse);
+                    $response = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse, $headers);
                 }
                 catch (\Exception $e)
                 {
@@ -117,7 +117,7 @@ class Utils
             {
                 try
                 {
-                    $response = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin);
+                    $response = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin, $headers);
                 }
                 catch (\Exception $e)
                 {
@@ -129,7 +129,7 @@ class Utils
         {
             try
             {
-                $response = $pi->validateCheck($username, $formParams["otp"], $transactionID);
+                $response = $pi->validateCheck($username, $formParams["otp"], $transactionID, $headers);
             }
             catch (\Exception $e)
             {
@@ -423,5 +423,38 @@ class Utils
         $result = @$_SERVER['HTTP_X_FORWARDED_FOR'] ?: @$_SERVER['REMOTE_ADDR'] ?: @$_SERVER['HTTP_CLIENT_IP'];
         Logger::debug('privacyIDEA: client ip: ' . $result);
         return $result;
+    }
+
+    /**
+     * Search for the configured headers in $_SERVER and return all found with their values.
+     *
+     * @param $headers array List of headers to forward.
+     * @return array Headers to forward with their values.
+     */
+    public static function getHeadersToForward($headers)
+    {
+        $cleanHeaders = str_replace(' ', '', $headers);
+        $arrHeaders = explode(',', $cleanHeaders);
+
+        $headersToForward = array();
+        foreach ($arrHeaders as $header)
+        {
+            if (array_key_exists($header, $_SERVER))
+            {
+                Logger::debug("Found matching header: " . $header);
+                $value = $_SERVER[$header];
+                if (is_array($_SERVER[$header]))
+                {
+                    $value = implode(',', $_SERVER[$header]);
+                }
+                $header = array($header => $value);
+                $headersToForward = array_push($headersToForward, $header);
+            }
+            else
+            {
+                Logger::debug("No values for header: " . $header . " found.");
+            }
+        }
+        return $headersToForward;
     }
 }
