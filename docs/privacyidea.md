@@ -107,6 +107,14 @@ The following is a template configuration:
     'preferredTokenType' => '',
 
     /**
+     * Configure which headers should be forwarded to the privacyIDEA server.
+     * Multiple headers should be separated by a comma (see example).
+     * 
+     * Optional.
+     */
+    'forwardHeaders' => 'header1,header2,header3',
+
+    /**
      * Translation from privacyIDEA attribute names to the SAML attribute names. 
      * Required.
      */
@@ -274,6 +282,14 @@ The following is a template configuration:
          * Optional.
          */
         'preferredTokenType' => '',
+
+        /**
+         * Configure which headers should be forwarded to the privacyIDEA server.
+         * Multiple headers should be separated by a comma (see example).
+         * 
+         * Optional.
+         */
+        'forwardHeaders' => 'header1,header2,header3',
         
         /**
          * Custom hint for the OTP field.
