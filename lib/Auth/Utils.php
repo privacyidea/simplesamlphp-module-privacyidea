@@ -21,7 +21,7 @@ class Utils
      * @return PIResponse|null An array containing attributes and detail, or NULL.
      * @throws Exception
      */
-    public static function authenticatePI(array &$state, array $formParams, array $headersToForward): ?PIResponse
+    public static function authenticatePI(array &$state, array $formParams, array $headers): ?PIResponse
     {
         Logger::debug("privacyIDEA: Utils::authenticatePI with form data:\n" . http_build_query($formParams, '', ', '));
 
@@ -76,7 +76,7 @@ class Utils
                     // If the authentication has been confirmed on the phone, the authentication has to be finalized with a
                     // call to /validate/check with an empty pass
                     // https://privacyidea.readthedocs.io/en/latest/tokens/authentication_modes.html#outofband-mode
-                    $response = $pi->validateCheck($username, "", $transactionID, $headersToForward);
+                    $response = $pi->validateCheck($username, "", $transactionID, $headers);
                 }
             }
             catch (\Exception $e)
@@ -96,7 +96,7 @@ class Utils
             {
                 try
                 {
-                    $response = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse, $headersToForward);
+                    $response = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse, $headers);
                 }
                 catch (\Exception $e)
                 {
@@ -117,7 +117,7 @@ class Utils
             {
                 try
                 {
-                    $response = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin, $headersToForward);
+                    $response = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin, $headers);
                 }
                 catch (\Exception $e)
                 {
@@ -129,7 +129,7 @@ class Utils
         {
             try
             {
-                $response = $pi->validateCheck($username, $formParams["otp"], $transactionID, $headersToForward);
+                $response = $pi->validateCheck($username, $formParams["otp"], $transactionID, $headers);
             }
             catch (\Exception $e)
             {

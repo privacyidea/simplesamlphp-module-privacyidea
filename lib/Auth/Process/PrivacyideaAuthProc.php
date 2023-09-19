@@ -110,10 +110,10 @@ class PrivacyideaAuthProc extends ProcessingFilter
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
-        $headersToForward = array();
+        $headers = array();
         if (!empty($this->authProcConfig['forwardHeaders']))
         {
-            $headersToForward = Utils::getHeadersToForward($this->authProcConfig['forwardHeaders']);
+            $headers = Utils::getHeadersToForward($this->authProcConfig['forwardHeaders']);
         }
 
         // Check if triggerChallenge call should be done
@@ -133,7 +133,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     $response = null;
                     try
                     {
-                        $response = $this->pi->triggerChallenge($username, $headersToForward);
+                        $response = $this->pi->triggerChallenge($username, $headers);
                     }
                     catch (\Exception $e)
                     {
@@ -153,7 +153,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
             // Call /validate/check with a static pass from the configuration
             // This could already end up the authentication if the "passOnNoToken" policy is set.
             // Otherwise, it triggers the challenges.
-            $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']), $headersToForward);
+            $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']), $headers);
             if (empty($response->multiChallenge) && $response->value)
             {
                 ProcessingChain::resumeProcessing($state);
@@ -171,7 +171,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
         // Check if it should be controlled that user has no tokens and a new token should be enrolled.
         if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
         {
-            $stateId = $this->enrollToken($stateId, $username, $headersToForward);
+            $stateId = $this->enrollToken($stateId, $username, $headers);
         }
 
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
