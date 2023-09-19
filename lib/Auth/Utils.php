@@ -426,7 +426,7 @@ class Utils
     }
 
     /**
-     * Search for the wished headers and return all found with their values.
+     * Search for the configured headers in $_SERVER and return all found with their values.
      *
      * @param $headers array List of headers to forward.
      * @return array Headers to forward with their values.
