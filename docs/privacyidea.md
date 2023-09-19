@@ -239,7 +239,7 @@ The following is a template configuration:
          * 'sendStaticPass' - If you want to use the passOnNoToken or passOnNoUser policy in privacyidea,
          * you can use this flow, and specify a static pass which will be sent before the actual
          * authentication to trigger the policies in privacyidea.
-         * NOTE: This 'sendStaticPass' isn't combinable with 'doEnrollToken' option.
+         * NOTE: This 'sendStaticPass'.
          * NOTE: This won't be processed if the user has a challenge-response token that were triggered before.
          * 
          * 'triggerChallenge' - Before the login interface is shown, the filter will attempt to trigger challenge-response
@@ -280,19 +280,6 @@ The following is a template configuration:
          * Optional.
          */
         'otpFieldHint' => 'Please enter the OTP!',
-        
-        /**
-         * Enable this if a token should be enrolled for users that do not have one.
-         * The value has to be 'true' or 'false'.
-         * Possible token types are 'hotp', 'totp' or 'u2f'.
-         * 
-         * NOTE: Up from privacyIDEA v3.8.1, we recommend using the 'enroll via challenge'
-         * policy instead of this feature.
-         * 
-         * Optional.
-         */
-        'doEnrollToken' => 'false',
-        'typeOfTokenToEnroll' => 'totp',
 
         /**
          * Other authproc filters can disable this filter.

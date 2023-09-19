@@ -168,12 +168,6 @@ class PrivacyideaAuthProc extends ProcessingFilter
             }
         }
 
-        // Check if it should be controlled that user has no tokens and a new token should be enrolled.
-        if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
-        {
-            $stateId = $this->enrollToken($stateId, $username, $headers);
-        }
-
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         // This is AuthProcFilter, so step 1 (username+password) is already done. Set the step to 2
@@ -186,50 +180,6 @@ class PrivacyideaAuthProc extends ProcessingFilter
 
         $url = Module::getModuleURL('privacyidea/FormBuilder.php');
         HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
-    }
-
-    /**
-     * This function check if user has a token and if not - help to enroll a new one in UI.
-     * @param string $stateID
-     * @param string $username
-     * @param array $headersToForward
-     * @return string
-     * @throws NoState
-     * @throws PIBadRequestException
-     */
-    private function enrollToken(string $stateID, string $username, $headersToForward): string
-    {
-        $state = State::loadState($stateID, 'privacyidea:privacyidea', true);
-
-        // Error if no serviceAccount or servicePass
-        if ($this->pi->serviceAccountAvailable() === false)
-        {
-            Logger::error("privacyIDEA: service account for token enrollment is not set!");
-        }
-        else
-        {
-            $genkey = "1";
-            $type = $this->authProcConfig['typeOfTokenToEnroll'];
-            $description = "Enrolled with simpleSAMLphp";
-
-            $response = $this->pi->enrollToken($username, $genkey, $type, $description, $headersToForward);
-
-            if (!empty($response->errorMessage))
-            {
-                Logger::error("privacyIDEA: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
-                $state['privacyidea:privacyidea']['errorCode'] = $response->errorCode;
-                $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
-            }
-
-            // If we have a response from PI - save QR Code into state to show it soon
-            // and enroll a new token for the user
-            if (!empty($response->detail->googleurl->img))
-            {
-                $state['privacyidea:tokenEnrollment']['tokenQR'] = $response->detail->googleurl->img;
-            }
-            return State::saveState($state, 'privacyidea:privacyidea');
-        }
-        return "";
     }
 
     /**

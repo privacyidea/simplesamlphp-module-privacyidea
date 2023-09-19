@@ -231,20 +231,6 @@ if ($this->data['errorCode'] !== NULL)
                                        value="<?php echo htmlspecialchars(@$this->data['imageU2F'] ?: "", ENT_QUOTES) ?>"/>
                                 <input type="hidden" name="imageWebauthn"
                                        value="<?php echo htmlspecialchars(@$this->data['imageWebauthn'] ?: "", ENT_QUOTES) ?>"/>
-
-                                <?php
-                                // If enrollToken load QR Code
-                                if (isset($this->data['tokenQR']))
-                                {
-                                    echo htmlspecialchars($this->t('{privacyidea:privacyidea:scanTokenQR}'));
-                                    ?>
-                                    <br><br>
-                                    <div class="tokenQR">
-                                        <?php echo '<img src="' . $this->data['tokenQR'] . '" />'; ?>
-                                    </div>
-                                    <?php
-                                }
-                                ?>
                             </div>
 
                             <?php

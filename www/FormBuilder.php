@@ -84,16 +84,6 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
     $tpl->data['rememberUsernameEnabled'] = true;
     $tpl->data['rememberUsernameChecked'] = true;
     $tpl->data['forceUsername'] = true;
-
-    // Enroll token's QR
-    if (isset($state['privacyidea:tokenEnrollment']['tokenQR']))
-    {
-        $tpl->data['tokenQR'] = $state['privacyidea:tokenEnrollment']['tokenQR'];
-    }
-    else
-    {
-        $tpl->data['tokenQR'] = null;
-    }
 }
 elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
 {
