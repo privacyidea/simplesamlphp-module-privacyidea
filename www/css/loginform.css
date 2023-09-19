@@ -14,19 +14,16 @@
 
 #username[type=text], #password, #otp {
 	width: 322px;
-}
-
-#username[type=text] {
-	margin: 25px 15px 15px;
-}
-
-#password, #otp {
-	margin: 15px;
 	text-align: center;
 }
 
+#password, #otp, #submitButton {
+	margin-top: 15px;
+}
+
 #message {
-	margin: 25px 50px 60px 50px;
+	margin: 40px 50px 40px 50px;
+	text-align: center;
 }
 
 #submitButton {

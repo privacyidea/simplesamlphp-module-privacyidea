@@ -1,7 +1,19 @@
 <?php
 
-require_once((dirname(__FILE__, 2)) . '/PILogger.php');
-//require_once((dirname(__FILE__, 3)) . '/php-client/src/Client-Autoloader.php');
+namespace SimpleSAML\Module\privacyidea\Auth\Source;
+
+use Exception;
+use PIResponse;
+use PrivacyIDEA;
+use SimpleSAML\Auth\Source;
+use SimpleSAML\Auth\State;
+use SimpleSAML\Error\ConfigurationError;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\Module\core\Auth\UserPassBase;
+use SimpleSAML\Module\privacyidea\Auth\Utils;
+use SimpleSAML\Session;
+use SimpleSAML\Utils\HTTP;
 
 const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
 
@@ -40,24 +52,22 @@ const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mob
  * which is based on Radius.php
  *
  */
-class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_Auth_UserPassBase
+class PrivacyideaAuthSource extends UserPassBase
 {
-    /* @var array The serverconfig is listed in this array */
+    /* @var array Module configuration array */
     public $authSourceConfig;
 
-    /* @var PrivacyIDEA object representing the privacyIDEA authentication server */
+    /* @var PrivacyIDEA Object representing the privacyIDEA authentication server */
     public $pi;
 
     /**
      * Constructor for this authentication source.
      * @param array $info Information about this authentication source.
      * @param array $config Configuration set in authsources.php
+     * @throws ConfigurationError
      */
     public function __construct(array $info, array $config)
     {
-        assert('array' === gettype($info));
-        assert('array' === gettype($config));
-
         parent::__construct($info, $config);
 
         if (!array_key_exists('attributemap', $config))
@@ -74,10 +84,10 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         }
 
         $this->authSourceConfig = $config;
-        $this->pi = sspmod_privacyidea_Auth_Utils::createPrivacyIDEAInstance($this->authSourceConfig);
+        $this->pi = Utils::createPrivacyIDEAInstance($this->authSourceConfig);
         if ($this->pi == null)
         {
-            throw new SimpleSAML_Error_ConfigurationError("privacyIDEA: Initialization failed.");
+            throw new ConfigurationError("privacyIDEA: Initialization failed.");
         }
     }
 
@@ -87,29 +97,30 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
      *
      * @override
      * @param array &$state Information about the current authentication.
+     * @throws Exception
      */
-    public function authenticate(&$state)
+    public function authenticate(&$state): void
     {
         assert('array' === gettype($state));
-        SimpleSAML_Logger::info("privacyIDEA AuthSource authenticate");
+        Logger::info("privacyIDEA: AuthSource authenticate");
 
         // SSO check if authentication should be skipped
         if (array_key_exists('SSO', $this->authSourceConfig) &&
             $this->authSourceConfig['SSO'] &&
-            sspmod_privacyidea_Auth_Utils::checkForValidSSO($state))
+            Utils::checkForValidSSO($state))
         {
-            $session = SimpleSAML_Session::getSessionFromRequest();
+            $session = Session::getSessionFromRequest();
             $attributes = $session->getData('privacyidea:privacyidea', 'attributes');
-            //SimpleSAML_Logger::debug("privacyIDEA: SSO retrieved attributes from session: " . print_r($attributes, true));
+            //Logger::debug("privacyIDEA: SSO retrieved attributes from session: " . print_r($attributes, true));
             $state['Attributes'] = $attributes;
-            SimpleSAML_Auth_Source::completeAuth($state);
+            Source::completeAuth($state);
         }
 
         $state['privacyidea:privacyidea'] = $this->authSourceConfig;
 
         // We are going to need the authID in order to retrieve this authentication source later.
         $state['privacyidea:privacyidea']['AuthId'] = self::getAuthId();
-        SimpleSAML_Logger::debug("privacyIDEA AuthSource authId: " . $state['privacyidea:privacyidea']['AuthId']);
+        Logger::debug("privacyIDEA: AuthSource AuthId: " . $state['privacyidea:privacyidea']['AuthId']);
         $state['privacyidea:privacyidea']['transactionID'] = "";
         $state['privacyidea:privacyidea']['authenticationMethod'] = "authsource";
 
@@ -134,10 +145,10 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $state['privacyidea:privacyidea:ui']['authenticationFlow'] = $this->authSourceConfig['authenticationFlow'];
         }
 
-        $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+        $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
-        $url = SimpleSAML_Module::getModuleURL('privacyidea/FormBuilder.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('stateId' => $stateId));
+        $url = Module::getModuleURL('privacyidea/FormBuilder.php');
+        HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
     }
 
     /**
@@ -149,7 +160,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
     protected function login($username, $password)
     {
         // Stub.
-        SimpleSAML_Logger::debug("privacyIDEA AuthSource login stub");
+        Logger::debug("privacyIDEA AuthSource login stub");
     }
 
     /**
@@ -159,15 +170,12 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
      * @param array $formParams
      * @throws Exception
      */
-    public static function authSourceLogin($stateId, $formParams)
+    public static function authSourceLogin(string $stateId, array $formParams): void
     {
-        assert('array' === gettype($stateId));
-        assert('array' === gettype($formParams));
-
-        $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
         $step = $state['privacyidea:privacyidea:ui']['step'];
 
-        $source = SimpleSAML_Auth_Source::getById($state['privacyidea:privacyidea']["AuthId"]);
+        $source = Source::getById($state['privacyidea:privacyidea']["AuthId"]);
         if (!$source)
         {
             throw new Exception('Could not find authentication source with ID ' . $state["AuthId"]);
@@ -188,92 +196,95 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
 
             if (!empty($username))
             {
-                if (!array_key_exists('authenticationFlow', $source->authSourceConfig))
+                if (!empty($source->authSourceConfig) && !empty($source->pi))
                 {
-                    SimpleSAML_Logger::error("privacyIDEA: Authentication flow not found in the config file. Please add the 'authenticationFlow' with one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Until then, the login mask contains per default 1 user field and 1 pass field.");
-                    try
+                    if (!array_key_exists('authenticationFlow', $source->authSourceConfig))
                     {
-                        $response = $source->pi->validateCheck($username, $password);
-                    }
-                    catch (Exception $e)
-                    {
-                        sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
-                    }
-                }
-                else
-                {
-                    $authenticationFlow = $source->authSourceConfig['authenticationFlow'];
-                    if ($authenticationFlow === 'triggerChallenge')
-                    {
-                        if ($source->pi->serviceAccountAvailable())
-                        {
-                            try
-                            {
-                                $response = $source->pi->triggerChallenge($username);
-                            }
-                            catch (Exception $e)
-                            {
-                                sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
-                            }
-                        }
-                    }
-                    elseif ($authenticationFlow === 'sendPassword' || $authenticationFlow === 'separateOTP')
-                    {
-                        // In 'separateOTP' flow, the pass and otp values are combined.
-                        if (!empty($formParams['otp']))
-                        {
-                            $password = $password . $formParams['otp'];
-                        }
-
+                        Logger::error("privacyIDEA: Authentication flow not found in the config file. Please add the 'authenticationFlow' with one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Until then, the login mask contains per default 1 user field and 1 pass field.");
                         try
                         {
                             $response = $source->pi->validateCheck($username, $password);
                         }
                         catch (Exception $e)
                         {
-                            sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                            Utils::handlePrivacyIDEAException($e, $state);
                         }
                     }
                     else
                     {
-                        SimpleSAML_Logger::error("privacyIDEA: Invalid authentication flow. Please set 'authenticationFlow' to one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Fallback to default (sendPass)");
-                        try
+                        $authenticationFlow = $source->authSourceConfig['authenticationFlow'];
+                        if ($authenticationFlow === 'triggerChallenge')
                         {
-                            $response = $source->pi->validateCheck($username, $password);
+                            if ($source->pi->serviceAccountAvailable())
+                            {
+                                try
+                                {
+                                    $response = $source->pi->triggerChallenge($username);
+                                }
+                                catch (Exception $e)
+                                {
+                                    Utils::handlePrivacyIDEAException($e, $state);
+                                }
+                            }
                         }
-                        catch (Exception $e)
+                        elseif ($authenticationFlow === 'sendPassword' || $authenticationFlow === 'separateOTP')
                         {
-                            sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                            // In 'separateOTP' flow, the pass and otp values are combined.
+                            if (!empty($formParams['otp']))
+                            {
+                                $password = $password . $formParams['otp'];
+                            }
+
+                            try
+                            {
+                                $response = $source->pi->validateCheck($username, $password);
+                            }
+                            catch (Exception $e)
+                            {
+                                Utils::handlePrivacyIDEAException($e, $state);
+                            }
+                        }
+                        else
+                        {
+                            Logger::error("privacyIDEA: Invalid authentication flow. Please set 'authenticationFlow' to one of the following values: 'sendPass', 'triggerChallenge' or 'separateOTP'. Fallback to default (sendPass)");
+                            try
+                            {
+                                $response = $source->pi->validateCheck($username, $password);
+                            }
+                            catch (Exception $e)
+                            {
+                                Utils::handlePrivacyIDEAException($e, $state);
+                            }
                         }
                     }
                 }
             }
             // Save the state at the end of step 1
-            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+            $stateId = State::saveState($state, 'privacyidea:privacyidea');
         }
         elseif ($step > 1)
         {
             try
             {
-                $response = sspmod_privacyidea_Auth_Utils::authenticatePI($state, $formParams);
+                $response = Utils::authenticatePI($state, $formParams);
             }
             catch (Exception $e)
             {
-                sspmod_privacyidea_Auth_Utils::handlePrivacyIDEAException($e, $state);
+                Utils::handlePrivacyIDEAException($e, $state);
             }
-            $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
+            $stateId = State::saveState($state, 'privacyidea:privacyidea');
         }
         else
         {
-            SimpleSAML_Logger::error("privacyIDEA: UNDEFINED STEP: " . $step);
+            Logger::error("privacyIDEA: UNDEFINED STEP: " . $step);
         }
 
         if ($response != null)
         {
-            $stateId = sspmod_privacyidea_Auth_Utils::processPIResponse($stateId, $response);
+            $stateId = Utils::processPIResponse($stateId, $response);
         }
 
-        $state = SimpleSAML_Auth_State::loadState($stateId, 'privacyidea:privacyidea');
+        $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         // Increase steps counter
         if (empty($state['privacyidea:privacyidea']['errorMessage']))
@@ -281,10 +292,10 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $state['privacyidea:privacyidea:ui']['step'] = $step + 1;
         }
 
-        //SimpleSAML_Logger::error("NEW STEP: " . $state['privacyidea:privacyidea:ui']['step']);
-        $stateId = SimpleSAML_Auth_State::saveState($state, 'privacyidea:privacyidea');
-        $url = SimpleSAML_Module::getModuleURL('privacyidea/FormBuilder.php');
-        SimpleSAML_Utilities::redirectTrustedURL($url, array('stateId' => $stateId));
+        //Logger::error("NEW STEP: " . $state['privacyidea:privacyidea:ui']['step']);
+        $stateId = State::saveState($state, 'privacyidea:privacyidea');
+        $url = Module::getModuleURL('privacyidea/FormBuilder.php');
+        HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
     }
 
     /**
@@ -295,9 +306,9 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
      *
      * @param array $state
      * @param PIResponse $piResponse
-     * @param $authSourceConfig
+     * @param array $authSourceConfig
      */
-    public static function checkAuthenticationComplete($state, PIResponse $piResponse, $authSourceConfig)
+    public static function checkAuthenticationComplete(array $state, PIResponse $piResponse, array $authSourceConfig): void
     {
         $attributes = $piResponse->detailAndAttributes;
 
@@ -309,7 +320,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $completeAttributes = self::mergeAttributes($userAttributes, $detailAttributes, $authSourceConfig);
             $state['Attributes'] = $completeAttributes;
 
-            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'])
+            if (array_key_exists('SSO', $authSourceConfig) && $authSourceConfig['SSO'] === 'true')
             {
                 /*
                  * In order to be able to register a logout handler for the session (mandatory for SSO to work),
@@ -318,23 +329,23 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                  * To be able to do something after Session::doLogin, the LoginCompletedHandler has to be replaced with
                  * an implementation that writes the SSO data and attributes in this case (AuthSource) to the session.
                  */
-                $state['LoginCompletedHandler'] = ['sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource', 'loginCompletedWriteSSO'];
+                $state['LoginCompletedHandler'] = ['SimpleSAML\Module\privacyidea\Auth\Source\PrivacyideaAuthSource', 'loginCompletedWriteSSO'];
             }
 
             // Return control to simpleSAMLphp after successful authentication.
-            SimpleSAML_Auth_Source::completeAuth($state);
+            Source::completeAuth($state);
         }
     }
 
     /**
      * This function merge all attributes and detail which SimpleSAMLphp needs.
      *
-     * @param $userAttributes
-     * @param $detailAttributes
-     * @param $authSourceConfig
+     * @param array $userAttributes
+     * @param array $detailAttributes
+     * @param array $authSourceConfig
      * @return array
      */
-    protected static function mergeAttributes($userAttributes, $detailAttributes, $authSourceConfig)
+    protected static function mergeAttributes(array $userAttributes, array $detailAttributes, array $authSourceConfig): array
     {
         // Prepare attributes array to return
         $attributes = array();
@@ -346,7 +357,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         // Keep all reservations from attributemap to translate PI attributes names to SAML attributes names.
         foreach ($keys as $key)
         {
-            //SimpleSAML_Logger::debug("privacyidea key: " . $key);
+            //Logger::debug("privacyidea key: " . $key);
             $attributeValue = $userAttributes[$key];
 
             if ($attributeValue)
@@ -354,8 +365,8 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
                 $attributeKey = @$authSourceConfig['attributemap'][$key] ?: $key;
                 $attributes[$attributeKey] = is_array($attributeValue) ? $attributeValue : array($attributeValue);
 
-                //SimpleSAML_Logger::debug("privacyidea key: " . $attributeKey);
-                //SimpleSAML_Logger::debug("privacyidea value: " . print_r($attributeValue, TRUE));
+                //Logger::debug("privacyidea key: " . $attributeKey);
+                //Logger::debug("privacyidea value: " . print_r($attributeValue, TRUE));
             }
         }
 
@@ -363,8 +374,8 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         // Detailmap was set in config/authsources.php
         foreach ($authSourceConfig['detailmap'] as $key => $mappedKey)
         {
-            //SimpleSAML_Logger::debug("privacyIDEA:        key: " . print_r($key, TRUE));
-            //SimpleSAML_Logger::debug("privacyIDEA: mapped key: " . print_r($mappedKey, TRUE));
+            //Logger::debug("privacyIDEA:        key: " . print_r($key, TRUE));
+            //Logger::debug("privacyIDEA: mapped key: " . print_r($mappedKey, TRUE));
 
             $attributeValue = $detailAttributes->$key;
             $attributes[$mappedKey] = is_array($attributeValue) ? $attributeValue : array($attributeValue);
@@ -374,8 +385,8 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         // Concatenationmap was set in config/authsources.php
         foreach ($authSourceConfig['concatenationmap'] as $key => $mappedKey)
         {
-            //SimpleSAML_Logger::debug("privacyIDEA:        key: " . print_r($key, TRUE));
-            //SimpleSAML_Logger::debug("privacyIDEA: mapped key: " . print_r($mappedKey, TRUE));
+            //Logger::debug("privacyIDEA:        key: " . print_r($key, TRUE));
+            //Logger::debug("privacyIDEA: mapped key: " . print_r($mappedKey, TRUE));
 
             $concatenationArr = explode(",", $key);
             $concatenationValues = array();
@@ -389,7 +400,7 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             $attributes[$mappedKey] = array($concatenationString);
         }
 
-        SimpleSAML_Logger::debug("privacyIDEA: Attributes returned: " . print_r($attributes, True));
+        Logger::debug("privacyIDEA: Attributes returned: " . print_r($attributes, True));
         return $attributes;
     }
 
@@ -398,10 +409,11 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
      * the session after performing the standard login.
      *
      * @param array $state The state after the login has completed.
+     * @throws Exception
      */
-    public static function loginCompletedWriteSSO(array $state)
+    public static function loginCompletedWriteSSO(array $state): void
     {
-        SimpleSAML_Logger::debug("privacyIDEA: loginCompletedWriteSSO");
+        Logger::debug("privacyIDEA: loginCompletedWriteSSO");
         assert(array_key_exists('\SimpleSAML\Auth\Source.Return', $state));
         assert(array_key_exists('\SimpleSAML\Auth\Source.id', $state));
         assert(array_key_exists('Attributes', $state));
@@ -410,19 +422,19 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
         $return = $state['\SimpleSAML\Auth\Source.Return'];
 
         // save session state
-        $session = SimpleSAML_Session::getSessionFromRequest();
+        $session = Session::getSessionFromRequest();
         $authId = $state['\SimpleSAML\Auth\Source.id'];
-        $session->doLogin($authId, SimpleSAML_Auth_State::getPersistentAuthData($state));
+        $session->doLogin($authId, State::getPersistentAuthData($state));
 
         // In addition to the SSO data, the attributes have to be written to the session so that they can be retrieved
         // and used on the next login
-        sspmod_privacyidea_Auth_Utils::tryWriteSSO();
+        Utils::tryWriteSSO();
         $session->setData('privacyidea:privacyidea', "attributes", $state['Attributes']);
 
         if (is_string($return))
         {
             // redirect...
-            $httpUtils = new SimpleSAML_Utils_HTTP();
+            $httpUtils = new HTTP();
             $httpUtils->redirectTrustedURL($return);
         }
         else
@@ -430,18 +442,5 @@ class sspmod_privacyidea_Auth_Source_PrivacyideaAuthSource extends sspmod_core_A
             call_user_func($return, $state);
         }
         assert(false);
-    }
-
-    /**
-     * Check if url is allowed.
-     * @param $id
-     */
-    private static function checkIdLegality($id)
-    {
-        $sid = SimpleSAML_Utilities::parseStateID($id);
-        if (!is_null($sid['url']))
-        {
-            SimpleSAML_Utilities::checkURLAllowed($sid['url']);
-        }
     }
 }

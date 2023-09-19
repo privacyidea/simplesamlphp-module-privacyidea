@@ -1,7 +1,9 @@
-# privacyIDEA simpleSAMLphp Plugin
+# privacyIDEA simpleSAMLphp Module
 
-This plugin adds flexible, enterprise-grade two-factor authentication 
-to simplesSAMLphp. 
+This module adds flexible, enterprise-grade two-factor authentication 
+to simplesSAMLphp.
+
+NOTE: simpleSAMLphp >=v2.0 is not supported yet.
 
 It enables simpleSAMLphp to do two-factor authentication against 
 a [privacyIDEA server](https://github.com/privacyidea/privacyidea), 
@@ -10,7 +12,7 @@ Challenge Response tokens like EMail and SMS or using WebAuthn and U2F devices.
 TiQR is currently not supported.
 
 ## Installation
-It is recommended to install this package using [composer](https://getcomposer.org/). In your saml root dir, execute the following command in a terminal:
+It is recommended to install this package using [composer](https://getcomposer.org/). In your saml root dir, execute the following command in the terminal:
 
 `composer require privacyidea/simplesamlphp-module-privacyidea`
 
@@ -21,4 +23,4 @@ Please check the [documentation](https://github.com/privacyidea/simplesamlphp-mo
 Please check the [documentation](https://github.com/privacyidea/simplesamlphp-module-privacyidea/blob/master/docs/pi-themes.md)
 
 ## Logfiles
-The saml log can be read with `journalctl -f`. If you encounter any problems that are not logged as errors, set the logging level of saml to debug by editing `{samlDir}/config/config.php`. Search for `logging.level` and set it so `SimpleSAML\Logger::DEBUG`. Alternatively, the apache error log can be checked for errors. It is located at `/var/log/apache2/error.log`
+The saml log can be read with `journalctl -f`. If you encounter any problems that are not logged as errors, set the logging level of simpleSAMLphp to debug by editing `{samlDir}/config/config.php`. Search for `logging.level` and set it so `SimpleSAML\Logger::DEBUG`. Alternatively, the apache error log can be checked for the errors. It is located at `/var/log/apache2/error.log`.
