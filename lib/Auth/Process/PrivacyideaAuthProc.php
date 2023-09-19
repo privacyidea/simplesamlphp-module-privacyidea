@@ -162,12 +162,6 @@ class PrivacyideaAuthProc extends ProcessingFilter
             }
         }
 
-        // Check if it should be controlled that user has no tokens and a new token should be enrolled.
-        if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
-        {
-            $stateId = $this->enrollToken($stateId, $username);
-        }
-
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
 
         // This is AuthProcFilter, so step 1 (username+password) is already done. Set the step to 2
