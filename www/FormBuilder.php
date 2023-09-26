@@ -84,6 +84,7 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
     $tpl->data['rememberUsernameEnabled'] = true;
     $tpl->data['rememberUsernameChecked'] = true;
     $tpl->data['forceUsername'] = true;
+    $tpl->data['username'] = $username;
 }
 elseif ($state['privacyidea:privacyidea']['authenticationMethod'] === "authsource")
 {
