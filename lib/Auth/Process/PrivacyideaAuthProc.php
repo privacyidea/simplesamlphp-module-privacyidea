@@ -110,6 +110,12 @@ class PrivacyideaAuthProc extends ProcessingFilter
         $username = $state["Attributes"][$this->authProcConfig['uidKey']][0];
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
+        $headers = array();
+        if (!empty($this->authProcConfig['forwardHeaders']))
+        {
+            $headers = Utils::getHeadersToForward($this->authProcConfig['forwardHeaders']);
+        }
+
         // Check if triggerChallenge call should be done
         $triggered = false;
         if (!empty($this->authProcConfig['authenticationFlow']))
@@ -127,7 +133,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     $response = null;
                     try
                     {
-                        $response = $this->pi->triggerChallenge($username);
+                        $response = $this->pi->triggerChallenge($username, $headers);
                     }
                     catch (\Exception $e)
                     {
@@ -141,31 +147,25 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     }
                 }
             }
-        }
-        elseif ($this->authProcConfig['authenticationFlow'] === 'sendStaticPass')
-        {
-            // Call /validate/check with a static pass from the configuration
-            // This could already end up the authentication if the "passOnNoToken" policy is set.
-            // Otherwise, it triggers the challenges.
-            $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']));
-            if (empty($response->multiChallenge) && $response->value)
+            elseif ($this->authProcConfig['authenticationFlow'] === 'sendStaticPass')
             {
-                ProcessingChain::resumeProcessing($state);
+                // Call /validate/check with a static pass from the configuration
+                // This could already end up the authentication if the "passOnNoToken" policy is set.
+                // Otherwise, it triggers the challenges.
+                $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']), $headers);
+                if (empty($response->multiChallenge) && $response->value)
+                {
+                    ProcessingChain::resumeProcessing($state);
+                }
+                elseif (!empty($response->multiChallenge))
+                {
+                    $stateId = Utils::processPIResponse($stateId, $response);
+                }
             }
-            elseif (!empty($response->multiChallenge))
+            else
             {
-                $stateId = Utils::processPIResponse($stateId, $response);
+                Logger::error("privacyidea: Authentication flow is not set in the config. Fallback to default...");
             }
-        }
-        else
-        {
-            Logger::error("privacyidea: Authentication flow is not set in the config. Fallback to default...");
-        }
-
-        // Check if it should be controlled that user has no tokens and a new token should be enrolled.
-        if (!$triggered && !empty($this->authProcConfig['doEnrollToken']) && $this->authProcConfig['doEnrollToken'] === 'true')
-        {
-            $stateId = $this->enrollToken($stateId, $username);
         }
 
         $state = State::loadState($stateId, 'privacyidea:privacyidea', true);
@@ -180,48 +180,6 @@ class PrivacyideaAuthProc extends ProcessingFilter
 
         $url = Module::getModuleURL('privacyidea/FormBuilder.php');
         HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
-    }
-
-    /**
-     * This function check if user has a token and if not - help to enroll a new one in UI.
-     * @param string $stateID
-     * @param string $username
-     * @return string
-     * @throws PIBadRequestException|NoState
-     */
-    private function enrollToken(string $stateID, string $username): string
-    {
-        $state = State::loadState($stateID, 'privacyidea:privacyidea', true);
-
-        // Error if no serviceAccount or servicePass
-        if ($this->pi->serviceAccountAvailable() === false)
-        {
-            Logger::error("privacyIDEA: service account for token enrollment is not set!");
-        }
-        else
-        {
-            $genkey = "1";
-            $type = $this->authProcConfig['typeOfTokenToEnroll'];
-            $description = "Enrolled with simpleSAMLphp";
-
-            $response = $this->pi->enrollToken($username, $genkey, $type, $description);
-
-            if (!empty($response->errorMessage))
-            {
-                Logger::error("privacyIDEA: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
-                $state['privacyidea:privacyidea']['errorCode'] = $response->errorCode;
-                $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
-            }
-
-            // If we have a response from PI - save QR Code into state to show it soon
-            // and enroll a new token for the user
-            if (!empty($response->detail->googleurl->img))
-            {
-                $state['privacyidea:tokenEnrollment']['tokenQR'] = $response->detail->googleurl->img;
-            }
-            return State::saveState($state, 'privacyidea:privacyidea');
-        }
-        return "";
     }
 
     /**
