@@ -91,12 +91,18 @@ $formParams = array(
     "loadCounter" => array_key_exists('loadCounter', $_REQUEST) ? $_REQUEST['loadCounter'] : 1
 );
 
+// Auth Proc
 if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
 {
-    // Auth Proc
+    $headers = array();
+    if (!empty($state['privacyidea:privacyidea']['forwardHeaders']))
+    {
+        $headers = Utils::getHeadersToForward($state['privacyidea:privacyidea']['forwardHeaders']);
+    }
+
     try
     {
-        $response = Utils::authenticatePI($state, $formParams);
+        $response = Utils::authenticatePI($state, $formParams, $headers);
         $stateID = State::saveState($state, 'privacyidea:privacyidea');
 
         // If the authentication is successful processPIResponse will not return!
