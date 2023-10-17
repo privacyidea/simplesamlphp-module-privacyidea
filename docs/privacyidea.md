@@ -93,18 +93,14 @@ The following is a template configuration:
      * Optional.
      */
     'SSO' => 'false',
-    
+
     /**
-     * Optionally set a preferred token type.
-     * If the chosen token is triggered, it will be used to authenticate directly
-     * without having to press the button for the type.
-     * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
-     * 
-     * NOTE: If the 'preferred client mode' is set on the server side, this option will be ignored.
+     * Configure which headers should be forwarded to the privacyIDEA server.
+     * Multiple headers should be separated by a comma (see example).
      * 
      * Optional.
      */
-    'preferredTokenType' => '',
+    'forwardHeaders' => 'header1,header2,header3',
 
     /**
      * Translation from privacyIDEA attribute names to the SAML attribute names. 
@@ -239,7 +235,7 @@ The following is a template configuration:
          * 'sendStaticPass' - If you want to use the passOnNoToken or passOnNoUser policy in privacyidea,
          * you can use this flow, and specify a static pass which will be sent before the actual
          * authentication to trigger the policies in privacyidea.
-         * NOTE: This 'sendStaticPass' isn't combinable with 'doEnrollToken' option.
+         * NOTE: This 'sendStaticPass'.
          * NOTE: This won't be processed if the user has a challenge-response token that were triggered before.
          * 
          * 'triggerChallenge' - Before the login interface is shown, the filter will attempt to trigger challenge-response
@@ -263,36 +259,20 @@ The following is a template configuration:
          * Optional.
          */
         'SSO' => 'false',
-        
+
         /**
-         * Set a preferred token type.
-         * If the chosen token is triggered, it will be used to authenticate directly
-         * without having to press the button for the type.
-         * Possible values are: 'otp', 'push', 'webauthn' or 'u2f'. Default is 'otp'.
-         * NOTE: If the 'preferred client mode' is set on the server side, this option will be ignored.
+         * Configure which headers should be forwarded to the privacyIDEA server.
+         * Multiple headers should be separated by a comma (see example).
          * 
          * Optional.
          */
-        'preferredTokenType' => '',
+        'forwardHeaders' => 'header1,header2,header3',
         
         /**
          * Custom hint for the OTP field.
          * Optional.
          */
         'otpFieldHint' => 'Please enter the OTP!',
-        
-        /**
-         * Enable this if a token should be enrolled for users that do not have one.
-         * The value has to be 'true' or 'false'.
-         * Possible token types are 'hotp', 'totp' or 'u2f'.
-         * 
-         * NOTE: Up from privacyIDEA v3.8.1, we recommend using the 'enroll via challenge'
-         * policy instead of this feature.
-         * 
-         * Optional.
-         */
-        'doEnrollToken' => 'false',
-        'typeOfTokenToEnroll' => 'totp',
 
         /**
          * Other authproc filters can disable this filter.
