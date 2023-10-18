@@ -206,7 +206,8 @@ class Utils
         {
             Logger::debug("privacyIDEA: Valid login found. Checking for valid 2FA..");
             $session = Session::getSessionFromRequest();
-            return $session->getData('privacyidea:privacyidea', '2FA-success');
+            $ret = $session->getData('privacyidea:privacyidea', '2FA-success');
+            return empty($ret) ? false : $ret;
         }
         else
         {
