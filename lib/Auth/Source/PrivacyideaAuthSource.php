@@ -3,6 +3,8 @@
 namespace SimpleSAML\Module\privacyidea\Auth\Source;
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
+use PIBadRequestException;
 use PIResponse;
 use PrivacyIDEA;
 use SimpleSAML\Auth\Source;
@@ -18,50 +20,23 @@ use SimpleSAML\Utils\HTTP;
 const DEFAULT_UID_KEYS = array("username", "surname", "email", "givenname", "mobile", "phone", "realm", "resolver");
 
 /**
- * privacyidea authentication module.
- * 2021-08-21 Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
- *            Major refactor.
- * 2019-11-30 Jean-Pierre Hömann <jean-pierre.hoehmann@netknights.it>
- *            Major refactor.
- * 2018-03-16 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            Replace [] with array()
- * 2017-08-17 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            Change POST params to array and
- *            only add REALM if necessary
- * 2017-02-13 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            Forward the client IP to privacyIDEA
- * 2016-12-30 Andreas Böhler <dev@rnb-consulting.at>
- *            Add support for passing additional attributes to SAML
- * 2015-11-21 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            Add support for U2F authentication requests
- * 2015-11-19 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            Add authenticate method to call our own template.
- *            Add handleLogin method to be able to handle challenge response.
- * 2015-11-05 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            Revert the authentication logic to avoid false logins
- * 2015-09-23 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            Adapt for better usability with
- *            Univention Corporate Server
- *            Change Auth Request to POST
- * 2015-04-11 Cornelius Kölbel <cornelius.koelbel@netknights.it>
- *            minor changes by code climate
- * 2014-09-29 Cornelius Kölbel, cornelius@privacyidea.org
+ * Multi-factor-authentication against the privacyIDEA.
  *
- * This is forked from simplesamlphp-linotp,
- * (https://github.com/lsexperts/simplesamlphp-linotp)
- * which is based on Radius.php
- *
+ * @author Cornelius Kölbel <cornelius.koelbel@netknights.it>
+ * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
+ * @author Lukas Matusiewicz <lukas.matusiewicz@netknights.it>
  */
 class PrivacyideaAuthSource extends UserPassBase
 {
     /* @var array Module configuration array */
-    public $authSourceConfig;
+    public array $authSourceConfig;
 
-    /* @var PrivacyIDEA Object representing the privacyIDEA authentication server */
-    public $pi;
+    /* @var PrivacyIDEA|null Object representing the privacyIDEA authentication server */
+    public ?PrivacyIDEA $pi;
 
     /**
-     * Constructor for this authentication source.
+     * Constructor.
+     *
      * @param array $info Information about this authentication source.
      * @param array $config Configuration set in authsources.php
      * @throws ConfigurationError
@@ -98,8 +73,9 @@ class PrivacyideaAuthSource extends UserPassBase
      * @override
      * @param array &$state Information about the current authentication.
      * @throws Exception
+     * @return void
      */
-    public function authenticate(&$state): void
+    public function authenticate(array &$state): void
     {
         assert('array' === gettype($state));
         Logger::info("privacyIDEA: AuthSource authenticate");
@@ -148,7 +124,7 @@ class PrivacyideaAuthSource extends UserPassBase
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
         $url = Module::getModuleURL('privacyidea/FormBuilder.php');
-        HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
+        (new HTTP)->redirectTrustedURL($url, array('stateId' => $stateId));
     }
 
     /**
@@ -156,8 +132,9 @@ class PrivacyideaAuthSource extends UserPassBase
      * @override
      * @param string $username The username the user wrote.
      * @param string $password The password the user wrote.
+     * @return void
      */
-    protected function login($username, $password)
+    protected function login(string $username, string $password): void
     {
         // Stub.
         Logger::debug("privacyIDEA AuthSource login stub");
@@ -169,6 +146,8 @@ class PrivacyideaAuthSource extends UserPassBase
      * @param string $stateId
      * @param array $formParams
      * @throws Exception
+     * @throws PIBadRequestException
+     * @return void
      */
     public static function authSourceLogin(string $stateId, array $formParams): void
     {
@@ -214,7 +193,7 @@ class PrivacyideaAuthSource extends UserPassBase
                         {
                             $response = $source->pi->validateCheck($username, $password, $headers);
                         }
-                        catch (Exception $e)
+                        catch (PIBadRequestException $e)
                         {
                             Utils::handlePrivacyIDEAException($e, $state);
                         }
@@ -230,7 +209,7 @@ class PrivacyideaAuthSource extends UserPassBase
                                 {
                                     $response = $source->pi->triggerChallenge($username, $headers);
                                 }
-                                catch (Exception $e)
+                                catch (PIBadRequestException $e)
                                 {
                                     Utils::handlePrivacyIDEAException($e, $state);
                                 }
@@ -248,7 +227,7 @@ class PrivacyideaAuthSource extends UserPassBase
                             {
                                 $response = $source->pi->validateCheck($username, $password, $headers);
                             }
-                            catch (Exception $e)
+                            catch (PIBadRequestException $e)
                             {
                                 Utils::handlePrivacyIDEAException($e, $state);
                             }
@@ -260,7 +239,7 @@ class PrivacyideaAuthSource extends UserPassBase
                             {
                                 $response = $source->pi->validateCheck($username, $password, $headers);
                             }
-                            catch (Exception $e)
+                            catch (PIBadRequestException $e)
                             {
                                 Utils::handlePrivacyIDEAException($e, $state);
                             }
@@ -304,7 +283,7 @@ class PrivacyideaAuthSource extends UserPassBase
         //Logger::error("NEW STEP: " . $state['privacyidea:privacyidea:ui']['step']);
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
         $url = Module::getModuleURL('privacyidea/FormBuilder.php');
-        HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
+        (new HTTP)->redirectTrustedURL($url, array('stateId' => $stateId));
     }
 
     /**
@@ -316,10 +295,11 @@ class PrivacyideaAuthSource extends UserPassBase
      * @param array $state
      * @param PIResponse $piResponse
      * @param array $authSourceConfig
+     * @return void
      */
     public static function checkAuthenticationComplete(array $state, PIResponse $piResponse, array $authSourceConfig): void
     {
-        $attributes = $piResponse->detailAndAttributes;
+        $attributes = $piResponse->getDetailAndAttributes();
 
         if (!empty($attributes))
         {
@@ -419,8 +399,9 @@ class PrivacyideaAuthSource extends UserPassBase
      *
      * @param array $state The state after the login has completed.
      * @throws Exception
+     * @return void
      */
-    public static function loginCompletedWriteSSO(array $state): void
+    #[NoReturn] public static function loginCompletedWriteSSO(array $state): void
     {
         Logger::debug("privacyIDEA: loginCompletedWriteSSO");
         assert(array_key_exists('\SimpleSAML\Auth\Source.Return', $state));
