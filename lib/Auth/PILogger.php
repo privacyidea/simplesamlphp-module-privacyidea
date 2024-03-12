@@ -11,7 +11,7 @@ class PILogger implements PILog
      * This function allows to show the debug messages from privacyIDEA server
      * @param $message
      */
-    public function piDebug($message)
+    public function piDebug($message): void
     {
         Logger::debug($message);
     }
@@ -20,7 +20,7 @@ class PILogger implements PILog
      * This function allows to show the debug messages from privacyIDEA server
      * @param $message
      */
-    public function piError($message)
+    public function piError($message): void
     {
         Logger::error($message);
     }
