@@ -16,8 +16,7 @@ use SimpleSAML\Module\privacyidea\Auth\Utils;
 use SimpleSAML\Utils\HTTP;
 
 /**
- * This authentication processing filter allows you to add a second step
- * authentication against privacyIDEA
+ * This authentication processing filter allows you to add a multi-factor-authentication against the privacyIDEA.
  *
  * @author Cornelius Kölbel <cornelius.koelbel@netknights.it>
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
@@ -26,9 +25,9 @@ use SimpleSAML\Utils\HTTP;
 class PrivacyideaAuthProc extends ProcessingFilter
 {
     /* @var array This contains the authproc configuration which is set in metadata */
-    private $authProcConfig;
-    /* @var PrivacyIDEA This is an object from privacyIDEA class */
-    private $pi;
+    private array $authProcConfig;
+    /* @var PrivacyIDEA|null This is an object from privacyIDEA class */
+    private ?PrivacyIDEA $pi;
 
     /**
      * @param array $config Authproc configuration.
@@ -36,7 +35,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * @throws ConfigurationError
      * @throws \Exception
      */
-    public function __construct(array $config, $reserved)
+    public function __construct(array $config, mixed $reserved)
     {
         parent::__construct($config, $reserved);
         $this->authProcConfig = $config;
@@ -51,7 +50,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * Run the filter.
      *
      * @param array $request The request state
-     * @throws Exception|PIBadRequestException if authentication fails
+     * @throws Exception if authentication fails
      * @throws \Exception
      */
     public function process(&$request): void
@@ -135,15 +134,17 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     {
                         $response = $this->pi->triggerChallenge($username, $headers);
                     }
-                    catch (\Exception $e)
+                    catch (PIBadRequestException $e)
                     {
                         Utils::handlePrivacyIDEAException($e, $state);
                     }
 
                     if ($response != null)
                     {
-                        $triggered = !empty($response->multiChallenge);
-                        $stateId = Utils::processPIResponse($stateId, $response);
+                        if (!empty($response->getMultiChallenge()))
+                        {
+                            $stateId = Utils::processPIResponse($stateId, $response);
+                        }
                     }
                 }
             }
@@ -153,11 +154,11 @@ class PrivacyideaAuthProc extends ProcessingFilter
                 // This could already end up the authentication if the "passOnNoToken" policy is set.
                 // Otherwise, it triggers the challenges.
                 $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']), $headers);
-                if (empty($response->multiChallenge) && $response->value)
+                if (empty($response->getMultiChallenge()) && $response->getValue())
                 {
                     ProcessingChain::resumeProcessing($state);
                 }
-                elseif (!empty($response->multiChallenge))
+                elseif (!empty($response->getMultiChallenge()))
                 {
                     $stateId = Utils::processPIResponse($stateId, $response);
                 }
@@ -179,7 +180,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
         $url = Module::getModuleURL('privacyidea/FormBuilder.php');
-        HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
+        (new HTTP)->redirectTrustedURL($url, array('stateId' => $stateId));
     }
 
     /**
@@ -223,7 +224,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * of users which have these attribute values (e.g. memberOf).
      * @param array $authProcConfig
      * @param string $stateId
-     * @return string
+     * @return string The state ID with updated state
      * @throws NoState
      */
     private function checkEntityID(array $authProcConfig, string $stateId): string
