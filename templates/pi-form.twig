@@ -1,0 +1,40 @@
+{% set pagetitle = 'privacyIDEA Authentication' %}
+{% extends 'base.twig' %}
+
+{% block preload %}
+    <link rel="stylesheet" href="{{ asset('css/pi-form.css') }} media='screen'">
+    <script src="{{ asset('js/pi-u2f.js')}}"></script>
+    <script src="{{ asset('js/pi-webauthn.js')}}"></script>
+    <script src="{{ asset('js/pi-pollTransaction.worker.js')}}"></script>
+    <script src="{{ asset('js/pi-main.js')}}"></script>
+    <script src="{{ asset('js/pi-eventListeners.js')}}"></script>
+    #todo add pi-pollInBrowser.js
+{% endblock %}
+
+{% block title %}{{ pagetitle }}{% endblock %}
+
+{% block contenttitle %}{{ pagetitle }}{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="error-dialog">
+                    <img src="/<?php echo htmlspecialchars($this->data['baseurlpath'], ENT_QUOTES); ?>resources/icons/experience/gtk-dialog-error.48x48.png"
+                         class="float-l erroricon" alt="gtk-dialog-error"/>
+                    <h2><?php echo $this->t('{login:error_header}'); ?></h2>
+                    <p>
+                        <strong><?php echo htmlspecialchars("Error " . $this->data['errorCode'] . ": " . $this->data['errorMessage']); ?></strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h1>{{ pagetitle }}</h1>
+                <p>
+                    {{ 'privacyIDEA-Form-Text'|trans }}
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
