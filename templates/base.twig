@@ -1,0 +1,38 @@
+{% apply spaceless %}
+<!DOCTYPE html>
+<html lang="{{ currentLanguage }}" dir="{{ isRTL ? 'rtl' : 'ltr' }}">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>{{ pagetitle }}</title>
+    <link rel="preload" href="{{ asset('fonts/fa-solid-900.woff2') }}" as="font" crossorigin>
+    <link rel="stylesheet" href="{{ asset("css/stylesheet.css") }}">
+    <link rel="stylesheet" href="{{ asset("css/loginForm.css") }}">
+    <link rel="icon" href="{{ asset("icons/favicon.ico") }}">
+    <script src="{{ asset("js/Utils.js")}}"></script>
+    <script src="{{ asset("js/pi-main.js")}}"></script>
+    <meta name="robots" content="noindex, nofollow">
+    {{ include('_head.twig', ignore_missing = true) }}
+    {% block preload %}{% endblock %}
+  </head>
+  <body id="{{ templateId }}">
+    <div id="layout">
+    {% block header %}{% include "../../simplesamlphp/templates/_header.twig" %}{% endblock %}
+      <main>
+      <div id="content">
+        <div class="wrap">
+          {% block contentwrapper %}{% block content %}{% include "form.twig" %}{% endblock %}{% endblock contentwrapper %}
+        </div>
+      </div>{# content #}
+      <div id="push"></div>
+      </main>
+    </div>{# layout #}
+    <div id="foot">
+      {% block footer %}{% include "../../simplesamlphp/templates/_footer.twig" %}{% endblock %}
+    </div>
+    <script src="{{ asset('js/bundle.js') }}"></script>
+    {% block postload %}{% endblock %}
+  </body>
+</html>
+{% endapply %}

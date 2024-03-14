@@ -19,7 +19,7 @@ try
 catch (NoState $e)
 {
     Logger::error("Unable to load state information because stateId is lost");
-    throw $e;
+    throw $e; //todo check if this is the right way to handle this
 }
 catch (Exception $e)
 {
@@ -49,7 +49,8 @@ else
 // Prepare the form to show
 try
 {
-    $tpl = new Template(Configuration::getInstance(), 'privacyidea:LoginForm.php');
+    //$tpl = new Template(Configuration::getInstance(), 'privacyidea:LoginForm.php');
+    $tpl = new Template(Configuration::getInstance(), 'privacyidea:LoginForm.twig');
 }
 catch (Exception $e)
 {
@@ -165,4 +166,13 @@ catch (Exception $e)
 {
     Logger::error("No access to request session. " . $e->getMessage());
 }
-$tpl->show();
+
+try
+{
+    $tpl->send();
+    exit();
+}
+catch (Exception $e)
+{
+    Logger::error("Login template cannot be found: " . $e->getMessage());
+}
