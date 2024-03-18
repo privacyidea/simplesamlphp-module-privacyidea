@@ -12,7 +12,6 @@ use SimpleSAML\Module\privacyidea\Auth\Source\PrivacyideaAuthSource;
 use SimpleSAML\Module\privacyidea\Auth\Utils;
 use SimpleSAML\Session;
 use SimpleSAML\SessionHandler;
-use SimpleSAML\Utils\HTTP;
 
 try
 {
@@ -111,7 +110,7 @@ if ($state['privacyidea:privacyidea']['authenticationMethod'] === "authprocess")
             $stateID = Utils::processPIResponse($stateID, $response);
         }
         $url = Module::getModuleURL('privacyidea/FormBuilder.php');
-        HTTP::redirectTrustedURL($url, array('stateId' => $stateID));
+        (new SimpleSAML\Utils\HTTP)->redirectTrustedURL($url, array('stateId' => $stateID));
     }
     catch (\Exception $e)
     {
@@ -142,7 +141,7 @@ else
             $params['expire'] += (isset($_REQUEST['rememberUsername']) && $_REQUEST['rememberUsername'] === 'Yes' ? 31536000 : -300);
             try
             {
-                HTTP::setCookie($source->getAuthId() . '-username', $username, $params, FALSE);
+                (new SimpleSAML\Utils\HTTP)->setCookie($source->getAuthId() . '-username', $username, $params, FALSE);
             }
             catch (CannotSetCookie $e)
             {
