@@ -424,8 +424,7 @@ class PrivacyideaAuthSource extends UserPassBase
         if (is_string($return))
         {
             // redirect...
-            $httpUtils = new HTTP();
-            $httpUtils->redirectTrustedURL($return);
+            (new HTTP)->redirectTrustedURL($return);
         }
         else
         {
