@@ -12,6 +12,10 @@
 	margin: 15px;
 }
 
+.images {
+	margin: 15px 0 30px 0;
+}
+
 #username[type=text], #password, #otp {
 	width: 322px;
 	text-align: center;
