@@ -49,16 +49,15 @@ class PrivacyideaAuthProc extends ProcessingFilter
     /**
      * Run the filter.
      *
-     * @param array $request The request state
+     * @param array $state The request state
      * @throws Exception if authentication fails
      * @throws \Exception
      */
-    public function process(&$request): void
+    public function process(array &$state): void
     {
         Logger::info("privacyIDEA: Auth Proc Filter - Entering process function.");
-        assert('array' === gettype($request));
+        assert('array' === gettype($state));
 
-        $state = $request;
         // Update state before starting the authentication process
         $state['privacyidea:privacyidea'] = $this->authProcConfig;
         $state['privacyidea:privacyidea']['authenticationMethod'] = "authprocess";
