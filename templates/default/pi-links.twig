@@ -1,7 +1,9 @@
 <div class="links">
     <ul>
         {% for l in links %}
-            <li><a href="{{ l.href|e }}">{{ t(l.text)|e }}</a></li>
+            <li>
+                <a href="{{ l.href|e }}">{{ t(l.text)|e }}</a>
+            </li>
         {% endfor %}
     </ul>
 </div>

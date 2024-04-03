@@ -60,6 +60,34 @@ function doWebAuthn()
 }
 
 /**
+ * Sign the U2F request
+ * @param signRequest
+ */
+function signU2FRequest(signRequest)
+{
+
+    let appId = signRequest["appId"];
+    let challenge = signRequest["challenge"];
+    let registeredKeys = [];
+
+    registeredKeys.push({
+        version: "U2F_V2",
+        keyHandle: signRequest["keyHandle"]
+    });
+
+    u2f.sign(appId, challenge, registeredKeys, function (result)
+    {
+        const stringResult = JSON.stringify(result);
+        if (stringResult.includes("clientData") && stringResult.includes("signatureData"))
+        {
+            piSetValue("u2fSignResponse", stringResult);
+            piSetValue("mode", "u2f");
+            piSubmit();
+        }
+    })
+}
+
+/**
  * Process the U2F authentication
  */
 function doU2F()
@@ -97,34 +125,6 @@ function doU2F()
         console.log("Error while signing U2FSignRequest: " + err);
         alert(t("alert_U2FSignRequest_error") + " " + err);
     }
-}
-
-/**
- * Sign the U2F request
- * @param signRequest
- */
-function signU2FRequest(signRequest)
-{
-
-    let appId = signRequest["appId"];
-    let challenge = signRequest["challenge"];
-    let registeredKeys = [];
-
-    registeredKeys.push({
-        version: "U2F_V2",
-        keyHandle: signRequest["keyHandle"]
-    });
-
-    u2f.sign(appId, challenge, registeredKeys, function (result)
-    {
-        const stringResult = JSON.stringify(result);
-        if (stringResult.includes("clientData") && stringResult.includes("signatureData"))
-        {
-            piSetValue("u2fSignResponse", stringResult);
-            piSetValue("mode", "u2f");
-            piSubmit();
-        }
-    })
 }
 
 /**
