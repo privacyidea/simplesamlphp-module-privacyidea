@@ -3,7 +3,6 @@
 namespace SimpleSAML\Module\privacyidea\Auth\Source;
 
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use PIBadRequestException;
 use PIResponse;
 use PrivacyIDEA;
@@ -72,8 +71,8 @@ class PrivacyideaAuthSource extends UserPassBase
      *
      * @override
      * @param array &$state Information about the current authentication.
-     * @throws Exception
      * @return void
+     * @throws Exception
      */
     public function authenticate(array &$state): void
     {
@@ -132,12 +131,13 @@ class PrivacyideaAuthSource extends UserPassBase
      * @override
      * @param string $username The username the user wrote.
      * @param string $password The password the user wrote.
-     * @return void
+     * @return array An empty array.
      */
-    protected function login(string $username, string $password): void
+    protected function login(string $username, string $password): array
     {
         // Stub.
         Logger::debug("privacyIDEA AuthSource login stub");
+        return array();
     }
 
     /**
