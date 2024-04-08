@@ -1,8 +1,14 @@
 {
     "name": "privacyidea/simplesamlphp-module-privacyidea",
-    "description": "Add two factor authentication like OTP to simpleSAMLphp. The second factor is managed in privacyIDEA.",
+    "description": "Add Multi-Factor Authentication to simpleSAMLphp. The MFA is managed in privacyIDEA.",
     "type": "simplesamlphp-module",
-    "license": "AGPL-3.0",
+    "license": "AGPL-3.0-or-later",
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Vendors\\" : "src/"
+        }
+    },
     "require": {
         "simplesamlphp/composer-module-installer": "*",
         "privacyidea/privacyidea-php-client": "*",
