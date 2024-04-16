@@ -2,8 +2,8 @@
 
 namespace SimpleSAML\Module\privacyidea\Auth\Process;
 
-use PIBadRequestException;
-use PrivacyIDEA;
+use SimpleSAML\Module\privacyidea\Auth\PIBadRequestException;
+use SimpleSAML\Module\privacyidea\Auth\PrivacyIDEA;
 use SimpleSAML\Auth\ProcessingChain;
 use SimpleSAML\Auth\ProcessingFilter;
 use SimpleSAML\Auth\State;
