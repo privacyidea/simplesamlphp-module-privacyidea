@@ -2,10 +2,10 @@
 
 namespace SimpleSAML\Module\privacyidea\Auth\Source;
 
+use SimpleSAML\Module\privacyidea\Auth\PIBadRequestException;
+use SimpleSAML\Module\privacyidea\Auth\PIResponse;
+use SimpleSAML\Module\privacyidea\Auth\PrivacyIDEA;
 use Exception;
-use PIBadRequestException;
-use PIResponse;
-use PrivacyIDEA;
 use SimpleSAML\Auth\Source;
 use SimpleSAML\Auth\State;
 use SimpleSAML\Error\ConfigurationError;
