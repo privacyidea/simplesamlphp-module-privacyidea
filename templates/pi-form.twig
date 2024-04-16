@@ -27,7 +27,7 @@
 {% set links = links|default(false) %}
 {% set authProcFilterScenario = authProcFilterScenario|default(false) %}
 
-{% extends 'base.twig' %}
+{% extends '../../simplesamlphp/templates/base.twig' %}
 
 {% block preload %}
     <link rel="stylesheet" href="{{ asset('css/pi-main.css') }} media='screen'">
@@ -65,7 +65,7 @@
                         {? endif ?}
                     </div>
 
-                    <form action="../../public/privacyidea/FormReceiver.php" method="POST" id="piLoginForm"
+                    <form action="../public/FormReceiver.php" method="POST" id="piLoginForm"
                           name="piLoginForm" class="loginForm">
                         <div class="form-panel first valid" id="gaia_firstform">
                             <div class="slide-out">
