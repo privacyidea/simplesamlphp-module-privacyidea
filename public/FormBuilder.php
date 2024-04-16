@@ -50,7 +50,7 @@ else
 try
 {
     //$tpl = new Template(Configuration::getInstance(), 'privacyidea:LoginForm.php');
-    $tpl = new Template(Configuration::getInstance(), 'privacyidea:LoginForm.twig');
+    $tpl = new Template(Configuration::getInstance(), 'privacyidea:pi-form.twig');
 }
 catch (Exception $e)
 {
