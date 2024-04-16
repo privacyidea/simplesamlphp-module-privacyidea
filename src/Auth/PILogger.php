@@ -2,7 +2,6 @@
 
 namespace SimpleSAML\Module\privacyidea\Auth;
 
-use PILog;
 use SimpleSAML\Logger;
 
 class PILogger implements PILog
