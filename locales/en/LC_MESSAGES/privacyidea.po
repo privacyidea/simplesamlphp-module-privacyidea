@@ -1,0 +1,53 @@
+msgid "privacyIDEA Authentication"
+msgstr "privacyIDEA Authentication"
+
+msgid "An error occurred"
+msgstr "An error occurred"
+
+msgid "Please enter your OTP"
+msgstr "Please enter your OTP"
+
+msgid "Please enter your username and password"
+msgstr "Please enter your username and password"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Remember username"
+msgstr "Remember username"
+
+msgid "Remember me"
+msgstr "Remember me"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "OTP"
+msgstr "OTP"
+
+msgid "Organization"
+msgstr "Organization"
+
+msgid "Alternate login options:"
+msgstr "Alternate login options:"
+
+msgid "Logout"
+msgstr "Logout"
+
+msgid "Unable to proceed with Web Authn because the context is insecure!"
+msgstr "Unable to proceed with Web Authn because the context is insecure!"
+
+msgid "Could not load WebAuthn library. Please try again or use other token."
+msgstr "Could not load WebAuthn library. Please try again or use other token."
+
+msgid "Error while signing WebAuthnSignRequest:"
+msgstr "Error while signing WebAuthnSignRequest:"
+
+msgid "Unable to proceed with U2F because the context is insecure!"
+msgstr "Unable to proceed with U2F because the context is insecure!"
+
+msgid "Could not load U2F library. Please try again or use other token."
+msgstr "Could not load U2F library. Please try again or use other token."
+
+msgid "Error while signing U2FSignRequest:"
+msgstr "Error while signing U2FSignRequest:"
