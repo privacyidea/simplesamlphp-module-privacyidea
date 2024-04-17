@@ -8,14 +8,14 @@
 {% set imagePush = imagePush|default('') %}
 {% set imageU2F = imageU2F|default('') %}
 {% set imageWebauthn = imageWebauthn|default('') %}
-{% set username = username|default('') %}
+{% set username = username|default(null) %}
 {% set forceUsername = forceUsername|default(false) %}
 {% set rememberUsernameEnabled = rememberUsernameEnabled|default(false) %}
 {% set rememberUsernameChecked = rememberUsernameChecked|default(false) %}
 {% set rememberMeEnabled = rememberMeEnabled|default(false) %}
 {% set rememberMeChecked = rememberMeChecked|default(false) %}
-{% set passHint = passFieldHint|default('') %}
-{% set otpHint = otpFieldHint|default('') %}
+{% set passHint = passFieldHint|default('Password'|trans) %}
+{% set otpHint = otpFieldHint|default('OTP'|trans) %}
 {% set pushAvailable = pushAvailable|default(false) %}
 {% set otpAvailable = otpAvailable|default(true) %}
 {% set webAuthnSignRequest = webAuthnSignRequest|default('') %}
@@ -24,7 +24,7 @@
 {% set loadCounter = loadCounter|default(1) %}
 {% set authenticationFlow = authenticationFlow|default('') %}
 {% set links = links|default(false) %}
-{% set authProcFilterScenario = authProcFilterScenario|default(false) %}
+{% set authProcFilterScenario = authProcFilterScenario|default(0) %}
 {% set organizations = organizations|default(false) %}
 {% set selectedOrg = selectedOrg|default(false) %}
 {% set logoutURL = logoutURL|default(false) %}
@@ -59,12 +59,8 @@
 
                     <div class="loginLogo"></div>
 
-                    <div class="scenario">
-                        {% if authProcFilterScenario %}
-                        <h2>{{ 'Please enter the OTP'|trans }}</h2>
-                        {% elseif step < 2 %}
-                        <h2>{{ 'Please enter your username and password'|trans }}</h2>
-                        {% endif %}
+                    <div class="title">
+                        <h2>{{ 'Authenticate against the privacyIDEA'|trans }}</h2>
                     </div>
 
                     <form action="../public/FormReceiver.php" method="POST" id="piLoginForm"
@@ -93,19 +89,23 @@
                                         {% endif %}
 
                                         {# Show the messages #}
-                                        <strong id="message">{{ message }}</strong><br>
+                                        {% if message is not empty %}
+                                            <strong id="message">{{ message }}</strong><br><br>
+                                        {% else %}
+                                            <strong id="message">{{ 'Please enter the requested login data'|trans }}</strong><br><br>
+                                        {% endif %}
 
                                         {# Username field #}
                                         {% if forceUsername %}
                                         <h3>{{ username }}</h3>
                                         <input type="hidden" id="username" name="username" value="{{ username|e }}"/>
-                                        {% else %}
+                                        {% elseif username is null %}
                                         <label for="username" class="sr-only">
                                             {{ 'Username'|trans }}
                                         </label>
                                         <input type="text" id="username" tabindex="1" name="username" autofocus
                                                value="{{ username|e }}" placeholder="{{ 'Username'|trans }}">
-                                        <br>
+                                        <br><br>
                                         {% endif %}
 
                                         {# Remember username in authsource #}
@@ -140,13 +140,13 @@
                                         </label>
                                         <input id="password" name="password" tabindex="2" type="password" value=""
                                                class="text" placeholder="{{ passFieldHint }}"/>
-                                        <br>
+                                        <br><br>
                                         <label for="otp" class="sr-only">
                                             {{ 'OTP'|trans }}
                                         </label>
                                         <input id="otp" name="otp" tabindex="3" type="password" value="" class="text"
                                                placeholder="{{ otpFieldHint }}">
-                                        <br>
+                                        <br><br>
 
                                         {# Submit button #}
                                         <input id="submitButton" tabindex="7" class="rc-button rc-button-submit"
