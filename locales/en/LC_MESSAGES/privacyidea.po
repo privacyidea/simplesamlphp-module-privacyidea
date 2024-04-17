@@ -7,6 +7,9 @@ msgstr "An error occurred"
 msgid "Please enter your OTP"
 msgstr "Please enter your OTP"
 
+msgid "Authenticate against the privacyIDEA"
+msgstr "Authenticate against the privacyIDEA"
+
 msgid "Please enter your username and password"
 msgstr "Please enter your username and password"
 
