@@ -1,6 +1,5 @@
-{% set pagetitle = {{ 'privacyIDEA Authentication'|trans }} %}
+{% set pagetitle = 'privacyIDEA Authentication'|trans %}
 {% set baseurlpath = baseurlpath|default('') %}
-{% set login:error_header = login:error_header|default({{ 'An error occurred'|trans }}) %}
 {% set errorCode = errorCode|default('') %}
 {% set errorMessage = errorMessage|default('') %}
 {% set message = message|default('') %}
@@ -26,8 +25,11 @@
 {% set authenticationFlow = authenticationFlow|default('') %}
 {% set links = links|default(false) %}
 {% set authProcFilterScenario = authProcFilterScenario|default(false) %}
+{% set organizations = organizations|default(false) %}
+{% set selectedOrg = selectedOrg|default(false) %}
+{% set logoutURL = logoutURL|default(false) %}
 
-{% extends '../../simplesamlphp/templates/base.twig' %}
+{% extends 'base.twig' %}
 
 {% block preload %}
     <link rel="stylesheet" href="{{ asset('css/pi-main.css') }} media='screen'">
@@ -46,21 +48,23 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
+                    {% if errorCode %}
                     <div class="error-dialog">
                         <img class="float-l erroricon" alt="gtk-dialog-error"
                              src="{{ baseurlpath }}resources/icons/experience/gtk-dialog-error.48x48.png"/>
-                        <h2>{{ login:error_header }}</h2>
+                        <h2>{{ 'An error occurred'|trans }}</h2>
                         <strong>"Error {{ errorCode }}: {{ errorMessage }}"</strong>
                     </div>
+                    {% endif %}
 
                     <div class="loginLogo"></div>
 
                     <div class="scenario">
-                        {? if authProcFilterScenario ?}
-                        <h2>{{ 'Please enter the OTP'|trans }}</h2>;
-                        {? elseif step < 2 ?}
-                        <h2>{{ 'Please enter your username and password'|trans }}</h2>;
-                        {? endif ?}
+                        {% if authProcFilterScenario %}
+                        <h2>{{ 'Please enter the OTP'|trans }}</h2>
+                        {% elseif step < 2 %}
+                        <h2>{{ 'Please enter your username and password'|trans }}</h2>
+                        {% endif %}
                     </div>
 
                     <form action="../public/FormReceiver.php" method="POST" id="piLoginForm"
@@ -69,58 +73,66 @@
                             <div class="slide-out">
                                 <div class="input-wrapper focused">
                                     <div class="identifier-shown">
+                                        {# Locales (alerts) #}
+                                        <input id="alertWebauthnInsecureContext" type="hidden" name="alertWebauthnInsecureContext" value="{{ 'Unable to proceed with Web Authn because the context is insecure!'|trans }}"/>
+                                        <input id="alertWebauthnUnavailable" type="hidden" name="alertWebauthnUnavailable" value="{{ 'Could not load WebAuthn library. Please try again or use other token.'|trans }}"/>
+                                        <input id="alertWebAuthnSignRequestError" type="hidden" name="alertWebAuthnSignRequestError" value="{{ 'Error while signing WebAuthnSignRequest:'|trans }}"/>
+                                        <input id="alertU2FInsecureContext" type="hidden" name="alertU2FInsecureContext" value="{{ 'Unable to proceed with U2F because the context is insecure!|trans' }}"/>
+                                        <input id="alertU2FUnavailable" type="hidden" name="alertU2FUnavailable" value="{{ 'Could not load U2F library. Please try again or use other token.'|trans }}"/>
+                                        <input id="alertU2FSignRequestError" type="hidden" name="alertU2FSignRequestError" value="{{ 'Error while signing U2FSignRequest:'|trans }}"/>
+
                                         {# Show the image if available #}
-                                        {? if mode === "otp" && imageOTP is not empty ?}
-                                        <img class="images" alt="challenge_img" src="{{ imageOTP }}">; {# todo test margin instead of <br> #}
-                                        {? elseif mode === "push" && imagePush is not empty ?}
-                                        <img class="images" alt="challenge_img" src="{{ imagePush }}">;
-                                        {? elseif mode === "u2f" && imageU2F is not empty ?}
-                                        <img class="images" alt="challenge_img" src="{{ imageU2F }}">;
-                                        {? elseif mode === "webauthn" && imageWebauthn is not empty ?}
-                                        <img class="images" alt="challenge_img" src="{{ imageWebauthn }}">;
-                                        {? endif ?}
+                                        {% if mode is same as("otp") and imageOTP is not empty %}
+                                        <img class="images" alt="challenge_img" src="{{ imageOTP }}"> {# todo test margin instead of <br> #}
+                                        {% elseif mode is same as("push") and imagePush is not empty %}
+                                        <img class="images" alt="challenge_img" src="{{ imagePush }}">
+                                        {% elseif mode is same as("u2f") and imageU2F is not empty %}
+                                        <img class="images" alt="challenge_img" src="{{ imageU2F }}">
+                                        {% elseif mode is same as("webauthn") and imageWebauthn is not empty %}
+                                        <img class="images" alt="challenge_img" src="{{ imageWebauthn }}">
+                                        {% endif %}
 
                                         {# Show the messages #}
                                         <strong id="message">{{ message }}</strong><br>
 
                                         {# Username field #}
-                                        {? if forceUsername ?}
+                                        {% if forceUsername %}
                                         <h3>{{ username }}</h3>
                                         <input type="hidden" id="username" name="username" value="{{ username|e }}"/>
-                                        {? else ?}
+                                        {% else %}
                                         <label for="username" class="sr-only">
                                             {{ 'Username'|trans }}
                                         </label>
                                         <input type="text" id="username" tabindex="1" name="username" autofocus
                                                value="{{ username|e }}" placeholder="{{ 'Username'|trans }}">
                                         <br>
-                                        {? endif ?}
+                                        {% endif %}
 
                                         {# Remember username in authsource #}
-                                        {? if !authProcFilterScenario ?}
-                                        {? if rememberUsernameEnabled || rememberMeEnabled ?}
+                                        {% if authProcFilterScenario is null %}
+                                        {% if rememberUsernameEnabled or rememberMeEnabled %}
                                         {% set rowspan = 1 %}
-                                        {? elseif organizations ?}
+                                        {% elseif organizations %}
                                         {% set rowspan = 3 %}
-                                        {? else ?}
+                                        {% else %}
                                         {% set rowspan = 2 %}
-                                        {? endif ?}
-                                        {? if rememberUsernameEnabled || rememberMeEnabled ?}
-                                        {? if rememberUsernameEnabled ?}
+                                        {% endif %}
+                                        {% if rememberUsernameEnabled or rememberMeEnabled %}
+                                        {% if rememberUsernameEnabled %}
                                         <label for="rememberUsername"></label>
                                         <input type="checkbox" id="rememberUsername" tabindex="5"
                                                name="rememberUsername"
                                                value="Yes" {{ rememberUsernameChecked ? 'checked="Yes" ' : '' }} />
                                         {{ 'Remember username'|trans }}
-                                        {? endif ?}
-                                        {? if rememberMeEnabled ?}
+                                        {% endif %}
+                                        {% if rememberMeEnabled %}
                                         <label for="rememberMe"></label>
                                         <input type="checkbox" id="rememberMe" tabindex="6" name="rememberMe"
                                                value="Yes" {{ rememberMeChecked ? 'checked="Yes" ' : '' }} />
                                         {{ 'Remember me'|trans }}
-                                        {? endif ?}
-                                        {? endif ?}
-                                        {? endif ?}
+                                        {% endif %}
+                                        {% endif %}
+                                        {% endif %}
 
                                         {# Pass and OTP fields #}
                                         <label for="password" class="sr-only">
@@ -138,7 +150,7 @@
 
                                         {# Submit button #}
                                         <input id="submitButton" tabindex="7" class="rc-button rc-button-submit"
-                                               type="submit" name="Submit" value="{{ login:login_button }}"/>
+                                               type="submit" name="Submit" value="{{ 'Submit'|trans }}"/>
                                         <br><br>
 
                                         {# Undefined index is suppressed and the default is used for these values #}
@@ -177,20 +189,20 @@
                                     </div>
 
                                     {# Organizations #}
-                                    {? if organizations ?}
+                                    {% if organizations %}
                                     <div class="identifier-shown">
                                         <label for="organization">{{ 'Organization'|trans }}</label>
                                         <select id="organization" name="organization" tabindex="4">
-                                            {? if selectedOrg ?}
+                                            {% if selectedOrg %}
                                             {% set selectedOrg = selectedOrg %}
-                                            {? else ?}
+                                            {% else %}
                                             {% set selectedOrg = null %}
-                                            {? endif ?}
+                                            {% endif %}
                                             {% for orgId, orgDesc in organizations %}
                                                 {% if orgDesc is iterable %}
                                                     {% set orgDesc = t(orgDesc) %}
                                                 {% endif %}
-                                                {% if orgId === selectedOrg %}
+                                                {% if orgId is same as(selectedOrg) %}
                                                     {% set selected = 'selected="selected" ' %}
                                                 {% else %}
                                                     {% set selected = '' %}
@@ -199,7 +211,7 @@
                                             {% endfor %}
                                         </select>
                                     </div>
-                                    {? endif ?}
+                                    {% endif %}
                                 </div> {# focused #}
                             </div> {# slide-out #}
                         </div> {# form-panel #}
@@ -218,20 +230,28 @@
                 </div>
             </div>
         </div>
+    {% endblock content %}
+
+    {% if logoutURL %}
+    {% block logout %}
+        <div class="logout">
+            <div class="wrap">
+                <a href="{{ logoutURL|e }}">{{ 'Logout'|trans }}</a>
+            </div>
+        </div>
     {% endblock %}
-
-    {? if logoutURL ?}
-    {% block content %}{% include "pi-logout.twig" %}{% endblock %}
-    {? endif ?}
-    {? if links ?}
-    {% block content %}{% include "pi-links.twig" %}{% endblock %}
-    {? endif ?}
+    {% endif %}
+    {% if links %}
+    {% block links %}
+        <div class="links">
+            <ul>
+                {% for l in links %}
+                    <li>
+                        <a href="{{ l.href|e }}">{{ t(l.text)|e }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endblock %}
+    {% endif %}
 {% endblock contentwrapper %}
-
-{# Locales (alerts) #}
-<input id="alertWebauthnInsecureContext" type="hidden" name="alertWebauthnInsecureContext" value="{{ 'Unable to proceed with Web Authn because the context is insecure!'|trans }}"/>
-<input id="alertWebauthnUnavailable" type="hidden" name="alertWebauthnUnavailable" value="{{ 'Could not load WebAuthn library. Please try again or use other token.'|trans }}"/>
-<input id="alertWebAuthnSignRequestError" type="hidden" name="alertWebAuthnSignRequestError" value="{{ 'Error while signing WebAuthnSignRequest:'|trans }}"/>
-<input id="alertU2FInsecureContext" type="hidden" name="alertU2FInsecureContext" value="{{ 'Unable to proceed with U2F because the context is insecure!|trans' }}"/>
-<input id="alertU2FUnavailable" type="hidden" name="alertU2FUnavailable" value="{{ 'Could not load U2F library. Please try again or use other token.'|trans }}"/>
-<input id="alertU2FSignRequestError" type="hidden" name="alertU2FSignRequestError" value="{{ 'Error while signing U2FSignRequest:'|trans }}"/>
