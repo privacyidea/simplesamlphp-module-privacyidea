@@ -2,8 +2,6 @@
 
 namespace SimpleSAML\Module\privacyidea\Auth;
 
-use PIResponse;
-use PrivacyIDEA;
 use SimpleSAML\Auth\ProcessingChain;
 use SimpleSAML\Auth\State;
 use SimpleSAML\Error\Exception;
