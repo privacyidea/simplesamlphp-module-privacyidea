@@ -16,7 +16,7 @@ function doWebAuthn()
 
     if (!window.isSecureContext)
     {
-        alert(t("alert_webauthn_insecure_context"));
+        alert(piGetValue("alertWebauthnInsecureContext"));
         console.log("Insecure context detected: Aborting Web Authn authentication!")
         piChangeMode("otp");
         return;
@@ -24,7 +24,7 @@ function doWebAuthn()
 
     if (!window.pi_webauthn)
     {
-        alert(t("alert_webauthn_unavailable"));
+        alert(piGetValue("alertWebauthnUnavailable"));
         piChangeMode("otp");
         return;
     }
@@ -54,8 +54,8 @@ function doWebAuthn()
     }
     catch (err)
     {
+        alert(piGetValue("alertWebAuthnSignRequestError") + " " + err);
         console.log("Error while signing WebAuthnSignRequest: " + err);
-        alert(t("alert_webAuthnSignRequest_error") + " " + err);
     }
 }
 
@@ -100,7 +100,7 @@ function doU2F()
 
     if (!window.isSecureContext)
     {
-        alert(t("alert_u2f_insecure_context"));
+        alert(piGetValue("alertU2FInsecureContext"));
         console.log("Insecure context detected: Aborting U2F authentication!")
         piChangeMode("otp");
         return;
@@ -110,7 +110,7 @@ function doU2F()
 
     if (requestStr === null)
     {
-        alert(t("alert_u2f_unavailable"));
+        alert(piGetValue("alertU2FUnavailable"));
         piChangeMode("otp");
         return;
     }
@@ -122,8 +122,8 @@ function doU2F()
     }
     catch (err)
     {
+        alert(piGetValue("alertU2FSignRequestError") + " " + err);
         console.log("Error while signing U2FSignRequest: " + err);
-        alert(t("alert_U2FSignRequest_error") + " " + err);
     }
 }
 
