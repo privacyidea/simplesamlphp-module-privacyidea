@@ -10,14 +10,14 @@ msgstr "Please enter your OTP"
 msgid "Please enter your username and password"
 msgstr "Please enter your username and password"
 
-msgid "Username"
-msgstr "Username"
-
 msgid "Remember username"
 msgstr "Remember username"
 
 msgid "Remember me"
 msgstr "Remember me"
+
+msgid "Submit"
+msgstr "Submit"
 
 msgid "Password"
 msgstr "Password"
