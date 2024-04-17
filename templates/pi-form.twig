@@ -1,6 +1,6 @@
-{% set pagetitle = 'privacyIDEA Authentication' %}
+{% set pagetitle = {{ 'privacyIDEA Authentication'|trans }} %}
 {% set baseurlpath = baseurlpath|default('') %}
-{% set login:error_header = login:error_header|default('An error occurred') %}
+{% set login:error_header = login:error_header|default({{ 'An error occurred'|trans }}) %}
 {% set errorCode = errorCode|default('') %}
 {% set errorMessage = errorMessage|default('') %}
 {% set message = message|default('') %}
@@ -33,10 +33,8 @@
     <link rel="stylesheet" href="{{ asset('css/pi-main.css') }} media='screen'">
     <script src="{{ asset('js/pi-u2f.js') }}"></script>
     <script src="{{ asset('js/pi-webauthn.js') }}"></script>
-    <script src="{{ asset('js/pi-pollTransaction.worker.js') }}"></script>
     <script src="{{ asset('js/pi-main.js') }}"></script>
     <script src="{{ asset('js/pi-eventListeners.js') }}"></script>
-    {# todo add pi-pollInBrowser.js #}
 {% endblock %}
 
 {% block title %}{{ pagetitle }}{% endblock %}
@@ -59,9 +57,9 @@
 
                     <div class="scenario">
                         {? if authProcFilterScenario ?}
-                        <h2>{{ privacyidea:privacyidea:login_title_challenge|trans }}</h2>; {# todo update translations #}
+                        <h2>{{ 'Please enter the OTP'|trans }}</h2>;
                         {? elseif step < 2 ?}
-                        <h2>{{ privacyidea:privacyidea:login_title|trans }}</h2>;
+                        <h2>{{ 'Please enter your username and password'|trans }}</h2>;
                         {? endif ?}
                     </div>
 
@@ -91,10 +89,10 @@
                                         <input type="hidden" id="username" name="username" value="{{ username|e }}"/>
                                         {? else ?}
                                         <label for="username" class="sr-only">
-                                            {{ login:username|trans }}
+                                            {{ 'Username'|trans }}
                                         </label>
                                         <input type="text" id="username" tabindex="1" name="username" autofocus
-                                               value="{{ username|e }}" placeholder="{{ login:username|trans }}">
+                                               value="{{ username|e }}" placeholder="{{ 'Username'|trans }}">
                                         <br>
                                         {? endif ?}
 
@@ -113,26 +111,26 @@
                                         <input type="checkbox" id="rememberUsername" tabindex="5"
                                                name="rememberUsername"
                                                value="Yes" {{ rememberUsernameChecked ? 'checked="Yes" ' : '' }} />
-                                        {{ login:remember_username|trans }}
+                                        {{ 'Remember username'|trans }}
                                         {? endif ?}
                                         {? if rememberMeEnabled ?}
                                         <label for="rememberMe"></label>
                                         <input type="checkbox" id="rememberMe" tabindex="6" name="rememberMe"
                                                value="Yes" {{ rememberMeChecked ? 'checked="Yes" ' : '' }} />
-                                        {{ login:remember_me|trans }}
+                                        {{ 'Remember me'|trans }}
                                         {? endif ?}
                                         {? endif ?}
                                         {? endif ?}
 
                                         {# Pass and OTP fields #}
                                         <label for="password" class="sr-only">
-                                            {{ privacyidea:privacyidea:password|trans }}
+                                            {{ 'Password'|trans }}
                                         </label>
                                         <input id="password" name="password" tabindex="2" type="password" value=""
                                                class="text" placeholder="{{ passFieldHint }}"/>
                                         <br>
                                         <label for="otp" class="sr-only">
-                                            {{ privacyidea:privacyidea:otp|trans }}
+                                            {{ 'OTP'|trans }}
                                         </label>
                                         <input id="otp" name="otp" tabindex="3" type="password" value="" class="text"
                                                placeholder="{{ otpFieldHint }}">
@@ -181,7 +179,7 @@
                                     {# Organizations #}
                                     {? if organizations ?}
                                     <div class="identifier-shown">
-                                        <label for="organization">{{ login:organization|trans }}</label>
+                                        <label for="organization">{{ 'Organization'|trans }}</label>
                                         <select id="organization" name="organization" tabindex="4">
                                             {? if selectedOrg ?}
                                             {% set selectedOrg = selectedOrg %}
@@ -207,7 +205,7 @@
                         </div> {# form-panel #}
 
                         <div id="AlternateLoginOptions" class="groupMargin">
-                            <h3><label>{{ privacyidea:privacyidea:alternate_login_options|trans }}</label></h3>
+                            <h3><label>{{ 'Alternate login options:'|trans }}</label></h3>
                             <br>
                             {# Alternate Login Options #}
                             <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
@@ -230,16 +228,10 @@
     {? endif ?}
 {% endblock contentwrapper %}
 
-{# todo update the translation method: #}
-<meta id="privacyidea-translations" name="privacyidea-translations" content="<?php
-    $translations = [];
-    $translation_keys = [
-        'alert_webauthn_insecure_context', 'alert_webauthn_unavailable', 'alert_webAuthnSignRequest_error',
-        'alert_u2f_insecure_context', 'alert_u2f_unavailable', 'alert_U2FSignRequest_error',
-    ];
-    foreach ($translation_keys as $translation_key)
-    {
-        $translations[$translation_key] = $this->t(sprintf('{privacyidea:privacyidea:%s}', $translation_key));
-    }
-    echo htmlspecialchars(json_encode($translations));
-    ?>">
+{# Locales (alerts) #}
+<input id="alertWebauthnInsecureContext" type="hidden" name="alertWebauthnInsecureContext" value="{{ 'Unable to proceed with Web Authn because the context is insecure!'|trans }}"/>
+<input id="alertWebauthnUnavailable" type="hidden" name="alertWebauthnUnavailable" value="{{ 'Could not load WebAuthn library. Please try again or use other token.'|trans }}"/>
+<input id="alertWebAuthnSignRequestError" type="hidden" name="alertWebAuthnSignRequestError" value="{{ 'Error while signing WebAuthnSignRequest:'|trans }}"/>
+<input id="alertU2FInsecureContext" type="hidden" name="alertU2FInsecureContext" value="{{ 'Unable to proceed with U2F because the context is insecure!|trans' }}"/>
+<input id="alertU2FUnavailable" type="hidden" name="alertU2FUnavailable" value="{{ 'Could not load U2F library. Please try again or use other token.'|trans }}"/>
+<input id="alertU2FSignRequestError" type="hidden" name="alertU2FSignRequestError" value="{{ 'Error while signing U2FSignRequest:'|trans }}"/>
