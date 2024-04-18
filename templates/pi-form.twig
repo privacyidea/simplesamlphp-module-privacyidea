@@ -28,6 +28,7 @@
 {% set organizations = organizations|default(false) %}
 {% set selectedOrg = selectedOrg|default(false) %}
 {% set logoutURL = logoutURL|default(false) %}
+{% set authenticationFlow = authenticationFlow|default('default') %}
 
 {% extends 'base.twig' %}
 
@@ -69,14 +70,6 @@
                             <div class="slide-out">
                                 <div class="input-wrapper focused">
                                     <div class="identifier-shown">
-                                        {# Locales (alerts) #}
-                                        <input id="alertWebauthnInsecureContext" type="hidden" name="alertWebauthnInsecureContext" value="{{ 'Unable to proceed with Web Authn because the context is insecure!'|trans }}"/>
-                                        <input id="alertWebauthnUnavailable" type="hidden" name="alertWebauthnUnavailable" value="{{ 'Could not load WebAuthn library. Please try again or use other token.'|trans }}"/>
-                                        <input id="alertWebAuthnSignRequestError" type="hidden" name="alertWebAuthnSignRequestError" value="{{ 'Error while signing WebAuthnSignRequest:'|trans }}"/>
-                                        <input id="alertU2FInsecureContext" type="hidden" name="alertU2FInsecureContext" value="{{ 'Unable to proceed with U2F because the context is insecure!|trans' }}"/>
-                                        <input id="alertU2FUnavailable" type="hidden" name="alertU2FUnavailable" value="{{ 'Could not load U2F library. Please try again or use other token.'|trans }}"/>
-                                        <input id="alertU2FSignRequestError" type="hidden" name="alertU2FSignRequestError" value="{{ 'Error while signing U2FSignRequest:'|trans }}"/>
-
                                         {# Show the image if available #}
                                         {% if mode is same as("otp") and imageOTP is not empty %}
                                         <img class="images" alt="challenge_img" src="{{ imageOTP }}"> {# todo test margin instead of <br> #}
