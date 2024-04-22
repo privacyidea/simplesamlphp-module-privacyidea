@@ -77,7 +77,7 @@ class Utils
                     $response = $pi->validateCheck($username, "", $transactionID, $headers);
                 }
             }
-            catch (\PIBadRequestException $e)
+            catch (PIBadRequestException $e)
             {
                 Utils::handlePrivacyIDEAException($e, $state);
             }
@@ -96,7 +96,7 @@ class Utils
                 {
                     $response = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse, $headers);
                 }
-                catch (\PIBadRequestException $e)
+                catch (PIBadRequestException $e)
                 {
                     Utils::handlePrivacyIDEAException($e, $state);
                 }
@@ -117,7 +117,7 @@ class Utils
                 {
                     $response = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin, $headers);
                 }
-                catch (\PIBadRequestException $e)
+                catch (PIBadRequestException $e)
                 {
                     self::handlePrivacyIDEAException($e, $state);
                 }
@@ -129,7 +129,7 @@ class Utils
             {
                 $response = $pi->validateCheck($username, $formParams["otp"], $transactionID, $headers);
             }
-            catch (\PIBadRequestException $e)
+            catch (PIBadRequestException $e)
             {
                 self::handlePrivacyIDEAException($e, $state);
             }
@@ -335,7 +335,7 @@ class Utils
             $state['privacyidea:privacyidea']['transactionID'] = $response->getTransactionID();
 
             // Search for the image
-            foreach ($response->MultiChallenge() as $challenge)
+            foreach ($response->getMultiChallenge() as $challenge)
             {
                 if (!empty($challenge->image))
                 {
@@ -412,10 +412,10 @@ class Utils
     /**
      * Search for the configured headers in $_SERVER and return all found with their values.
      *
-     * @param array $headers List of headers to forward.
+     * @param string $headers List of headers to forward.
      * @return array Headers to forward with their values.
      */
-    public static function getHeadersToForward(array $headers): array
+    public static function getHeadersToForward(string $headers): array
     {
         $cleanHeaders = str_replace(' ', '', $headers);
         $arrHeaders = explode(',', $cleanHeaders);
