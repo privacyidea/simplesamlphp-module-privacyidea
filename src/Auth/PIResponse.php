@@ -47,10 +47,10 @@ class PIResponse
     private array $detailAndAttributes = array();
 
     /* @var string If an error occurred, the error code will be set here. */
-    private string $errorCode;
+    private string $errorCode = "";
 
     /* @var string If an error occurred, the error message will be set here. */
-    private string $errorMessage;
+    private string $errorMessage = "";
 
     /**
      * Create a PIResponse object from the JSON response of the server.
