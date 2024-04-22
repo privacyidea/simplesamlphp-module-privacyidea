@@ -33,8 +33,8 @@ class PIChallenge
     /* @var string Serial of token this challenge is for. */
     public string $serial = "";
 
-    /* @var string Arbitrary attributes that can be appended to the challenge by the server. */
-    public string $attributes = "";
+    /* @var array Arbitrary attributes that can be appended to the challenge by the server. */
+    public array $attributes = [];
 
     /* @var string WebAuthn sign request in JSON format */
     public string $webAuthnSignRequest = "";
