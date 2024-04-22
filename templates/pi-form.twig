@@ -33,11 +33,12 @@
 {% extends 'base.twig' %}
 
 {% block preload %}
-    <link rel="stylesheet" href="{{ asset('css/pi-main.css') }} media='screen'">
-    <script src="{{ asset('js/pi-u2f.js') }}"></script>
-    <script src="{{ asset('js/pi-webauthn.js') }}"></script>
-    <script src="{{ asset('js/pi-main.js') }}"></script>
-    <script src="{{ asset('js/pi-eventListeners.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/pi-main.css', 'privacyidea') }} media='screen'">
+    <script src="{{ asset('js/pi-u2f.js', 'privacyidea') }}"></script>
+    <script src="{{ asset('js/pi-webauthn.js', 'privacyidea') }}"></script>
+    <script src="{{ asset('js/pi-utils.js', 'privacyidea') }}"></script>
+    <script src="{{ asset('js/pi-main.js', 'privacyidea') }}"></script>
+    <script src="{{ asset('js/pi-eventListeners.js', 'privacyidea') }}"></script>
 {% endblock %}
 
 {% block title %}{{ pagetitle }}{% endblock %}
@@ -63,8 +64,7 @@
                     <div class="title">
                         <h2>{{ 'Authenticate against the privacyIDEA'|trans }}</h2>
                     </div>
-
-                    <form action="../public/FormReceiver.php" method="POST" id="piLoginForm"
+                    <form action="FormReceiver.php" method="POST" id="piLoginForm"
                           name="piLoginForm" class="loginForm">
                         <div class="form-panel first valid" id="gaia_firstform">
                             <div class="slide-out">
@@ -72,7 +72,7 @@
                                     <div class="identifier-shown">
                                         {# Show the image if available #}
                                         {% if mode is same as("otp") and imageOTP is not empty %}
-                                        <img class="images" alt="challenge_img" src="{{ imageOTP }}"> {# todo test margin instead of <br> #}
+                                        <img class="images" alt="challenge_img" src="{{ imageOTP }}">
                                         {% elseif mode is same as("push") and imagePush is not empty %}
                                         <img class="images" alt="challenge_img" src="{{ imagePush }}">
                                         {% elseif mode is same as("u2f") and imageU2F is not empty %}
@@ -83,9 +83,9 @@
 
                                         {# Show the messages #}
                                         {% if message is not empty %}
-                                            <strong id="message">{{ message }}</strong><br><br>
+                                            <strong class="message">{{ message }}</strong><br>
                                         {% else %}
-                                            <strong id="message">{{ 'Please enter the requested login data'|trans }}</strong><br><br>
+                                            <strong class="message">{{ 'Please enter the requested login data'|trans }}</strong><br>
                                         {% endif %}
 
                                         {# Username field #}
@@ -98,7 +98,7 @@
                                         </label>
                                         <input type="text" id="username" tabindex="1" name="username" autofocus
                                                value="{{ username|e }}" placeholder="{{ 'Username'|trans }}">
-                                        <br><br>
+                                        <br>
                                         {% endif %}
 
                                         {# Remember username in authsource #}
@@ -133,18 +133,18 @@
                                         </label>
                                         <input id="password" name="password" tabindex="2" type="password" value=""
                                                class="text" placeholder="{{ passFieldHint }}"/>
-                                        <br><br>
+                                        <br>
                                         <label for="otp" class="sr-only">
                                             {{ 'OTP'|trans }}
                                         </label>
                                         <input id="otp" name="otp" tabindex="3" type="password" value="" class="text"
                                                placeholder="{{ otpFieldHint }}">
-                                        <br><br>
+                                        <br>
 
                                         {# Submit button #}
                                         <input id="submitButton" tabindex="7" class="rc-button rc-button-submit"
                                                type="submit" name="Submit" value="{{ 'Submit'|trans }}"/>
-                                        <br><br>
+                                        <br>
 
                                         {# Undefined index is suppressed and the default is used for these values #}
                                         <input id="mode" type="hidden" name="mode"
@@ -211,14 +211,12 @@
 
                         <div id="AlternateLoginOptions" class="groupMargin">
                             <h3><label>{{ 'Alternate login options:'|trans }}</label></h3>
-                            <br>
                             {# Alternate Login Options #}
                             <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
                             <input id="usePushButton" name="usePushButton" type="button" value="Push"/>
                             <input id="useOTPButton" name="useOTPButton" type="button" value="OTP"/>
                             <input id="useU2FButton" name="useU2FButton" type="button" value="U2F"/>
                         </div>
-                        <br>
                     </form>
                 </div>
             </div>
