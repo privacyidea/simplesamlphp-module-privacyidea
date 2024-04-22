@@ -1,4 +1,4 @@
-.login {
+.container {
 	text-align: center !important;
 }
 
@@ -25,8 +25,8 @@
 	margin-top: 15px;
 }
 
-#message {
-	margin: 40px 50px 40px 50px;
+.message {
+	margin: 40px 50px 60px 50px;
 	text-align: center;
 }
 
