@@ -226,7 +226,7 @@ function piMain()
             piSubmit();
         }, refreshTime);
     }
-    if (document.getElementById("privacyidea-hide-alternate").content === "true")
+    if (!piGetValue("pushAvailable") && piGetValue("webAuthnSignRequest") === "" && piGetValue("u2fSignRequest") === "")
     {
         piDisableElement("AlternateLoginOptions");
     }
