@@ -2,6 +2,7 @@
 
 namespace SimpleSAML\Module\privacyidea\Auth\Source;
 
+use JetBrains\PhpStorm\NoReturn;
 use SimpleSAML\Module\privacyidea\Auth\PIBadRequestException;
 use SimpleSAML\Module\privacyidea\Auth\PIResponse;
 use SimpleSAML\Module\privacyidea\Auth\PrivacyIDEA;
