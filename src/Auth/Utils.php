@@ -12,7 +12,7 @@ use SimpleSAML\Session;
 class Utils
 {
     /**
-     * Perform 2FA given the current state and the inputs from the form.
+     * Perform MFA given the current state and the inputs from the form.
      *
      * @param array $state state
      * @param array $formParams inputs from the form
@@ -140,6 +140,8 @@ class Utils
     }
 
     /**
+     * Handle a privacyIDEA exception by logging the error and writing the error code and message to the state.
+     *
      * @param $exception
      * @param $state
      */
@@ -185,12 +187,12 @@ class Utils
     }
 
     /**
-     * Check the state for data indicating an active login. If such data is present, check if SSO data of our
-     * module is present, indicating that 2FA was completed before.
-     * A boolean is returned to indicate if the login/2FA can be skipped.
+     * Check the state for data indicating an active login. If such data is present, check if SSO data of this
+     * module is present - indicating that MFA was completed before.
+     * A boolean is returned to indicate if the login/MFA can be skipped.
      *
      * @param array $state
-     * @return boolean true if login/2FA can be skipped, false if not
+     * @return boolean true if login/MFA can be skipped, false if not
      * @throws \Exception
      */
     public static function checkForValidSSO(array $state): bool
@@ -199,10 +201,10 @@ class Utils
 
         // For SSO to be valid, we check 2 things:
         // 1. Valid login of SSP which is not expired
-        // 2. Completed 2FA with this module
+        // 2. Completed MFA with this module
         if (array_key_exists('Expire', $state) && $state['Expire'] > time())
         {
-            Logger::debug("privacyIDEA: Valid login found. Checking for valid 2FA..");
+            Logger::debug("privacyIDEA: Valid login found. Checking for valid MFA..");
             $session = Session::getSessionFromRequest();
             $ret = $session->getData('privacyidea:privacyidea', '2FA-success');
             return empty($ret) ? false : $ret;
@@ -216,7 +218,7 @@ class Utils
 
     /**
      * This function is registered as a logout handler when writing the SSO specific data to the session.
-     * When called, it removes SSO data on logout.
+     * When called, it removes the SSO data on logout.
      *
      * @return void
      * @throws Exception|\Exception
@@ -228,10 +230,10 @@ class Utils
     }
 
     /**
-     * Create a new privacyIDEA object with the given configuration
+     * Create a new privacyIDEA object with the given configuration.
      *
      * @param array $config
-     * @return PrivacyIDEA|null privacyIDEA object or null on error
+     * @return PrivacyIDEA|null privacyIDEA object or null on error.
      */
     public static function createPrivacyIDEAInstance(array $config): ?PrivacyIDEA
     {
@@ -280,7 +282,7 @@ class Utils
     }
 
     /**
-     * Process the response from privacyIDEA and write information for the next step to the state.
+     * Process the response from privacyIDEA and write information to the state for the next step.
      * If the response from privacyIDEA indicates success and this module is used as AuthProcFilter,
      * this function will resume the processing chain and not return.
      *
@@ -400,6 +402,7 @@ class Utils
 
     /**
      * Determine the clients IP-Address.
+     * 
      * @return string|null The IP-Address of the client.
      */
     public static function getClientIP(): ?string
