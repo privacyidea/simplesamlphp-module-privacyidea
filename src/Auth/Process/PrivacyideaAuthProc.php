@@ -16,7 +16,7 @@ use SimpleSAML\Module\privacyidea\Auth\Utils;
 use SimpleSAML\Utils\HTTP;
 
 /**
- * This authentication processing filter allows you to add a multi-factor-authentication against the privacyIDEA.
+ * This authentication processing filter allows you to perform a multi-factor-authentication against the privacyIDEA.
  *
  * @author Cornelius Kölbel <cornelius.koelbel@netknights.it>
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
@@ -49,8 +49,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     /**
      * Run the filter.
      *
-     * @param array $state The request state
-     * @throws Exception if authentication fails
+     * @param array $state The request state.
+     * @throws Exception if authentication fails.
      * @throws \Exception
      */
     public function process(array &$state): void
@@ -183,7 +183,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * This is the help function to exclude some IP from 2FA. Only if is set in config.
+     * This is the helping function to exclude some IP from MFA. Only if is set in config.
+     *
      * @param string $clientIP
      * @param array $excludeClientIPs
      * @return bool
@@ -217,10 +218,11 @@ class PrivacyideaAuthProc extends ProcessingFilter
     /**
      * This function allows the selective deactivation of privacyIDEA for a list of regular expressions
      * which match SAML service provider entityIDs.
-     * The filter checks the entityID in the SAML request against a list of regular expressions and sets the state variable
-     * $state[enabledPath][enabledKey][0] to false on match, which can be used to disable privacyIDEA.
-     * For any value in excludeEntityIDs, the config parameter includeAttributes may be used to enable privacyIDEA for a subset
-     * of users which have these attribute values (e.g. memberOf).
+     * The filter checks the entityID in the SAML request against a list of regular expressions and sets the state
+     * variable $state[enabledPath][enabledKey][0] to false on match, which can be used to disable the privacyIDEA.
+     * For any value in excludeEntityIDs, the config parameter includeAttributes may be used to enable privacyIDEA for
+     * a subset of users which have these attribute values (e.g. memberOf).
+     *
      * @param array $authProcConfig
      * @param string $stateId
      * @return string The state ID with updated state
@@ -302,8 +304,9 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * This is the help function for checkEntityID() and checks a given string against an array with regular expressions.
+     * This is the helping function for checkEntityID() and checks a given string against an array with regular expressions.
      * It will return an array with matches.
+     *
      * @param string $str
      * @param array $reg_arr
      * @return array
@@ -329,7 +332,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * Check if PrivacyIDEA was disabled by a filter.
+     * Check if privacyIDEA was disabled by a filter.
+     *
      * @param array $state The global state of simpleSAMLphp.
      * @param array $config The config for the PrivacyIDEA server.
      * @return boolean Whether PrivacyIDEA is disabled.
@@ -345,7 +349,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * This function allows to show the debug messages from privacyIDEA server
+     * This function allows to show the debug messages from privacyIDEA server.
+     *
      * @param string $message
      */
     public function piDebug(string $message): void
@@ -354,7 +359,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * This function allows to show the debug messages from privacyIDEA server
+     * This function allows to show the debug messages from privacyIDEA server.
+     *
      * @param string $message
      */
     public function piError(string $message): void
