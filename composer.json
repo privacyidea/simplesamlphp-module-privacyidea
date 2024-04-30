@@ -1,6 +1,6 @@
 {
     "name": "privacyidea/simplesamlphp-module-privacyidea",
-    "description": "Add two factor authentication to simpleSAMLphp. The next factors are managed in privacyIDEA.",
+    "description": "Add multi-factor authentication to simpleSAMLphp. The second factors are managed in privacyIDEA.",
     "type": "simplesamlphp-module",
     "license": "AGPL-3.0-or-later",
     "minimum-stability": "stable",
