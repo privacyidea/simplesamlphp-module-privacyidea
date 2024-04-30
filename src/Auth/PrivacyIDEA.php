@@ -339,7 +339,6 @@ class PrivacyIDEA
             return "";
         }
 
-
         $params = array(
             "username" => $this->serviceAccountName,
             "password" => $this->serviceAccountPass

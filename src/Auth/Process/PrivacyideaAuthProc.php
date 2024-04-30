@@ -26,7 +26,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
 {
     /* @var array This contains the authproc configuration which is set in metadata */
     private array $authProcConfig;
-    /* @var PrivacyIDEA|null This is an object from privacyIDEA class */
+    /* @var PrivacyIDEA|null This is an object of the privacyIDEA class */
     private ?PrivacyIDEA $pi;
 
     /**

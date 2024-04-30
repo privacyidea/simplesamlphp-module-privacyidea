@@ -49,7 +49,6 @@ else
 // Prepare the form to show
 try
 {
-    //$tpl = new Template(Configuration::getInstance(), 'privacyidea:LoginForm.php');
     $tpl = new Template(Configuration::getInstance(), 'privacyidea:pi-form.twig');
 }
 catch (Exception $e)

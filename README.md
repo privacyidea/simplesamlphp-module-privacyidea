@@ -1,6 +1,6 @@
 # privacyIDEA simpleSAMLphp Module
 
-This module adds flexible, enterprise grade Multi-Factor Authentication 
+This module adds flexible, enterprise grade multi-factor authentication 
 to simplesSAMLphp.
 
 It enables simpleSAMLphp to perform MFA against the [privacyIDEA server](https://github.com/privacyidea/privacyidea), 
