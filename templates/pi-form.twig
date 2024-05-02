@@ -6,7 +6,6 @@
 {% set mode = mode|default('otp') %}
 {% set imageOTP = imageOTP|default('') %}
 {% set imagePush = imagePush|default('') %}
-{% set imageU2F = imageU2F|default('') %}
 {% set imageWebauthn = imageWebauthn|default('') %}
 {% set username = username|default(null) %}
 {% set forceUsername = forceUsername|default(false) %}
@@ -19,7 +18,6 @@
 {% set pushAvailable = pushAvailable|default(false) %}
 {% set otpAvailable = otpAvailable|default(true) %}
 {% set webAuthnSignRequest = webAuthnSignRequest|default('') %}
-{% set u2fSignRequest = u2fSignRequest|default('') %}
 {% set step = step|default(2) %}
 {% set loadCounter = loadCounter|default(1) %}
 {% set authenticationFlow = authenticationFlow|default('') %}
@@ -34,7 +32,6 @@
 
 {% block preload %}
     <link rel="stylesheet" href="{{ asset('css/pi-main.css', 'privacyidea') }} media='screen'">
-    <script src="{{ asset('js/pi-u2f.js', 'privacyidea') }}"></script>
     <script src="{{ asset('js/pi-webauthn.js', 'privacyidea') }}"></script>
     <script src="{{ asset('js/pi-utils.js', 'privacyidea') }}"></script>
     <script src="{{ asset('js/pi-main.js', 'privacyidea') }}"></script>
@@ -62,7 +59,7 @@
                     <div class="loginLogo"></div>
 
                     <div class="title">
-                        <h2>{{ 'Authenticate against the privacyIDEA'|trans }}</h2>
+                        <h2>{{ 'Authenticate against privacyIDEA'|trans }}</h2>
                     </div>
                     <form action="FormReceiver.php" method="POST" id="piLoginForm"
                           name="piLoginForm" class="loginForm">
@@ -75,8 +72,6 @@
                                         <img class="images" alt="challenge_img" src="{{ imageOTP }}">
                                         {% elseif mode is same as("push") and imagePush is not empty %}
                                         <img class="images" alt="challenge_img" src="{{ imagePush }}">
-                                        {% elseif mode is same as("u2f") and imageU2F is not empty %}
-                                        <img class="images" alt="challenge_img" src="{{ imageU2F }}">
                                         {% elseif mode is same as("webauthn") and imageWebauthn is not empty %}
                                         <img class="images" alt="challenge_img" src="{{ imageWebauthn }}">
                                         {% endif %}
@@ -132,13 +127,13 @@
                                             {{ 'Password'|trans }}
                                         </label>
                                         <input id="password" name="password" tabindex="2" type="password" value=""
-                                               class="text" placeholder="{{ passFieldHint }}"/>
+                                               class="text" autofocus placeholder="{{ passFieldHint }}"/>
                                         <br>
                                         <label for="otp" class="sr-only">
                                             {{ 'OTP'|trans }}
                                         </label>
                                         <input id="otp" name="otp" tabindex="3" type="password" value="" class="text"
-                                               placeholder="{{ otpFieldHint }}">
+                                               autofocus placeholder="{{ otpFieldHint }}">
                                         <br>
 
                                         {# Submit button #}
@@ -155,15 +150,11 @@
                                                value="{{ otpAvailable }}"/>
                                         <input id="webAuthnSignRequest" type="hidden" name="webAuthnSignRequest"
                                                value="{{ webAuthnSignRequest }}"/>
-                                        <input id="u2fSignRequest" type="hidden" name="u2fSignRequest"
-                                               value="{{ u2fSignRequest }}"/>
                                         <input id="modeChanged" type="hidden" name="modeChanged"
                                                value="0"/>
                                         <input id="step" type="hidden" name="step"
                                                value="{{ step }}"/>
                                         <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse"
-                                               value=""/>
-                                        <input id="u2fSignResponse" type="hidden" name="u2fSignResponse"
                                                value=""/>
                                         <input id="origin" type="hidden" name="origin"
                                                value=""/>
@@ -176,7 +167,6 @@
                                         <input type="hidden" name="message" value="{{ message }}"/>
                                         <input type="hidden" name="imageOTP" value="{{ imageOTP }}"/>
                                         <input type="hidden" name="imagePush" value="{{ imagePush }}"/>
-                                        <input type="hidden" name="imageU2F" value="{{ imageU2F }}"/>
                                         <input type="hidden" name="imageWebauthn"
                                                value="{{ imageWebauthn }}"/>
                                     </div>
@@ -215,7 +205,6 @@
                             <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
                             <input id="usePushButton" name="usePushButton" type="button" value="Push"/>
                             <input id="useOTPButton" name="useOTPButton" type="button" value="OTP"/>
-                            <input id="useU2FButton" name="useU2FButton" type="button" value="U2F"/>
                         </div>
                     </form>
                 </div>
