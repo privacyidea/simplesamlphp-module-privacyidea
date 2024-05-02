@@ -1,3 +1,9 @@
+Version 4.0.0
+ * Compatibility with simpleSAMLphp 2.0 (#196)
+ * Security: CSS and JS loaded as the assets instead of the inline code (#200)
+ * Remove U2F support (#210)
+ * Remove old token enrollment function (#210)
+
 Version 3.0.0 02/2023
  * Simplified the configuration by introducing the Authentication Flow (#164, #166)
     !!! Check the docs for the updated template of the configuration - the old configuration file does not work with the new version !!!
