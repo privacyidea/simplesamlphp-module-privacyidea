@@ -107,6 +107,10 @@ class PrivacyideaAuthSource extends UserPassBase
         $state['privacyidea:privacyidea:ui']['webAuthnSignRequest'] = "";
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
         $state['privacyidea:privacyidea:ui']['loadCounter'] = "1";
+        if (!empty($this->authSourceConfig['autoSubmitOtpLength']))
+        {
+            $state['privacyidea:privacyidea:ui']['otpLength'] = $this->authSourceConfig['autoSubmitOtpLength'];
+        }
         if (!empty($this->authSourceConfig['otpFieldHint']))
         {
             $state['privacyidea:privacyidea:ui']['otpFieldHint'] = $this->authSourceConfig['otpFieldHint'];

@@ -17,6 +17,7 @@
 {% set otpHint = otpFieldHint|default('OTP'|trans) %}
 {% set pushAvailable = pushAvailable|default(false) %}
 {% set otpAvailable = otpAvailable|default(true) %}
+{% set otpLength = otpLength|default('') %}
 {% set webAuthnSignRequest = webAuthnSignRequest|default('') %}
 {% set step = step|default(2) %}
 {% set loadCounter = loadCounter|default(1) %}
@@ -162,6 +163,8 @@
                                                value="{{ authenticationFlow }}"/>
                                         <input id="loadCounter" type="hidden" name="loadCounter"
                                                value="{{ loadCounter }}"/>
+                                        <input id="otpLength" type="hidden" name="otpLength"
+                                               value="{{ otpLength }}"/>
 
                                         {# Additional input to persist the message and images #}
                                         <input type="hidden" name="message" value="{{ message }}"/>

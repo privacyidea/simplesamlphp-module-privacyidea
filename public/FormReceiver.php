@@ -87,6 +87,7 @@ $formParams = array(
     "imagePush" => array_key_exists('imagePush', $_REQUEST) ? $_REQUEST['imagePush'] : "",
     "imageU2F" => array_key_exists('imageU2F', $_REQUEST) ? $_REQUEST['imageU2F'] : "",
     "imageWebauthn" => array_key_exists('imageWebauthn', $_REQUEST) ? $_REQUEST['imageWebauthn'] : "",
+    "otpLength" => array_key_exists('otpLength', $_REQUEST) ? $_REQUEST['otpLength'] : "",
     "loadCounter" => array_key_exists('loadCounter', $_REQUEST) ? $_REQUEST['loadCounter'] : 1
 );
 
