@@ -1,8 +1,3 @@
-function t(key)
-{
-    return JSON.parse(document.getElementById("privacyidea-translations").content)[key];
-}
-
 /**
  * Process the WebAuthn authentication
  */
@@ -60,74 +55,6 @@ function doWebAuthn()
 }
 
 /**
- * Sign the U2F request
- * @param signRequest
- */
-function signU2FRequest(signRequest)
-{
-
-    let appId = signRequest["appId"];
-    let challenge = signRequest["challenge"];
-    let registeredKeys = [];
-
-    registeredKeys.push({
-        version: "U2F_V2",
-        keyHandle: signRequest["keyHandle"]
-    });
-
-    u2f.sign(appId, challenge, registeredKeys, function (result)
-    {
-        const stringResult = JSON.stringify(result);
-        if (stringResult.includes("clientData") && stringResult.includes("signatureData"))
-        {
-            piSetValue("u2fSignResponse", stringResult);
-            piSetValue("mode", "u2f");
-            piSubmit();
-        }
-    })
-}
-
-/**
- * Process the U2F authentication
- */
-function doU2F()
-{
-    // If mode is push, we have to change it, otherwise the site will refresh while doing webauthn
-    if (piGetValue("mode") === "push")
-    {
-        piChangeMode("u2f");
-    }
-
-    if (!window.isSecureContext)
-    {
-        alert(piGetValue("alertU2FInsecureContext"));
-        console.log("Insecure context detected: Aborting U2F authentication!")
-        piChangeMode("otp");
-        return;
-    }
-
-    const requestStr = piGetValue("u2fSignRequest");
-
-    if (requestStr === null)
-    {
-        alert(piGetValue("alertU2FUnavailable"));
-        piChangeMode("otp");
-        return;
-    }
-
-    try
-    {
-        const requestjson = JSON.parse(requestStr);
-        signU2FRequest(requestjson);
-    }
-    catch (err)
-    {
-        alert(piGetValue("alertU2FSignRequestError") + " " + err);
-        console.log("Error while signing U2FSignRequest: " + err);
-    }
-}
-
-/**
  * Main function to handle the different states of the authentication process
  */
 function piMain()
@@ -157,15 +84,15 @@ function piMain()
         piDisableElement("password");
     }
 
+    if (!piGetValue("pushAvailable") && piGetValue("webAuthnSignRequest") === "")
+    {
+        piDisableElement("AlternateLoginOptions");
+    }
+
     // Set alternate token button visibility
     if (piGetValue("webAuthnSignRequest") === "")
     {
         piDisableElement("useWebAuthnButton");
-    }
-
-    if (piGetValue("u2fSignRequest") === "")
-    {
-        piDisableElement("useU2FButton");
     }
 
     if (piGetValue("pushAvailable") !== "1")
@@ -178,7 +105,7 @@ function piMain()
         piDisableElement("useOTPButton");
     }
 
-    if (!piGetValue("pushAvailable") && piGetValue("webAuthnSignRequest") === "" && piGetValue("u2fSignRequest") === "")
+    if (!piGetValue("pushAvailable") && piGetValue("webAuthnSignRequest") === "")
     {
         piDisableElement("AlternateLoginOptions");
     }
@@ -193,13 +120,6 @@ function piMain()
         piDisableElement("otp");
         piDisableElement("submitButton");
         doWebAuthn();
-    }
-
-    if (piGetValue("mode") === "u2f")
-    {
-        piDisableElement("otp");
-        piDisableElement("submitButton");
-        doU2F();
     }
 
     if (piGetValue("mode") === "push")
@@ -225,10 +145,6 @@ function piMain()
         {
             piSubmit();
         }, refreshTime);
-    }
-    if (!piGetValue("pushAvailable") && piGetValue("webAuthnSignRequest") === "" && piGetValue("u2fSignRequest") === "")
-    {
-        piDisableElement("AlternateLoginOptions");
     }
 }
 

@@ -9,5 +9,4 @@ document.addEventListener("DOMContentLoaded", (event) =>
     {
         piChangeMode("otp");
     });
-    document.getElementById("useU2FButton").addEventListener("click", doU2F);
 });
