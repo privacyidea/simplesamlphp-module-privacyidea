@@ -1,6 +1,6 @@
 Version 4.0.0
  * Compatibility with simpleSAMLphp 2.0 (#196)
- * Security: CSS and JS loaded as the assets instead of the inline code (#200)
+ * Security: CSS and JS loaded as the assets instead of the inline code (#208)
  * Remove U2F support (#210)
  * Remove old token enrollment function (#210)
 
