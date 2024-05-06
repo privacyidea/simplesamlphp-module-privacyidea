@@ -2,8 +2,6 @@
 
 namespace SimpleSAML\Module\privacyidea\Auth;
 
-use PIResponse;
-use PrivacyIDEA;
 use SimpleSAML\Auth\ProcessingChain;
 use SimpleSAML\Auth\State;
 use SimpleSAML\Error\Exception;
@@ -14,7 +12,7 @@ use SimpleSAML\Session;
 class Utils
 {
     /**
-     * Perform 2FA given the current state and the inputs from the form.
+     * Perform MFA given the current state and the inputs from the form.
      *
      * @param array $state state
      * @param array $formParams inputs from the form
@@ -79,7 +77,7 @@ class Utils
                     $response = $pi->validateCheck($username, "", $transactionID, $headers);
                 }
             }
-            catch (\Exception $e)
+            catch (PIBadRequestException $e)
             {
                 Utils::handlePrivacyIDEAException($e, $state);
             }
@@ -98,7 +96,7 @@ class Utils
                 {
                     $response = $pi->validateCheckU2F($username, $transactionID, $u2fSignResponse, $headers);
                 }
-                catch (\Exception $e)
+                catch (PIBadRequestException $e)
                 {
                     Utils::handlePrivacyIDEAException($e, $state);
                 }
@@ -119,7 +117,7 @@ class Utils
                 {
                     $response = $pi->validateCheckWebAuthn($username, $transactionID, $webAuthnSignResponse, $origin, $headers);
                 }
-                catch (\Exception $e)
+                catch (PIBadRequestException $e)
                 {
                     self::handlePrivacyIDEAException($e, $state);
                 }
@@ -131,7 +129,7 @@ class Utils
             {
                 $response = $pi->validateCheck($username, $formParams["otp"], $transactionID, $headers);
             }
-            catch (\Exception $e)
+            catch (PIBadRequestException $e)
             {
                 self::handlePrivacyIDEAException($e, $state);
             }
@@ -142,6 +140,8 @@ class Utils
     }
 
     /**
+     * Handle a privacyIDEA exception by logging the error and writing the error code and message to the state.
+     *
      * @param $exception
      * @param $state
      */
@@ -187,12 +187,12 @@ class Utils
     }
 
     /**
-     * Check the state for data indicating an active login. If such data is present, check if SSO data of our
-     * module is present, indicating that 2FA was completed before.
-     * A boolean is returned to indicate if the login/2FA can be skipped.
+     * Check the state for data indicating an active login. If such data is present, check if SSO data of this
+     * module is present - indicating that MFA was completed before.
+     * A boolean is returned to indicate if the login/MFA can be skipped.
      *
      * @param array $state
-     * @return boolean true if login/2FA can be skipped, false if not
+     * @return boolean true if login/MFA can be skipped, false if not
      * @throws \Exception
      */
     public static function checkForValidSSO(array $state): bool
@@ -201,10 +201,10 @@ class Utils
 
         // For SSO to be valid, we check 2 things:
         // 1. Valid login of SSP which is not expired
-        // 2. Completed 2FA with this module
+        // 2. Completed MFA with this module
         if (array_key_exists('Expire', $state) && $state['Expire'] > time())
         {
-            Logger::debug("privacyIDEA: Valid login found. Checking for valid 2FA..");
+            Logger::debug("privacyIDEA: Valid login found. Checking for valid MFA..");
             $session = Session::getSessionFromRequest();
             $ret = $session->getData('privacyidea:privacyidea', '2FA-success');
             return empty($ret) ? false : $ret;
@@ -218,7 +218,7 @@ class Utils
 
     /**
      * This function is registered as a logout handler when writing the SSO specific data to the session.
-     * When called, it removes SSO data on logout.
+     * When called, it removes the SSO data on logout.
      *
      * @return void
      * @throws Exception|\Exception
@@ -230,46 +230,46 @@ class Utils
     }
 
     /**
-     * Create a new privacyIDEA object with the given configuration
+     * Create a new privacyIDEA object with the given configuration.
      *
      * @param array $config
-     * @return PrivacyIDEA|null privacyIDEA object or null on error
+     * @return PrivacyIDEA|null privacyIDEA object or null on error.
      */
     public static function createPrivacyIDEAInstance(array $config): ?PrivacyIDEA
     {
         if (!empty($config['privacyideaServerURL']))
         {
             $pi = new PrivacyIDEA("simpleSAMLphp", $config['privacyideaServerURL']);
-            $pi->logger = new PILogger();
+            $pi->setLogger(new PILogger());
 
             if (array_key_exists('sslVerifyHost', $config) && !empty($config['sslVerifyHost']))
             {
-                $pi->sslVerifyHost = $config['sslVerifyHost'] !== "false";
+                $pi->setSSLVerifyHost($config['sslVerifyHost'] !== "false");
             }
 
             if (array_key_exists('sslVerifyPeer', $config) && !empty($config['sslVerifyPeer']))
             {
-                $pi->sslVerifyPeer = $config['sslVerifyPeer'] !== "false";
+                $pi->setSSLVerifyPeer($config['sslVerifyPeer'] !== "false");
             }
 
             if (array_key_exists('serviceAccount', $config) && !empty($config['serviceAccount']))
             {
-                $pi->serviceAccountName = $config['serviceAccount'];
+                $pi->setServiceAccountName($config['serviceAccount']);
             }
 
             if (array_key_exists('servicePass', $config) && !empty($config['servicePass']))
             {
-                $pi->serviceAccountPass = $config['servicePass'];
+                $pi->setServiceAccountPass($config['servicePass']);
             }
 
             if (array_key_exists('serviceRealm', $config) && !empty($config['serviceRealm']))
             {
-                $pi->serviceAccountRealm = $config['serviceRealm'];
+                $pi->setServiceAccountRealm($config['serviceRealm']);
             }
 
             if (array_key_exists('realm', $config) && !empty($config['realm']))
             {
-                $pi->realm = $config['realm'];
+                $pi->setRealm($config['realm']);
             }
 
             return $pi;
@@ -282,7 +282,7 @@ class Utils
     }
 
     /**
-     * Process the response from privacyIDEA and write information for the next step to the state.
+     * Process the response from privacyIDEA and write information to the state for the next step.
      * If the response from privacyIDEA indicates success and this module is used as AuthProcFilter,
      * this function will resume the processing chain and not return.
      *
@@ -298,23 +298,23 @@ class Utils
         $config = $state['privacyidea:privacyidea'];
         $state['privacyidea:privacyidea:ui']['mode'] = "otp";
 
-        if (!empty($response->multiChallenge))
+        if (!empty($response->getMultiChallenge()))
         {
             // Authentication not complete, new challenges were triggered. Prepare the state for the next step.
             $triggeredTokens = $response->triggeredTokenTypes();
-            if (!empty($response->preferredClientMode))
+            if (!empty($response->getPreferredClientMode()))
             {
-                if ($response->preferredClientMode === "interactive")
+                if ($response->getPreferredClientMode() === "interactive")
                 {
                     $state['privacyidea:privacyidea:ui']['mode'] = "otp";
                 }
-                elseif ($response->preferredClientMode === "poll")
+                elseif ($response->getPreferredClientMode() === "poll")
                 {
                     $state['privacyidea:privacyidea:ui']['mode'] = "push";
                 }
                 else
                 {
-                    $state['privacyidea:privacyidea:ui']['mode'] = $response->preferredClientMode;
+                    $state['privacyidea:privacyidea:ui']['mode'] = $response->getPreferredClientMode();
                 }
                 Logger::debug("privacyIDEA: Preferred client mode: " . $state['privacyidea:privacyidea:ui']['mode']);
             }
@@ -322,7 +322,7 @@ class Utils
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true;
 
-            $state['privacyidea:privacyidea:ui']['message'] = $response->messages;
+            $state['privacyidea:privacyidea:ui']['message'] = $response->getMessages();
 
             if (in_array("webauthn", $triggeredTokens))
             {
@@ -334,10 +334,10 @@ class Utils
                 $state['privacyidea:privacyidea:ui']['u2fSignRequest'] = $response->u2fSignRequest();
             }
 
-            $state['privacyidea:privacyidea']['transactionID'] = $response->transactionID;
+            $state['privacyidea:privacyidea']['transactionID'] = $response->getTransactionID();
 
             // Search for the image
-            foreach ($response->multiChallenge as $challenge)
+            foreach ($response->getMultiChallenge() as $challenge)
             {
                 if (!empty($challenge->image))
                 {
@@ -360,7 +360,7 @@ class Utils
                 }
             }
         }
-        elseif ($response->value)
+        elseif ($response->getValue())
         {
             // Authentication successful. Finalize the authentication depending on method (AuthProc or AuthSource) and
             // write SSO specific data if enabled.
@@ -384,24 +384,25 @@ class Utils
                 PrivacyideaAuthSource::checkAuthenticationComplete($state, $response, $config);
             }
         }
-        elseif (!empty($response->errorCode))
+        elseif (!empty($response->getErrorCode()))
         {
             // privacyIDEA returned an error, prepare to display it
-            Logger::error("privacyIDEA: Error code: " . $response->errorCode . ", Error message: " . $response->errorMessage);
-            $state['privacyidea:privacyidea']['errorCode'] = $response->errorCode;
-            $state['privacyidea:privacyidea']['errorMessage'] = $response->errorMessage;
+            Logger::error("privacyIDEA: Error code: " . $response->getErrorCode() . ", Error message: " . $response->getErrorMessage());
+            $state['privacyidea:privacyidea']['errorCode'] = $response->getErrorCode();
+            $state['privacyidea:privacyidea']['errorMessage'] = $response->getErrorMessage();
         }
         else
         {
             // Unexpected response
-            Logger::error("privacyIDEA: " . $response->message);
-            $state['privacyidea:privacyidea']['errorMessage'] = $response->message;
+            Logger::error("privacyIDEA: " . $response->getMessage());
+            $state['privacyidea:privacyidea']['errorMessage'] = $response->getMessage();
         }
         return State::saveState($state, 'privacyidea:privacyidea');
     }
 
     /**
      * Determine the clients IP-Address.
+     * 
      * @return string|null The IP-Address of the client.
      */
     public static function getClientIP(): ?string
@@ -414,10 +415,10 @@ class Utils
     /**
      * Search for the configured headers in $_SERVER and return all found with their values.
      *
-     * @param $headers array List of headers to forward.
+     * @param string $headers List of headers to forward.
      * @return array Headers to forward with their values.
      */
-    public static function getHeadersToForward($headers)
+    public static function getHeadersToForward(string $headers): array
     {
         $cleanHeaders = str_replace(' ', '', $headers);
         $arrHeaders = explode(',', $cleanHeaders);

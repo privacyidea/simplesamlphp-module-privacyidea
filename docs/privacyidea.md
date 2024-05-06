@@ -93,6 +93,15 @@ The following is a template configuration:
      * Optional.
      */
     'SSO' => 'false',
+    
+    /**
+     * If you want to turn on the form-auto-submit function after x number of characters are entered into the OTP input
+     * field, set this option to expected OTP length here.
+     * Note: Only digits as the parameter's value are allowed here.
+     *
+     * Optional.
+     */
+    'autoSubmitOtpLength' => '',
 
     /**
      * Configure which headers should be forwarded to the privacyIDEA server.

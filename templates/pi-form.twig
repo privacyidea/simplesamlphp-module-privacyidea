@@ -1,0 +1,240 @@
+{% set pagetitle = 'privacyIDEA Authentication'|trans %}
+{% set baseurlpath = baseurlpath|default('') %}
+{% set errorCode = errorCode|default('') %}
+{% set errorMessage = errorMessage|default('') %}
+{% set message = message|default('') %}
+{% set mode = mode|default('otp') %}
+{% set imageOTP = imageOTP|default('') %}
+{% set imagePush = imagePush|default('') %}
+{% set imageWebauthn = imageWebauthn|default('') %}
+{% set username = username|default(null) %}
+{% set forceUsername = forceUsername|default(false) %}
+{% set rememberUsernameEnabled = rememberUsernameEnabled|default(false) %}
+{% set rememberUsernameChecked = rememberUsernameChecked|default(false) %}
+{% set rememberMeEnabled = rememberMeEnabled|default(false) %}
+{% set rememberMeChecked = rememberMeChecked|default(false) %}
+{% set passHint = passFieldHint|default('Password'|trans) %}
+{% set otpHint = otpFieldHint|default('OTP'|trans) %}
+{% set pushAvailable = pushAvailable|default(false) %}
+{% set otpAvailable = otpAvailable|default(true) %}
+{% set otpLength = otpLength|default('') %}
+{% set webAuthnSignRequest = webAuthnSignRequest|default('') %}
+{% set step = step|default(2) %}
+{% set loadCounter = loadCounter|default(1) %}
+{% set authenticationFlow = authenticationFlow|default('') %}
+{% set links = links|default(false) %}
+{% set authProcFilterScenario = authProcFilterScenario|default(0) %}
+{% set organizations = organizations|default(false) %}
+{% set selectedOrg = selectedOrg|default(false) %}
+{% set logoutURL = logoutURL|default(false) %}
+{% set authenticationFlow = authenticationFlow|default('default') %}
+
+{% extends 'base.twig' %}
+
+{% block preload %}
+    <link rel="stylesheet" href="{{ asset('css/pi-main.css', 'privacyidea') }} media='screen'">
+    <script src="{{ asset('js/pi-webauthn.js', 'privacyidea') }}"></script>
+    <script src="{{ asset('js/pi-utils.js', 'privacyidea') }}"></script>
+    <script src="{{ asset('js/pi-main.js', 'privacyidea') }}"></script>
+    <script src="{{ asset('js/pi-eventListeners.js', 'privacyidea') }}"></script>
+{% endblock %}
+
+{% block title %}{{ pagetitle }}{% endblock %}
+
+{% block contenttitle %}{{ pagetitle }}{% endblock %}
+
+{% block contentwrapper %}
+    {% block content %}
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    {% if errorCode %}
+                    <div class="error-dialog">
+                        <img class="float-l erroricon" alt="gtk-dialog-error"
+                             src="{{ baseurlpath }}resources/icons/experience/gtk-dialog-error.48x48.png"/>
+                        <h2>{{ 'An error occurred'|trans }}</h2>
+                        <strong>"Error {{ errorCode }}: {{ errorMessage }}"</strong>
+                    </div>
+                    {% endif %}
+
+                    <div class="loginLogo"></div>
+
+                    <div class="title">
+                        <h2>{{ 'Authenticate against privacyIDEA'|trans }}</h2>
+                    </div>
+                    <form action="FormReceiver.php" method="POST" id="piLoginForm"
+                          name="piLoginForm" class="loginForm">
+                        <div class="form-panel first valid" id="gaia_firstform">
+                            <div class="slide-out">
+                                <div class="input-wrapper focused">
+                                    <div class="identifier-shown">
+                                        {# Show the image if available #}
+                                        {% if mode is same as("otp") and imageOTP is not empty %}
+                                        <img class="images" alt="challenge_img" src="{{ imageOTP }}">
+                                        {% elseif mode is same as("push") and imagePush is not empty %}
+                                        <img class="images" alt="challenge_img" src="{{ imagePush }}">
+                                        {% elseif mode is same as("webauthn") and imageWebauthn is not empty %}
+                                        <img class="images" alt="challenge_img" src="{{ imageWebauthn }}">
+                                        {% endif %}
+
+                                        {# Show the messages #}
+                                        {% if message is not empty %}
+                                            <strong class="message">{{ message }}</strong><br>
+                                        {% else %}
+                                            <strong class="message">{{ 'Please enter the requested login data'|trans }}</strong><br>
+                                        {% endif %}
+
+                                        {# Username field #}
+                                        {% if forceUsername %}
+                                        <h3>{{ username }}</h3>
+                                        <input type="hidden" id="username" name="username" value="{{ username|e }}"/>
+                                        {% elseif username is null %}
+                                        <label for="username" class="sr-only">
+                                            {{ 'Username'|trans }}
+                                        </label>
+                                        <input type="text" id="username" tabindex="1" name="username" autofocus
+                                               value="{{ username|e }}" placeholder="{{ 'Username'|trans }}">
+                                        <br>
+                                        {% endif %}
+
+                                        {# Remember username in authsource #}
+                                        {% if authProcFilterScenario is null %}
+                                        {% if rememberUsernameEnabled or rememberMeEnabled %}
+                                        {% set rowspan = 1 %}
+                                        {% elseif organizations %}
+                                        {% set rowspan = 3 %}
+                                        {% else %}
+                                        {% set rowspan = 2 %}
+                                        {% endif %}
+                                        {% if rememberUsernameEnabled or rememberMeEnabled %}
+                                        {% if rememberUsernameEnabled %}
+                                        <label for="rememberUsername"></label>
+                                        <input type="checkbox" id="rememberUsername" tabindex="5"
+                                               name="rememberUsername"
+                                               value="Yes" {{ rememberUsernameChecked ? 'checked="Yes" ' : '' }} />
+                                        {{ 'Remember username'|trans }}
+                                        {% endif %}
+                                        {% if rememberMeEnabled %}
+                                        <label for="rememberMe"></label>
+                                        <input type="checkbox" id="rememberMe" tabindex="6" name="rememberMe"
+                                               value="Yes" {{ rememberMeChecked ? 'checked="Yes" ' : '' }} />
+                                        {{ 'Remember me'|trans }}
+                                        {% endif %}
+                                        {% endif %}
+                                        {% endif %}
+
+                                        {# Pass and OTP fields #}
+                                        <label for="password" class="sr-only">
+                                            {{ 'Password'|trans }}
+                                        </label>
+                                        <input id="password" name="password" tabindex="2" type="password" value=""
+                                               class="text" autofocus placeholder="{{ passFieldHint }}"/>
+                                        <br>
+                                        <label for="otp" class="sr-only">
+                                            {{ 'OTP'|trans }}
+                                        </label>
+                                        <input id="otp" name="otp" tabindex="3" type="password" value="" class="text"
+                                               autofocus placeholder="{{ otpFieldHint }}">
+                                        <br>
+
+                                        {# Submit button #}
+                                        <input id="submitButton" tabindex="7" class="rc-button rc-button-submit"
+                                               type="submit" name="Submit" value="{{ 'Submit'|trans }}"/>
+                                        <br>
+
+                                        {# Undefined index is suppressed and the default is used for these values #}
+                                        <input id="mode" type="hidden" name="mode"
+                                               value="{{ mode }}"/>
+                                        <input id="pushAvailable" type="hidden" name="pushAvailable"
+                                               value="{{ pushAvailable }}"/>
+                                        <input id="otpAvailable" type="hidden" name="otpAvailable"
+                                               value="{{ otpAvailable }}"/>
+                                        <input id="webAuthnSignRequest" type="hidden" name="webAuthnSignRequest"
+                                               value="{{ webAuthnSignRequest }}"/>
+                                        <input id="modeChanged" type="hidden" name="modeChanged"
+                                               value="0"/>
+                                        <input id="step" type="hidden" name="step"
+                                               value="{{ step }}"/>
+                                        <input id="webAuthnSignResponse" type="hidden" name="webAuthnSignResponse"
+                                               value=""/>
+                                        <input id="origin" type="hidden" name="origin"
+                                               value=""/>
+                                        <input id="authenticationFlow" type="hidden" name="authenticationFlow"
+                                               value="{{ authenticationFlow }}"/>
+                                        <input id="loadCounter" type="hidden" name="loadCounter"
+                                               value="{{ loadCounter }}"/>
+                                        <input id="otpLength" type="hidden" name="otpLength"
+                                               value="{{ otpLength }}"/>
+
+                                        {# Additional input to persist the message and images #}
+                                        <input type="hidden" name="message" value="{{ message }}"/>
+                                        <input type="hidden" name="imageOTP" value="{{ imageOTP }}"/>
+                                        <input type="hidden" name="imagePush" value="{{ imagePush }}"/>
+                                        <input type="hidden" name="imageWebauthn"
+                                               value="{{ imageWebauthn }}"/>
+                                    </div>
+
+                                    {# Organizations #}
+                                    {% if organizations %}
+                                    <div class="identifier-shown">
+                                        <label for="organization">{{ 'Organization'|trans }}</label>
+                                        <select id="organization" name="organization" tabindex="4">
+                                            {% if selectedOrg %}
+                                            {% set selectedOrg = selectedOrg %}
+                                            {% else %}
+                                            {% set selectedOrg = null %}
+                                            {% endif %}
+                                            {% for orgId, orgDesc in organizations %}
+                                                {% if orgDesc is iterable %}
+                                                    {% set orgDesc = t(orgDesc) %}
+                                                {% endif %}
+                                                {% if orgId is same as(selectedOrg) %}
+                                                    {% set selected = 'selected="selected" ' %}
+                                                {% else %}
+                                                    {% set selected = '' %}
+                                                {% endif %}
+                                                <option {{ selected }}value="{{ orgId|e }}">{{ orgDesc|e }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    {% endif %}
+                                </div> {# focused #}
+                            </div> {# slide-out #}
+                        </div> {# form-panel #}
+
+                        <div id="AlternateLoginOptions" class="groupMargin">
+                            <h3><label>{{ 'Alternate login options:'|trans }}</label></h3>
+                            {# Alternate Login Options #}
+                            <input id="useWebAuthnButton" name="useWebAuthnButton" type="button" value="WebAuthn"/>
+                            <input id="usePushButton" name="usePushButton" type="button" value="Push"/>
+                            <input id="useOTPButton" name="useOTPButton" type="button" value="OTP"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock content %}
+
+    {% if logoutURL %}
+    {% block logout %}
+        <div class="logout">
+            <div class="wrap">
+                <a href="{{ logoutURL|e }}">{{ 'Logout'|trans }}</a>
+            </div>
+        </div>
+    {% endblock %}
+    {% endif %}
+    {% if links %}
+    {% block links %}
+        <div class="links">
+            <ul>
+                {% for l in links %}
+                    <li>
+                        <a href="{{ l.href|e }}">{{ t(l.text)|e }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endblock %}
+    {% endif %}
+{% endblock contentwrapper %}

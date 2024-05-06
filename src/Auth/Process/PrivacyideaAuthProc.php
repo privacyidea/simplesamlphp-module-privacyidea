@@ -2,8 +2,8 @@
 
 namespace SimpleSAML\Module\privacyidea\Auth\Process;
 
-use PIBadRequestException;
-use PrivacyIDEA;
+use SimpleSAML\Module\privacyidea\Auth\PIBadRequestException;
+use SimpleSAML\Module\privacyidea\Auth\PrivacyIDEA;
 use SimpleSAML\Auth\ProcessingChain;
 use SimpleSAML\Auth\ProcessingFilter;
 use SimpleSAML\Auth\State;
@@ -16,8 +16,7 @@ use SimpleSAML\Module\privacyidea\Auth\Utils;
 use SimpleSAML\Utils\HTTP;
 
 /**
- * This authentication processing filter allows you to add a second step
- * authentication against privacyIDEA
+ * This authentication processing filter allows you to perform a multi-factor-authentication against the privacyIDEA.
  *
  * @author Cornelius Kölbel <cornelius.koelbel@netknights.it>
  * @author Jean-Pierre Höhmann <jean-pierre.hoehmann@netknights.it>
@@ -26,9 +25,9 @@ use SimpleSAML\Utils\HTTP;
 class PrivacyideaAuthProc extends ProcessingFilter
 {
     /* @var array This contains the authproc configuration which is set in metadata */
-    private $authProcConfig;
-    /* @var PrivacyIDEA This is an object from privacyIDEA class */
-    private $pi;
+    private array $authProcConfig;
+    /* @var PrivacyIDEA|null This is an object of the privacyIDEA class */
+    private ?PrivacyIDEA $pi;
 
     /**
      * @param array $config Authproc configuration.
@@ -36,7 +35,7 @@ class PrivacyideaAuthProc extends ProcessingFilter
      * @throws ConfigurationError
      * @throws \Exception
      */
-    public function __construct(array $config, $reserved)
+    public function __construct(array $config, mixed $reserved)
     {
         parent::__construct($config, $reserved);
         $this->authProcConfig = $config;
@@ -50,16 +49,15 @@ class PrivacyideaAuthProc extends ProcessingFilter
     /**
      * Run the filter.
      *
-     * @param array $request The request state
-     * @throws Exception|PIBadRequestException if authentication fails
+     * @param array $state The request state.
+     * @throws Exception if authentication fails.
      * @throws \Exception
      */
-    public function process(&$request): void
+    public function process(array &$state): void
     {
         Logger::info("privacyIDEA: Auth Proc Filter - Entering process function.");
-        assert('array' === gettype($request));
+        assert('array' === gettype($state));
 
-        $state = $request;
         // Update state before starting the authentication process
         $state['privacyidea:privacyidea'] = $this->authProcConfig;
         $state['privacyidea:privacyidea']['authenticationMethod'] = "authprocess";
@@ -135,15 +133,17 @@ class PrivacyideaAuthProc extends ProcessingFilter
                     {
                         $response = $this->pi->triggerChallenge($username, $headers);
                     }
-                    catch (\Exception $e)
+                    catch (PIBadRequestException $e)
                     {
                         Utils::handlePrivacyIDEAException($e, $state);
                     }
 
                     if ($response != null)
                     {
-                        $triggered = !empty($response->multiChallenge);
-                        $stateId = Utils::processPIResponse($stateId, $response);
+                        if (!empty($response->getMultiChallenge()))
+                        {
+                            $stateId = Utils::processPIResponse($stateId, $response);
+                        }
                     }
                 }
             }
@@ -153,11 +153,11 @@ class PrivacyideaAuthProc extends ProcessingFilter
                 // This could already end up the authentication if the "passOnNoToken" policy is set.
                 // Otherwise, it triggers the challenges.
                 $response = Utils::authenticatePI($state, array('otp' => $this->authProcConfig['staticPass']), $headers);
-                if (empty($response->multiChallenge) && $response->value)
+                if (empty($response->getMultiChallenge()) && $response->getValue())
                 {
                     ProcessingChain::resumeProcessing($state);
                 }
-                elseif (!empty($response->multiChallenge))
+                elseif (!empty($response->getMultiChallenge()))
                 {
                     $stateId = Utils::processPIResponse($stateId, $response);
                 }
@@ -179,11 +179,12 @@ class PrivacyideaAuthProc extends ProcessingFilter
         $stateId = State::saveState($state, 'privacyidea:privacyidea');
 
         $url = Module::getModuleURL('privacyidea/FormBuilder.php');
-        HTTP::redirectTrustedURL($url, array('stateId' => $stateId));
+        (new HTTP)->redirectTrustedURL($url, array('stateId' => $stateId));
     }
 
     /**
-     * This is the help function to exclude some IP from 2FA. Only if is set in config.
+     * This is the helping function to exclude some IP from MFA. Only if is set in config.
+     *
      * @param string $clientIP
      * @param array $excludeClientIPs
      * @return bool
@@ -217,13 +218,14 @@ class PrivacyideaAuthProc extends ProcessingFilter
     /**
      * This function allows the selective deactivation of privacyIDEA for a list of regular expressions
      * which match SAML service provider entityIDs.
-     * The filter checks the entityID in the SAML request against a list of regular expressions and sets the state variable
-     * $state[enabledPath][enabledKey][0] to false on match, which can be used to disable privacyIDEA.
-     * For any value in excludeEntityIDs, the config parameter includeAttributes may be used to enable privacyIDEA for a subset
-     * of users which have these attribute values (e.g. memberOf).
+     * The filter checks the entityID in the SAML request against a list of regular expressions and sets the state
+     * variable $state[enabledPath][enabledKey][0] to false on match, which can be used to disable the privacyIDEA.
+     * For any value in excludeEntityIDs, the config parameter includeAttributes may be used to enable privacyIDEA for
+     * a subset of users which have these attribute values (e.g. memberOf).
+     *
      * @param array $authProcConfig
      * @param string $stateId
-     * @return string
+     * @return string The state ID with updated state
      * @throws NoState
      */
     private function checkEntityID(array $authProcConfig, string $stateId): string
@@ -302,8 +304,9 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * This is the help function for checkEntityID() and checks a given string against an array with regular expressions.
+     * This is the helping function for checkEntityID() and checks a given string against an array with regular expressions.
      * It will return an array with matches.
+     *
      * @param string $str
      * @param array $reg_arr
      * @return array
@@ -329,7 +332,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * Check if PrivacyIDEA was disabled by a filter.
+     * Check if privacyIDEA was disabled by a filter.
+     *
      * @param array $state The global state of simpleSAMLphp.
      * @param array $config The config for the PrivacyIDEA server.
      * @return boolean Whether PrivacyIDEA is disabled.
@@ -345,7 +349,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * This function allows to show the debug messages from privacyIDEA server
+     * This function allows to show the debug messages from privacyIDEA server.
+     *
      * @param string $message
      */
     public function piDebug(string $message): void
@@ -354,7 +359,8 @@ class PrivacyideaAuthProc extends ProcessingFilter
     }
 
     /**
-     * This function allows to show the debug messages from privacyIDEA server
+     * This function allows to show the debug messages from privacyIDEA server.
+     *
      * @param string $message
      */
     public function piError(string $message): void

@@ -1,4 +1,4 @@
 .idea
-/lib/php-client
+/src/php-client
 vendor
 composer.lock
