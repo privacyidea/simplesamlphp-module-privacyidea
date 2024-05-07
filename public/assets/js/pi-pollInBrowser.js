@@ -8,8 +8,8 @@ window.onload = () =>
         {
             if (typeof (worker) == "undefined")
             {
-                worker = new Worker('../../../js/pi-pollTransaction.worker.js');
-                document.getElementById("pi-form-submit-button").addEventListener('click', function (e)
+                worker = new Worker('assets/js/pi-pollTransaction.worker.js');
+                document.getElementById("submitButton").addEventListener('click', function (e)
                 {
                     worker.terminate();
                     worker = undefined;
@@ -46,7 +46,10 @@ window.onload = () =>
         }
     }
 
-    if (piGetValue("mode") === "push" && piGetValue("pollInBrowser") === true && piGetValue("pollInBrowserFailed") !== true)
+    if (piGetValue("pollInBrowser") === "true"
+        && piGetValue("pollInBrowserFailed") !== true
+        && piGetValue("pollInBrowserUrl").length > 0
+        && piGetValue("transactionID").length > 0)
     {
         pollInBrowser();
     }
