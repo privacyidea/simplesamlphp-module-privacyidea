@@ -3,12 +3,12 @@
 	"name"			: "privacyidea",
 	"description"	: "Authenticate users with multiple factors like OTP against the authentication backend privacyIDEA.",
 	"definition"	: "privacyidea.json",
-	"branch"		: "3.0.0",
+	"branch"		: "4.0.0",
 	"dependencies"	: ["saml"],
 	"access"		: {
 		"zip"		: {
 			"type"		: "zip",
-			"version"	: "3.0.0",
+			"version"	: "4.0.0",
 			"url"		: "privacyidea.zip"
 		}
 	},
