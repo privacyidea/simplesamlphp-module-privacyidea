@@ -69,6 +69,11 @@ else
     $username = '';
 }
 
+if (array_key_exists("errorMessage", $_REQUEST) && !empty($_REQUEST["errorMessage"]))
+{
+    Logger::error("Error message from UI: " . $_REQUEST["errorMessage"]);
+}
+
 $formParams = array(
     "username" => $username,
     "pass" => array_key_exists('password', $_REQUEST) ? $_REQUEST['password'] : "",
@@ -88,6 +93,7 @@ $formParams = array(
     "imageU2F" => array_key_exists('imageU2F', $_REQUEST) ? $_REQUEST['imageU2F'] : "",
     "imageWebauthn" => array_key_exists('imageWebauthn', $_REQUEST) ? $_REQUEST['imageWebauthn'] : "",
     "otpLength" => array_key_exists('otpLength', $_REQUEST) ? $_REQUEST['otpLength'] : "",
+    "pollInBrowserFailed" => array_key_exists('pollInBrowserFailed', $_REQUEST) ? $_REQUEST['pollInBrowserFailed'] : "false",
     "loadCounter" => array_key_exists('loadCounter', $_REQUEST) ? $_REQUEST['loadCounter'] : 1
 );
 
