@@ -16,6 +16,9 @@
 {% set passHint = passFieldHint|default('Password'|trans) %}
 {% set otpHint = otpFieldHint|default('OTP'|trans) %}
 {% set pushAvailable = pushAvailable|default(false) %}
+{% set pollInBrowser = pollInBrowser|default(false) %}
+{% set pollInBrowserUrl = pollInBrowserUrl|default('') %}
+{% set pollInBrowserFailed = pollInBrowserFailed|default(false) %}
 {% set otpAvailable = otpAvailable|default(true) %}
 {% set otpLength = otpLength|default('') %}
 {% set webAuthnSignRequest = webAuthnSignRequest|default('') %}
@@ -33,6 +36,9 @@
 
 {% block preload %}
     <link rel="stylesheet" href="{{ asset('css/pi-main.css', 'privacyidea') }} media='screen'">
+    {% if pollInBrowser is true %}
+    <script src="{{ asset('js/pi-pollInBrowser.js', 'privacyidea') }}"></script>
+    {% endif %}
     <script src="{{ asset('js/pi-webauthn.js', 'privacyidea') }}"></script>
     <script src="{{ asset('js/pi-utils.js', 'privacyidea') }}"></script>
     <script src="{{ asset('js/pi-main.js', 'privacyidea') }}"></script>
@@ -165,6 +171,10 @@
                                                value="{{ loadCounter }}"/>
                                         <input id="otpLength" type="hidden" name="otpLength"
                                                value="{{ otpLength }}"/>
+                                        <input id="pollInBrowserUrl" type="hidden" name="pollInBrowserUrl"
+                                               value="{{ pollInBrowserUrl }}"/>
+                                        <input id="pollInBrowserFailed" type="hidden" name="pollInBrowserFailed"
+                                               value="{{ pollInBrowserFailed }}"/>
 
                                         {# Additional input to persist the message and images #}
                                         <input type="hidden" name="message" value="{{ message }}"/>
