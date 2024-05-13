@@ -2,7 +2,7 @@ window.onload = () =>
 {
     function pollInBrowser()
     {
-        piDisableElement("pushButton");
+        piDisableElement("usePushButton");
         let worker;
         if (typeof (Worker) !== "undefined")
         {
@@ -30,7 +30,7 @@ window.onload = () =>
                             console.log(errorMessage);
                             piSetValue("errorMessage", errorMessage);
                             piSetValue("pollInBrowserFailed", true);
-                            piEnableElement("pushButton");
+                            piEnableElement("usePushButton");
                             worker = undefined;
                     }
                 });
@@ -42,7 +42,7 @@ window.onload = () =>
             worker.terminate();
             piSetValue("errorMessage", "Poll in browser error: No Web Worker support.");
             piSetValue("pollInBrowserFailed", true);
-            piEnableElement("pushButton");
+            piEnableElement("usePushButton");
         }
     }
 
