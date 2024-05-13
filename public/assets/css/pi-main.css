@@ -18,20 +18,20 @@
 
 #username[type=text], #password, #otp {
 	width: 322px;
+	height: 25px;
+	margin-top:15px;
 	text-align: center;
 }
 
-#password, #otp, #submitButton {
+#submitButton {
 	margin-top: 15px;
+	height: 25px;
+	width: 210px;
 }
 
 .message {
 	margin: 40px 50px 60px 50px;
 	text-align: center;
-}
-
-#submitButton {
-	width: 210px;
 }
 
 #AlternateLoginOptions {
@@ -41,6 +41,7 @@
 
 #useWebAuthnButton, #usePushButton, #useOTPButton, #useU2FButton {
 	width: 120px;
+	height: 25px;
 	margin: 15px 10px 7px;
 }
 
