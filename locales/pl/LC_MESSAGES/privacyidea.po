@@ -1,0 +1,47 @@
+msgid "privacyIDEA Authentication"
+msgstr "privacyIDEA Authentication"
+
+msgid "An error occurred"
+msgstr "Wystąpił błąd"
+
+msgid "Please enter your OTP"
+msgstr "Wprowadź jednorasowe hasło"
+
+msgid "Authenticate against privacyIDEA"
+msgstr "Autoryzuj się w privacyIDEA"
+
+msgid "Please enter your username and password"
+msgstr "Wprowadź nazwę użytkownika i hasło"
+
+msgid "Remember username"
+msgstr "Zapamiętaj nazwę użytkownika"
+
+msgid "Remember me"
+msgstr "Zapamiętaj mnie"
+
+msgid "Submit"
+msgstr "Wyślij"
+
+msgid "Password"
+msgstr "Hasło"
+
+msgid "OTP"
+msgstr "Jednorazowe hasło"
+
+msgid "Organization"
+msgstr "Organizacja"
+
+msgid "Alternate login options:"
+msgstr "Alternatywne opcje logowania:"
+
+msgid "Logout"
+msgstr "Wyloguj"
+
+msgid "Unable to proceed with WebAuthn because the context is insecure!"
+msgstr "Nie można kontynuować z WebAuthn, ponieważ kontekst jest niebezpieczny!"
+
+msgid "Could not load WebAuthn library. Please try again or use other token."
+msgstr "Nie można załadować biblioteki WebAuthn. Spróbuj ponownie lub użyj innego tokenu."
+
+msgid "Error while signing WebAuthnSignRequest:"
+msgstr "Błąd podczas podpisywania WebAuthnSignRequest:"

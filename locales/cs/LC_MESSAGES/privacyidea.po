@@ -1,0 +1,47 @@
+msgid "privacyIDEA Authentication"
+msgstr "privacyIDEA Authentication"
+
+msgid "An error occurred"
+msgstr "Došlo k chybě"
+
+msgid "Please enter your OTP"
+msgstr "Vložte jednorázový kód"
+
+msgid "Authenticate against privacyIDEA"
+msgstr "Přihlášení systémem privacyIDEA"
+
+msgid "Please enter your username and password"
+msgstr "Vložte své uživatelské jméno a heslo"
+
+msgid "Remember username"
+msgstr "Nezapomeň na uživatelské jméno"
+
+msgid "Remember me"
+msgstr "Nezapomeň na mě"
+
+msgid "Submit"
+msgstr "Odeslat"
+
+msgid "Password"
+msgstr "Heslo"
+
+msgid "OTP"
+msgstr "Jednorázový kód"
+
+msgid "Organization"
+msgstr "Organizace"
+
+msgid "Alternate login options:"
+msgstr "Další možnosti přihlášení:"
+
+msgid "Logout"
+msgstr "Odhlásit"
+
+msgid "Unable to proceed with WebAuthn because the context is insecure!"
+msgstr "Není možné použít autentizaci WebAuthn, protože neodpovídá bezpečnostní kontext."
+
+msgid "Could not load WebAuthn library. Please try again or use other token."
+msgstr "Načtení WebAuthn knihovny se nezdařilo. Zkuste to znovu nebo použijte jiný token."
+
+msgid "Error while signing WebAuthnSignRequest:"
+msgstr "Chyba při podepisování WebAuthnSignRequest:"
