@@ -119,6 +119,18 @@ class PrivacyideaAuthSource extends UserPassBase
         {
             $state['privacyidea:privacyidea:ui']['passFieldHint'] = $this->authSourceConfig['passFieldHint'];
         }
+        if (!empty($this->authSourceConfig['pollInBrowser']))
+        {
+            $state['privacyidea:privacyidea:ui']['pollInBrowser'] = $this->authSourceConfig['pollInBrowser'];
+        }
+        if (!empty($this->authSourceConfig['pollInBrowserUrl']))
+        {
+            $state['privacyidea:privacyidea:ui']['pollInBrowserUrl'] = $this->authSourceConfig['pollInBrowserUrl'];
+        }
+        if (!empty($this->authSourceConfig['passFieldHint']))
+        {
+            $state['privacyidea:privacyidea:ui']['passFieldHint'] = $this->authSourceConfig['passFieldHint'];
+        }
         if (!empty($this->authSourceConfig['authenticationFlow']))
         {
             $state['privacyidea:privacyidea:ui']['authenticationFlow'] = $this->authSourceConfig['authenticationFlow'];

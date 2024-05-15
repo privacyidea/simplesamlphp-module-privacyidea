@@ -2,46 +2,46 @@ msgid "privacyIDEA Authentication"
 msgstr "privacyIDEA Authentication"
 
 msgid "An error occurred"
-msgstr "An error occurred"
+msgstr "Bir hata oluştu"
 
 msgid "Please enter your OTP"
-msgstr "Please enter your OTP"
+msgstr "Lütfen Tek Kullanımlık Parolanızı(OTP) giriniz"
 
 msgid "Authenticate against privacyIDEA"
-msgstr "Authenticate against privacyIDEA"
+msgstr "PrivacyIDEA kimlik doğrulaması yapın"
 
 msgid "Please enter your username and password"
-msgstr "Please enter your username and password"
+msgstr "Lütfen kullanıcı adınızı ve parolanızı giriniz"
 
 msgid "Remember username"
-msgstr "Remember username"
+msgstr "Kullanıcı adını hatırla"
 
 msgid "Remember me"
-msgstr "Remember me"
+msgstr "Beni hatırla"
 
 msgid "Submit"
-msgstr "Submit"
+msgstr "Gönder"
 
 msgid "Password"
-msgstr "Password"
+msgstr "Parola"
 
 msgid "OTP"
 msgstr "OTP"
 
 msgid "Organization"
-msgstr "Organization"
+msgstr "Organizasyon"
 
 msgid "Alternate login options:"
-msgstr "Alternate login options:"
+msgstr "Alternatif giriş seçenekleri:"
 
 msgid "Logout"
-msgstr "Logout"
+msgstr "Çıkış"
 
 msgid "Unable to proceed with WebAuthn because the context is insecure!"
-msgstr "Unable to proceed with WebAuthn because the context is insecure!"
+msgstr "Web Authn devam edilemiyor çünkü bağlam güvensiz!"
 
 msgid "Could not load WebAuthn library. Please try again or use other token."
-msgstr "Could not load WebAuthn library. Please try again or use other token."
+msgstr "WebAuthn kütüphanesi yüklenemedi. Lütfen tekrar deneyin veya başka bir token kullanın."
 
 msgid "Error while signing WebAuthnSignRequest:"
-msgstr "Error while signing WebAuthnSignRequest:"
+msgstr "WebAuthnSignRequest imzalanırken hata oluştu:"

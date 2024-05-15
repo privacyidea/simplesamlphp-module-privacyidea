@@ -321,8 +321,8 @@ class Utils
 
             $state['privacyidea:privacyidea:ui']['pushAvailable'] = in_array("push", $triggeredTokens);
             $state['privacyidea:privacyidea:ui']['otpAvailable'] = true;
-
             $state['privacyidea:privacyidea:ui']['message'] = $response->getMessages();
+            $state['privacyidea:privacyidea:ui']['transactionID'] = $response->getTransactionID();
 
             if (in_array("webauthn", $triggeredTokens))
             {

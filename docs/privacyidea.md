@@ -102,6 +102,26 @@ The following is a template configuration:
      * Optional.
      */
     'autoSubmitOtpLength' => '',
+    
+    /**
+     * If 'pollInBrowser' option should use a deviating URL, set it here. Otherwise, the general URL will be used.
+     * Required only by 'pollInBrowser'.
+     */
+     //'pollInBrowserUrl' => 'https://your.privacyidea.server',
+    
+    /**
+     * Enable this to do the polling for accepted push requests in the user's browser.
+     * When enabled, the login page does not refresh to confirm the push authentication.
+     * CORS settings for privacyidea can be adjusted in etc/apache2/sites-available/privacyidea.conf.
+     * 
+     * Note: You'll also need to set the connect-src header in your CSP policy to allow connecting to the privacyIDEA
+     * server. This can be done in server or in the simplesamlphp configuration:
+     * /var/simplesamlphp/config/conf.php -> SECURITY CONFIGURATION OPTIONS -> -> headers.security ->
+     * -> Content-Security-Policy -> add: "connect-src 'self' https://your.privacyidea.server"
+     * 
+     * Optional.
+     */
+     'pollInBrowser' => 'false',
 
     /**
      * Configure which headers should be forwarded to the privacyIDEA server.
@@ -112,7 +132,7 @@ The following is a template configuration:
     'forwardHeaders' => 'header1,header2,header3',
 
     /**
-     * Translation from privacyIDEA attribute names to the SAML attribute names. 
+     * Translation from privacyIDEA attribute names to the SAML attribute names.
      * Required.
      */
     'attributemap' => array(

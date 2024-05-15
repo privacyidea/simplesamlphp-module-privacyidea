@@ -2,19 +2,19 @@ msgid "privacyIDEA Authentication"
 msgstr "privacyIDEA Authentication"
 
 msgid "An error occurred"
-msgstr "An error occurred"
+msgstr "Er is een fout opgetreden"
 
 msgid "Please enter your OTP"
-msgstr "Please enter your OTP"
+msgstr "Vul je eenmalige wachtwoord in."
 
 msgid "Authenticate against privacyIDEA"
-msgstr "Authenticate against privacyIDEA"
+msgstr "Authenticeer tegen privacyIDEA"
 
 msgid "Please enter your username and password"
-msgstr "Please enter your username and password"
+msgstr "Vul je gebruikersnaam en wachtwoord in"
 
 msgid "Remember username"
-msgstr "Remember username"
+msgstr "Remember usernam"
 
 msgid "Remember me"
 msgstr "Remember me"
@@ -23,25 +23,25 @@ msgid "Submit"
 msgstr "Submit"
 
 msgid "Password"
-msgstr "Password"
+msgstr "Wachtwoord"
 
 msgid "OTP"
 msgstr "OTP"
 
 msgid "Organization"
-msgstr "Organization"
+msgstr "Organisatie"
 
 msgid "Alternate login options:"
-msgstr "Alternate login options:"
+msgstr "Alternatieve inlogopties:"
 
 msgid "Logout"
-msgstr "Logout"
+msgstr "Uitloggen"
 
 msgid "Unable to proceed with WebAuthn because the context is insecure!"
-msgstr "Unable to proceed with WebAuthn because the context is insecure!"
+msgstr "Kan niet doorgaan met WebAuthn omdat de context onveilig is!"
 
 msgid "Could not load WebAuthn library. Please try again or use other token."
-msgstr "Could not load WebAuthn library. Please try again or use other token."
+msgstr "Kon WebAuthn-bibliotheek niet laden. Probeer het opnieuw of gebruik een ander token."
 
 msgid "Error while signing WebAuthnSignRequest:"
-msgstr "Error while signing WebAuthnSignRequest:"
+msgstr "Fout bij het ondertekenen van WebAuthnSignRequest:"

@@ -12,7 +12,7 @@ function doWebAuthn()
     if (!window.isSecureContext)
     {
         alert(piGetValue("alertWebauthnInsecureContext"));
-        console.log("Insecure context detected: Aborting Web Authn authentication!")
+        console.log("Insecure context detected: Aborting WebAuthn authentication!")
         piChangeMode("otp");
         return;
     }

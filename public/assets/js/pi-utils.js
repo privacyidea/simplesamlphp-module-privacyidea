@@ -32,10 +32,6 @@ window.piDisableElement = function disableElement(id)
     {
         element.style.display = "none";
     }
-    else
-    {
-        console.log(id + " is null!");
-    }
 }
 
 window.piEnableElement = function enableElement(id)
