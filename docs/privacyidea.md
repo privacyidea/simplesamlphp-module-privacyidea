@@ -107,7 +107,7 @@ The following is a template configuration:
      * If 'pollInBrowser' option should use a deviating URL, set it here. Otherwise, the general URL will be used.
      * Required only by 'pollInBrowser'.
      */
-     'pollInBrowserUrl' => 'https://your.privacyidea.server',
+     //'pollInBrowserUrl' => 'https://your.privacyidea.server',
     
     /**
      * Enable this to do the polling for accepted push requests in the user's browser.
