@@ -4,6 +4,7 @@ Version 4.0.0
  * Remove U2F support (#210)
  * Remove old token enrollment function (#210)
  * Feature: Auto-submit after x digits entered (#200)
+ * Feature: Polling for push token confirmation in the browser (#205)
 
 Version 3.0.0 02/2023
  * Simplified the configuration by introducing the Authentication Flow (#164, #166)
