@@ -226,7 +226,7 @@ class Utils
     public static function handleLogout(): void
     {
         Logger::debug("privacyIDEA: Logout handler called. Removing SSO data.");
-        Session::getSessionFromRequest()->deleteData('privacyidea:privacyidea:sso', "2FA-success");
+        Session::getSessionFromRequest()->deleteData('privacyidea:privacyidea', "2FA-success");
     }
 
     /**
